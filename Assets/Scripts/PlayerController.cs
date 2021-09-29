@@ -55,24 +55,17 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Wall Climbing Variables
-    [SerializeField]
-    [Tooltip("The gravity the player experiences when wall climbing.")]
-    private float wallClimbingGravity;
-
-    [SerializeField]
-    [Tooltip("The horizontal velocity applied to the player when jumping from a wall.")]
-    private float xWallJumpVel;
-
-    [SerializeField]
-    [Tooltip("The vertical velocity applied to the player when jumping from a wall.")]
-    private float yWallJumpVel;
 
     [SerializeField]
     [Tooltip("The duration of a single wall jump in the Vector(xWallJumpVel, yWallJumpVel) direction.")]
     private float wallJumpDur;
 
+    [SerializeField]
+    [Tooltip("The speed player glides down a wall.")]
+    private float wallFallSpeed;
+
     // Private Wall Climbing Variables
-    private bool isWallClimbing;
+    private bool isWallJumping;
     #endregion
 
     #region Shooting Variables
@@ -133,23 +126,17 @@ public class PlayerController : MonoBehaviour
     #region Movement Functions
     // Controls the player's movement.
     void Move() {
-        xInput = Input.GetAxisRaw("Horizontal");
-        Debug.Log("Last Direction: " + lastDir.ToString());
-        if (xInput > 0) {
-            lastDir = 1;
-            SwitchAttackPoint();
-        } else if (xInput < 0) {
-            lastDir = -1;
-            SwitchAttackPoint();
-        }
 
-        if (!isDashing) {
+        // Set the current direction of player.
+        setDirection();
+        
+        // Regular movement
+        if (!isDashing && !isWallJumping) {
             playerRB.velocity = new Vector2(xInput * speed, playerRB.velocity.y);
         }
 
         // Tapping the jump button
-        if (Input.GetKeyDown(jumpKey) && (IsGrounded() || jumpCounter > 0) && !isDashing && !isWallClimbing && !IsAgainstWall(lastDir)) {
-            //Debug.Log("Regular Jump from ground.");
+        if (Input.GetKeyDown(jumpKey) && (IsGrounded() || jumpCounter > 0) && !isDashing && !isWallJumping && !IsAgainstWall()) {
             isJumping = true;
             jumpDurTimer = jumpDur;
             playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
@@ -157,9 +144,8 @@ public class PlayerController : MonoBehaviour
         }
 
         // Holding the jump button
-        if (Input.GetKey(jumpKey) && isJumping == true && !isDashing && !isWallClimbing && !IsAgainstWall(lastDir)) {
+        if (Input.GetKey(jumpKey) && isJumping == true && !isDashing && !isWallJumping && !IsAgainstWall()) {
             if (jumpDurTimer > 0) {
-                //Debug.Log("Regular jump in air.");
                 playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
                 jumpDurTimer -= Time.deltaTime;
             } else {
@@ -174,7 +160,7 @@ public class PlayerController : MonoBehaviour
 
         // Tapping the dash button.
         if (Input.GetKeyDown(dashKey) && !isDashing && !isJumping && (dashCounter > 0 || IsGrounded())) {
-            StartCoroutine(Dash(lastDir));
+            StartCoroutine(Dash());
         }
 
         // Sneaking
@@ -187,32 +173,43 @@ public class PlayerController : MonoBehaviour
             speed = moveSpeed;
         }
 
-        // Wall Climbing
-        if (!isDashing && IsAgainstWall(lastDir)) {
-            playerRB.gravityScale = wallClimbingGravity;
+        // Wall Jumping
+        if (!isDashing && IsAgainstWall()) {
+            playerRB.velocity = new Vector2(0f, -1f * wallFallSpeed);
             if (Input.GetKeyDown(jumpKey)) {
-                isWallClimbing = true;
-                Invoke("SetWallClimbingFalse", wallJumpDur);
+                isWallJumping = true;
+                Invoke("SetWallJumpingFalse", wallJumpDur);
             }
-        } else if (!isDashing) {
-            playerRB.gravityScale = gravity;
         }
 
-        if (isWallClimbing) {
-            playerRB.velocity = new Vector2(-lastDir * xWallJumpVel, yWallJumpVel);
+        if (isWallJumping) {
+            playerRB.velocity = new Vector2(-lastDir * moveSpeed, jumpVel);
         }
     }
 
-    private void SetWallClimbingFalse() {
-        isWallClimbing = false;
+    // Sets the variable: lastDir based on the xInput of the player.
+    private void setDirection() {
+        xInput = Input.GetAxisRaw("Horizontal");
+        if (xInput > 0 && !isWallJumping) {
+            lastDir = 1;
+            SwitchAttackPoint();
+        } else if (xInput < 0 && !isWallJumping) {
+            lastDir = -1;
+            SwitchAttackPoint();
+        }
+    }
+
+    // Sets Wall Climbing to Flase
+    private void SetWallJumpingFalse() {
+        isWallJumping = false;
     }
 
     // Controls the dashing process.
-    IEnumerator Dash(float dir) {
+    IEnumerator Dash() {
         isDashing = true;
         dashCounter -= 1;
         playerRB.velocity = new Vector2(playerRB.velocity.x, 0f);
-        playerRB.AddForce(new Vector2(dashDist * dir, 0f), ForceMode2D.Impulse);
+        playerRB.AddForce(new Vector2(dashDist * lastDir, 0f), ForceMode2D.Impulse);
         playerRB.gravityScale = 0;
         yield return new WaitForSeconds(dashDur);
         playerRB.gravityScale = gravity;
@@ -223,7 +220,6 @@ public class PlayerController : MonoBehaviour
     private bool IsGrounded() {
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.down, 0.1f, platformLayerMask);
         bool onGround = raycastHit2D.collider != null;
-        //Debug.Log("Touching ground");
         if (onGround) {
             jumpCounter = 2;
             dashCounter = 1;
@@ -231,17 +227,11 @@ public class PlayerController : MonoBehaviour
         return onGround;
     }
 
-
-    // TODO: Make the wall jump the same consistency as a long jump
-    // If the directions is still on the wall have a second jump in the opposite direction
-
-
-
-    // Determines if the player is jumping against a wall.
-    private bool IsAgainstWall(float dir) {
+    // Returns if the player is jumping against a wall.
+    private bool IsAgainstWall() {
         RaycastHit2D raycastHit2D;
         string side;
-        if (dir == 1) {
+        if (lastDir == 1) {
            raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.right, 0.1f, platformLayerMask);
            side = "right";
         } else {
@@ -273,6 +263,7 @@ public class PlayerController : MonoBehaviour
         return lastFire + fireRate <= Time.time;
     }
 
+    // Switches the attack point gameObject of the player based on direction.
     private void SwitchAttackPoint() {
         Vector3 pos = firePoint.transform.position;
         if (lastDir == -1) {
