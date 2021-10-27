@@ -85,6 +85,11 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The speed a shuriken flies through the air.")]
     private float shurikenSpeed;
 
+    [SerializeField]
+    [Tooltip("The delay of spawning the shuriken.")]
+    private float spawnDelay;
+
+
     // Shooting private variables
     private KeyCode fireKey = KeyCode.Space;
     private float lastFire;
@@ -100,6 +105,11 @@ public class PlayerController : MonoBehaviour
     private float speed;
     #endregion
 
+    #region Animator Private Variables
+    private Animator playerAnim;
+    private SpriteRenderer playerSprite;
+    #endregion
+
 /**********************************************************************************/
 
     #region Initializing Functions
@@ -108,9 +118,11 @@ public class PlayerController : MonoBehaviour
     {
         playerRB = GetComponent<Rigidbody2D>();
         boxCollider2D = GetComponent<BoxCollider2D>();
+        playerAnim = GetComponent<Animator>();
+        playerSprite = GetComponent<SpriteRenderer>();
         speed = moveSpeed;
         gravity = playerRB.gravityScale;
-        firePointDist = 0.5f;
+        firePointDist = 1.0f;
     }
     #endregion
 
@@ -120,6 +132,7 @@ public class PlayerController : MonoBehaviour
     {
         Move();
         Shoot();
+        UpdateSprite();
     }
     #endregion
 
@@ -251,16 +264,29 @@ public class PlayerController : MonoBehaviour
     #region Shooting Functions
     // Firing
     private void Shoot() {
-        if (Input.GetKey(fireKey) && CanFire()) {
-            GameObject shuriken = Object.Instantiate(shurikenPrefab, firePoint.transform.position, Quaternion.identity);
-            Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
-            rb.velocity = new Vector2(lastDir * shurikenSpeed, 0);
-            lastFire = Time.time;
+        if (Input.GetKeyDown(fireKey) && CanFire()) {
+            //Invoke("SpawnShuriken", spawnDelay);
+            StartCoroutine("SpawnShuriken");
         }
     }
 
     private bool CanFire() {
         return lastFire + fireRate <= Time.time;
+    }
+
+    // private void SpawnShuriken() {
+    //     GameObject shuriken = Object.Instantiate(shurikenPrefab, firePoint.transform.position, Quaternion.identity);
+    //     Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
+    //     rb.velocity = new Vector2(lastDir * shurikenSpeed, 0);
+    //     lastFire = Time.time;
+    // }
+
+    private IEnumerator SpawnShuriken() {
+        yield return new WaitForSeconds(spawnDelay);
+        GameObject shuriken = Object.Instantiate(shurikenPrefab, firePoint.transform.position, Quaternion.identity);
+        Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
+        rb.velocity = new Vector2(lastDir * shurikenSpeed, 0);
+        lastFire = Time.time;
     }
 
     // Switches the attack point gameObject of the player based on direction.
@@ -272,6 +298,59 @@ public class PlayerController : MonoBehaviour
             pos.x = this.transform.position.x + firePointDist;
         }
         firePoint.transform.position = pos;
+    }
+    #endregion
+
+    #region Sprite Rendering Functions
+    private void UpdateSprite() {
+        if (playerRB.velocity.x > 0) {
+            playerSprite.flipX = false;
+            playerAnim.SetBool("isMoving", true);
+        } else if (playerRB.velocity.x < 0) {
+            playerSprite.flipX = true;
+            playerAnim.SetBool("isMoving", true);
+        } else {
+            playerAnim.SetBool("isMoving", false);
+        }
+
+        if (playerRB.velocity.y > 0) {
+            playerAnim.SetBool("isJumping", true);
+        } else {
+            playerAnim.SetBool("isJumping", false);
+        }
+        
+        if (playerRB.velocity.y < 0) {
+            playerAnim.SetBool("isFalling", true);
+        } else {
+            playerAnim.SetBool("isFalling", false);
+        }
+
+        if (IsGrounded()) {
+            playerAnim.SetBool("isGrounded", true);
+        } else {
+            playerAnim.SetBool("isGrounded", false);
+        }
+
+        if (IsAgainstWall()) {
+            playerAnim.SetBool("isWallClimbing", true);
+        } else {
+            playerAnim.SetBool("isWallClimbing", false);
+        }
+
+        if (Input.GetKeyDown(fireKey) && CanFire()) {
+            playerAnim.SetBool("isThrowing", true);
+            Invoke("SetIsThrowingFalse", 0.1f);
+        }
+
+        if (isDashing) {
+            playerAnim.SetBool("isDashing", true);
+        } else {
+            playerAnim.SetBool("isDashing", false);
+        }
+    }
+
+    private void SetIsThrowingFalse() {
+        playerAnim.SetBool("isThrowing", false);
     }
     #endregion
 
