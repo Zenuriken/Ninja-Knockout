@@ -133,6 +133,7 @@ public class PlayerController : MonoBehaviour
         Move();
         Shoot();
         UpdateSprite();
+        Debug.Log("Y velocity: " + playerRB.velocity.y.ToString());
     }
     #endregion
 
@@ -339,7 +340,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(fireKey) && CanFire()) {
             playerAnim.SetBool("isThrowing", true);
-            Invoke("SetIsThrowingFalse", 0.1f);
+            Invoke("SetIsThrowingFalse", 0.5f);
         }
 
         if (isDashing) {
