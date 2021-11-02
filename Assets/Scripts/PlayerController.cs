@@ -96,6 +96,11 @@ public class PlayerController : MonoBehaviour
     private float firePointDist;
     #endregion
 
+    #region Melee Functions
+    private KeyCode meleeKey = KeyCode.X;
+    private float meleeSpeed;
+    #endregion
+
     #region General Private Variables
     private Rigidbody2D playerRB;
     private BoxCollider2D boxCollider2D;
@@ -133,7 +138,6 @@ public class PlayerController : MonoBehaviour
         Move();
         Shoot();
         UpdateSprite();
-        Debug.Log("Y velocity: " + playerRB.velocity.y.ToString());
     }
     #endregion
 
@@ -282,6 +286,16 @@ public class PlayerController : MonoBehaviour
     //     lastFire = Time.time;
     // }
 
+    // private void Melee() {
+    //     if (Input.GetKeyDown(meleeKey) && CanFire()) {
+    //         StartCoroutine("StartMelee");
+    //     }
+    // }
+
+    // private IEnumerable StartMelee() {
+    
+    // }
+
     private IEnumerator SpawnShuriken() {
         yield return new WaitForSeconds(spawnDelay);
         GameObject shuriken = Object.Instantiate(shurikenPrefab, firePoint.transform.position, Quaternion.identity);
@@ -343,6 +357,11 @@ public class PlayerController : MonoBehaviour
             Invoke("SetIsThrowingFalse", 0.5f);
         }
 
+        if (Input.GetKeyDown(meleeKey) && CanFire()) {
+            playerAnim.SetBool("isMeleeing", true);
+            Invoke("SetIsMeleeingFalse", 0.5f);
+        }
+
         if (isDashing) {
             playerAnim.SetBool("isDashing", true);
         } else {
@@ -352,6 +371,10 @@ public class PlayerController : MonoBehaviour
 
     private void SetIsThrowingFalse() {
         playerAnim.SetBool("isThrowing", false);
+    }
+
+    private void SetIsMeleeingFalse() {
+        playerAnim.SetBool("isMeleeing", false);
     }
     #endregion
 
