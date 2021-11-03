@@ -189,6 +189,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.DownArrow)) {
             speed = moveSpeed;
+            isSneaking = false;
         }
 
         // Wall Jumping
@@ -366,6 +367,18 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("isDashing", true);
         } else {
             playerAnim.SetBool("isDashing", false);
+        }
+
+        if (isWallJumping) {
+            playerAnim.SetBool("isWallJumping", true);
+        } else {
+            playerAnim.SetBool("isWallJumping", false);
+        }
+
+        if (isSneaking) {
+            playerAnim.SetBool("isSneaking", true);
+        } else {
+            playerAnim.SetBool("isSneaking", false);
         }
     }
 
