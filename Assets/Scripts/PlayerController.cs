@@ -177,7 +177,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // Tapping the dash button.
-        if (Input.GetKeyDown(dashKey) && !isDashing && !isJumping && (dashCounter > 0 || IsGrounded())) {
+        if (Input.GetKeyDown(dashKey) && !isDashing && !isJumping && !isWallJumping && (dashCounter > 0 || IsGrounded())) {
             StartCoroutine(Dash());
         }
 
