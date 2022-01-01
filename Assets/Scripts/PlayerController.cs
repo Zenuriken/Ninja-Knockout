@@ -8,6 +8,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     [Tooltip("The moveSpeed of the player.")]
     private float moveSpeed;
+    
+    [SerializeField]
+    [Tooltip("The max speed the player can fall.")]
+    private float maxFallSpeed;
     #endregion
 
     #region Jump Variables
@@ -138,6 +142,7 @@ public class PlayerController : MonoBehaviour
         Move();
         Shoot();
         UpdateSprite();
+        
     }
     #endregion
 
@@ -147,6 +152,9 @@ public class PlayerController : MonoBehaviour
 
         // Set the current direction of player.
         setDirection();
+
+        // Limits the velocity when falling
+        playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
         
         // Regular movement
         if (!isDashing && !isWallJumping) {

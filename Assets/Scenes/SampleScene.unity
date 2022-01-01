@@ -3235,12 +3235,12 @@ PrefabInstance:
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.57
+      value: 43.62
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -7.86
+      value: 50.81
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
@@ -3281,6 +3281,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
+      propertyPath: maxFallSpeed
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969652, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
@@ -3404,12 +3409,12 @@ PrefabInstance:
     - target: {fileID: 7168849093136311656, guid: 848915b10cdd22f48b993cff580ba208,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 43.05
       objectReference: {fileID: 0}
     - target: {fileID: 7168849093136311656, guid: 848915b10cdd22f48b993cff580ba208,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 58.670002
       objectReference: {fileID: 0}
     - target: {fileID: 7168849093136311656, guid: 848915b10cdd22f48b993cff580ba208,
         type: 3}
@@ -3455,6 +3460,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Main Camera
+      objectReference: {fileID: 0}
+    - target: {fileID: 7168849093136311702, guid: 848915b10cdd22f48b993cff580ba208,
+        type: 3}
+      propertyPath: speedX
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7168849093136311702, guid: 848915b10cdd22f48b993cff580ba208,
+        type: 3}
+      propertyPath: speedY
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7168849093136311702, guid: 848915b10cdd22f48b993cff580ba208,
+        type: 3}
+      propertyPath: smoothTime
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 7168849093136311703, guid: 848915b10cdd22f48b993cff580ba208,
         type: 3}
