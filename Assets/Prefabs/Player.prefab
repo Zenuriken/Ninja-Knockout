@@ -9,14 +9,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9091569698724930873}
-  - component: {fileID: 5555687820903182535}
+  - component: {fileID: 1571373817522755893}
   m_Layer: 0
   m_Name: Melee Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &9091569698724930873
 Transform:
   m_ObjectHideFlags: 0
@@ -31,7 +31,7 @@ Transform:
   m_Father: {fileID: 5612327972322969648}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!60 &5555687820903182535
+--- !u!60 &1571373817522755893
 PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,7 +41,7 @@ PolygonCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -56,13 +56,35 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -0.2806721, y: 1.68736}
-      - {x: 0.23998837, y: -1.1154789}
-      - {x: 0.48135334, y: -1.3699726}
-      - {x: 0.52445024, y: -0.880486}
-      - {x: 0.5433569, y: -0.4171523}
-      - {x: 0.5274651, y: 0.06114775}
-      - {x: -0.12331009, y: 1.7734021}
+    - - {x: 0.5487764, y: 1.0793433}
+      - {x: 0.46906063, y: 1.4086814}
+      - {x: 0.3821224, y: 1.6599555}
+      - {x: 0.2784453, y: 1.873689}
+      - {x: 0.1690309, y: 2.0275512}
+      - {x: 0.026985168, y: 2.1352844}
+      - {x: -0.100860186, y: 2.1648498}
+      - {x: -0.18072341, y: 2.1441817}
+      - {x: -0.23290423, y: 2.109718}
+      - {x: -0.24162506, y: 2.0733275}
+      - {x: -0.12645045, y: 2.007749}
+      - {x: -0.040966906, y: 1.9106497}
+      - {x: 0.023710012, y: 1.8064742}
+      - {x: 0.093927145, y: 1.6436706}
+      - {x: 0.16133285, y: 1.4180312}
+      - {x: 0.21352807, y: 1.1762366}
+      - {x: 0.2586038, y: 0.8735023}
+      - {x: 0.28269106, y: 0.5770203}
+      - {x: 0.28826305, y: 0.1574532}
+      - {x: 0.26982534, y: -0.21286994}
+      - {x: 0.2286686, y: -0.5548537}
+      - {x: 0.17801197, y: -0.80315995}
+      - {x: 0.11294292, y: -1.0468673}
+      - {x: 0.6194041, y: -1.4537312}
+      - {x: 0.6772388, y: -0.77289414}
+      - {x: 0.6833143, y: -0.38882664}
+      - {x: 0.6756087, y: -0.012388546}
+      - {x: 0.64704174, y: 0.39213336}
+      - {x: 0.60025185, y: 0.7785567}
 --- !u!1 &5612327972322969652
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,7 +163,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: baa4d66dbfe5dd640b8e87ab68dc78a3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 94bcc91c5cc4194468c830964663422a, type: 3}
   m_Color: {r: 0.8980393, g: 0.8980393, b: 0.8980393, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -212,6 +234,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 10
+  maxFallSpeed: 25
   platformLayerMask:
     serializedVersion: 2
     m_Bits: 256
