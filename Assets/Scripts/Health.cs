@@ -30,7 +30,7 @@ public class Health : MonoBehaviour
         //Debug.Log("Player health: " + currHealth.ToString() + "  Ignore layer collision: " + Physics2D.GetIgnoreLayerCollision(7, 9));
         if (damaged) {
             float t = (Time.time - startTime) / duration;
-            playerSprite.color = new Color(1f, 1f, 1f, Mathf.SmoothStep(minimum, maximum, t)); 
+            playerSprite.color = new Color(1f, 1f, 1f, Mathf.SmoothStep(maximum, minimum, t)); 
         }
        
     }
