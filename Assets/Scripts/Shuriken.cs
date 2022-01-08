@@ -16,6 +16,21 @@ public class Shuriken : MonoBehaviour
         playerScript = player.GetComponent<PlayerController>();
     }
 
+    // When the shuriken hits an enemy
+    private void OnTriggerEnter2D(Collider2D other) {
+        if (other.gameObject.tag == "Enemy") {
+            EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
+            if (!enemyScript.IsAlerted()) {
+                enemyScript.TakeDmg(5);
+            } else {
+                enemyScript.TakeDmg(1);
+            }
+        }
+        if (other.gameObject.tag == "Enemy" || other.gameObject.tag == "Platform") {
+            Destroy(this.gameObject);
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {

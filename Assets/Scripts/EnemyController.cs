@@ -7,14 +7,21 @@ public class EnemyController : MonoBehaviour
     private GameObject player;
     private PlayerController playerScript;
     // Detecting the player
-    public GameObject unalertedSight;
-    public GameObject alertedSight; 
-    private float lastDir;
+    private PolygonCollider2D unalertedSight;
+    private PolygonCollider2D alertedSight; 
     private bool isAlerted;
     private bool playerDetected;
+
+    private Melee meleeScript;
+    private BoxCollider2D enemyCollider;
+    private int enemyHealth;
     // Attacking the player
     public float attackSpeed;
     public float dmg;
+
+    public float destroyDelay;
+
+    private bool hasDied;
 
     
     // Start is called before the first frame update
@@ -22,35 +29,48 @@ public class EnemyController : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player");
         playerScript = player.GetComponent<PlayerController>();
+        meleeScript = player.transform.GetChild(1).GetComponent<Melee>();
+        unalertedSight = this.transform.GetChild(0).GetComponent<PolygonCollider2D>();
+        alertedSight = this.transform.GetChild(1).GetComponent<PolygonCollider2D>();
+        enemyCollider = this.GetComponent<BoxCollider2D>();
+        isAlerted = false;
+        enemyHealth = 5;
+        hasDied = false;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        FindPlayer();
-        Move();
-    }
-
-    // Controls the movement of the enemy
-    private void Move() {
-        // if (alerted) {
-        //     // Move towards the player
-        // } else {
-        //     // Idle movement
-
-        // }
-    }
-
-
-    // Returns if the player is within detection range.
-    private bool FindPlayer() {
-        return false;
-    }
-
-    private void OnCollisionStay2D(Collision2D other) {
-        if (other.gameObject.CompareTag("Player")) {
-            // Damage the player
+    // Returns whether or not an enemy is alerted to the player's presence.
+    private void OnTriggerEnter2D(Collider2D other) {
+        if (other.gameObject.tag == "Player" && other.IsTouching(unalertedSight)) {
+            Debug.Log("Alerted!");
+            isAlerted = true;
         }
+    }
+
+    // Returns if enemy is in alerted state.
+    public bool IsAlerted() {
+        return isAlerted;
+    }
+
+    // Reduces the enemy's health by dmg.
+    public void TakeDmg(int dmg) {
+        enemyHealth -= dmg;
+        if (enemyHealth <= 0) {
+            Invoke("DestroyEnemy", destroyDelay);
+        }
+    }
+
+    private void DestroyEnemy() {
+        meleeScript.RemoveFromList(enemyCollider);
+        Destroy(this.gameObject);
+    }
+
+    // Returns the enemy's current health.
+    public int GetHealth() {
+        return this.enemyHealth;
+    }
+    
+    public bool HasDied() {
+        return this.hasDied;
     }
 
 

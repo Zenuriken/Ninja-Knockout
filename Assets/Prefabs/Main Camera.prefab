@@ -97,7 +97,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 7168849093136311703}
-  speedX: 10
-  speedY: 10
   xThreshold: 0.1
   yThreshold: 0.3
+  smoothTime: 0.2

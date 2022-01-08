@@ -8,29 +8,35 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 9091569698724930873}
+  - component: {fileID: 7618300674168063723}
   - component: {fileID: 1571373817522755893}
-  m_Layer: 0
+  - component: {fileID: 544868010}
+  m_Layer: 7
   m_Name: Melee Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &9091569698724930873
-Transform:
+--- !u!224 &7618300674168063723
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1013895035141517319}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.23, y: -0.14, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 3, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5612327972322969648}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.23, y: -0.14}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!60 &1571373817522755893
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -85,6 +91,18 @@ PolygonCollider2D:
       - {x: 0.6756087, y: -0.012388546}
       - {x: 0.64704174, y: 0.39213336}
       - {x: 0.60025185, y: 0.7785567}
+--- !u!114 &544868010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013895035141517319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52880bc7b8923494fbb49eb5ac1ac7c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5612327972322969652
 GameObject:
   m_ObjectHideFlags: 0
@@ -99,7 +117,8 @@ GameObject:
   - component: {fileID: 5612327972322969653}
   - component: {fileID: 5612327972322969649}
   - component: {fileID: 5612327972787155568}
-  m_Layer: 0
+  - component: {fileID: 363391692}
+  m_Layer: 7
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -118,7 +137,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5612327972528906647}
-  - {fileID: 9091569698724930873}
+  - {fileID: 7618300674168063723}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -245,8 +264,7 @@ MonoBehaviour:
   sneakSpeed: 5
   wallJumpDur: 0.2
   wallFallSpeed: 2
-  fireRate: 0.5
-  firePoint: {fileID: 5612327972528906646}
+  attackRate: 0.5
   shurikenPrefab: {fileID: 2571422860314671873, guid: 76bf74555c3057b46b266b4b34c4e68a,
     type: 3}
   shurikenSpeed: 20
@@ -270,6 +288,20 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &363391692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5612327972322969652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d89b4cdbb37c15441ae5e678eb51bbe8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 5
+  bufferDur: 5
 --- !u!1 &5612327972528906646
 GameObject:
   m_ObjectHideFlags: 0
@@ -279,7 +311,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5612327972528906647}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Fire Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
@@ -74,12 +75,8 @@ public class PlayerController : MonoBehaviour
 
     #region Shooting Variables
     [SerializeField]
-    [Tooltip("The shuriken fire rate.")]
-    private float fireRate;
-
-    [SerializeField]
-    [Tooltip("The fire point of the shuriken.")]
-    private GameObject firePoint;
+    [Tooltip("The attack rate.")]
+    private float attackRate;
 
     [SerializeField]
     [Tooltip("The shuriken prefab.")]
@@ -96,20 +93,30 @@ public class PlayerController : MonoBehaviour
 
     // Shooting private variables
     private KeyCode fireKey = KeyCode.Space;
-    private float lastFire;
+    private float lastAttack;
+    private bool isAttacking;
+    private GameObject firePoint;
     private float firePointDist;
+    private int numShurikens;
+    private TMP_Text shurikenTxt;
     #endregion
 
     #region Melee Functions
+    // Melee private variables
+    private GameObject meleePoint;
+    private RectTransform meleePointRectTrans;
+    private float meleePointDist;
     private KeyCode meleeKey = KeyCode.X;
     private float meleeSpeed;
+    private Melee meleeScript;
+    private int lastMeleeDir;
     #endregion
 
     #region General Private Variables
     private Rigidbody2D playerRB;
     private BoxCollider2D boxCollider2D;
     private float xInput;
-    private float lastDir;
+    private int lastDir;
     private float gravity;
     private float speed;
     #endregion
@@ -129,9 +136,19 @@ public class PlayerController : MonoBehaviour
         boxCollider2D = GetComponent<BoxCollider2D>();
         playerAnim = GetComponent<Animator>();
         playerSprite = GetComponent<SpriteRenderer>();
+        shurikenTxt = GameObject.Find("Shurikens").GetComponent<TMP_Text>();
+        firePoint = this.transform.GetChild(0).gameObject;
+        meleePoint = this.transform.GetChild(1).gameObject;
+        meleePointRectTrans = meleePoint.GetComponent<RectTransform>();
+        meleeScript = meleePoint.GetComponent<Melee>();
+        //meleeCollider.enabled = false;
         speed = moveSpeed;
+        lastDir = 1;
+        lastMeleeDir = 1;
         gravity = playerRB.gravityScale;
         firePointDist = 1.0f;
+        meleePointDist = 0.23f;
+        numShurikens = 5;
     }
     #endregion
 
@@ -140,7 +157,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         Move();
-        Shoot();
+        Attack();
         UpdateSprite();
         
     }
@@ -157,7 +174,7 @@ public class PlayerController : MonoBehaviour
         playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
         
         // Regular movement
-        if (!isDashing && !isWallJumping) {
+        if (!isDashing && !isWallJumping && !isAttacking) {
             playerRB.velocity = new Vector2(xInput * speed, playerRB.velocity.y);
         }
 
@@ -277,51 +294,52 @@ public class PlayerController : MonoBehaviour
 
     #region Shooting Functions
     // Firing
-    private void Shoot() {
-        if (Input.GetKeyDown(fireKey) && CanFire()) {
-            //Invoke("SpawnShuriken", spawnDelay);
+    private void Attack() {
+        if (Input.GetKeyDown(fireKey) && CanAttack() && numShurikens > 0) {
             StartCoroutine("SpawnShuriken");
+        } else if (Input.GetKeyDown(meleeKey) && CanAttack()) {
+            List<Collider2D> enemyColliders = meleeScript.GetEnemyColliders();
+            foreach (Collider2D collider in enemyColliders) {
+                EnemyController enemy = collider.gameObject.GetComponent<EnemyController>();
+                if (enemy.IsAlerted()) {
+                    enemy.TakeDmg(1);
+                } else {
+                    enemy.TakeDmg(5);
+                }
+                Debug.Log("Enemy health: " + enemy.GetHealth());
+            }
         }
     }
 
-    private bool CanFire() {
-        return lastFire + fireRate <= Time.time;
+    public bool CanAttack() {
+        return lastAttack + attackRate <= Time.time;
     }
-
-    // private void SpawnShuriken() {
-    //     GameObject shuriken = Object.Instantiate(shurikenPrefab, firePoint.transform.position, Quaternion.identity);
-    //     Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
-    //     rb.velocity = new Vector2(lastDir * shurikenSpeed, 0);
-    //     lastFire = Time.time;
-    // }
-
-    // private void Melee() {
-    //     if (Input.GetKeyDown(meleeKey) && CanFire()) {
-    //         StartCoroutine("StartMelee");
-    //     }
-    // }
-
-    // private IEnumerable StartMelee() {
-    
-    // }
 
     private IEnumerator SpawnShuriken() {
         yield return new WaitForSeconds(spawnDelay);
         GameObject shuriken = Object.Instantiate(shurikenPrefab, firePoint.transform.position, Quaternion.identity);
         Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
         rb.velocity = new Vector2(lastDir * shurikenSpeed, 0);
-        lastFire = Time.time;
+        //lastAttack = Time.time;
     }
 
     // Switches the attack point gameObject of the player based on direction.
     private void SwitchAttackPoint() {
-        Vector3 pos = firePoint.transform.position;
+        Vector3 firePos = firePoint.transform.position;
+        Vector3 meleePos = meleePoint.transform.position;
         if (lastDir == -1) {
-            pos.x = this.transform.position.x - firePointDist;
+            firePos.x = this.transform.position.x - firePointDist;
+            meleePos.x = this.transform.position.x - meleePointDist;
         } else {
-            pos.x = this.transform.position.x + firePointDist;
+            firePos.x = this.transform.position.x + firePointDist;
+            meleePos.x = this.transform.position.x + meleePointDist;
         }
-        firePoint.transform.position = pos;
+        if (lastDir != lastMeleeDir) {
+            meleePointRectTrans.Rotate(new Vector3(0, 180, 0), Space.Self);
+            lastMeleeDir = lastDir;
+        }
+        firePoint.transform.position = firePos;
+        meleePoint.transform.position = meleePos;
     }
     #endregion
 
@@ -361,13 +379,19 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("isWallClimbing", false);
         }
 
-        if (Input.GetKeyDown(fireKey) && CanFire()) {
+        if (Input.GetKeyDown(fireKey) && CanAttack() && numShurikens > 0) {
+            isAttacking = true;
             playerAnim.SetBool("isThrowing", true);
+            lastAttack = Time.time;
+            numShurikens -= 1;
+            shurikenTxt.text = "Shurikens: " + numShurikens.ToString();
             Invoke("SetIsThrowingFalse", 0.5f);
         }
 
-        if (Input.GetKeyDown(meleeKey) && CanFire()) {
+        if (Input.GetKeyDown(meleeKey) && CanAttack()) {
+            isAttacking = true;
             playerAnim.SetBool("isMeleeing", true);
+            lastAttack = Time.time;
             Invoke("SetIsMeleeingFalse", 0.5f);
         }
 
@@ -392,10 +416,12 @@ public class PlayerController : MonoBehaviour
 
     private void SetIsThrowingFalse() {
         playerAnim.SetBool("isThrowing", false);
+        isAttacking = false;
     }
 
     private void SetIsMeleeingFalse() {
         playerAnim.SetBool("isMeleeing", false);
+        isAttacking = false;
     }
     #endregion
 
