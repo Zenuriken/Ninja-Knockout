@@ -119,6 +119,7 @@ public class PlayerController : MonoBehaviour
     private int lastDir;
     private float gravity;
     private float speed;
+    private bool isStunned;
     #endregion
 
     #region Animator Private Variables
@@ -149,6 +150,7 @@ public class PlayerController : MonoBehaviour
         firePointDist = 1.0f;
         meleePointDist = 0.23f;
         numShurikens = 5;
+        isStunned = false;
     }
     #endregion
 
@@ -173,61 +175,63 @@ public class PlayerController : MonoBehaviour
         // Limits the velocity when falling
         playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
         
-        // Regular movement
-        if (!isDashing && !isWallJumping && !isAttacking) {
-            playerRB.velocity = new Vector2(xInput * speed, playerRB.velocity.y);
-        }
+        if (!isStunned) {
+            // Regular movement
+            if (!isDashing && !isWallJumping && !isAttacking) {
+                playerRB.velocity = new Vector2(xInput * speed, playerRB.velocity.y);
+            }
 
-        // Tapping the jump button
-        if (Input.GetKeyDown(jumpKey) && (IsGrounded() || jumpCounter > 0) && !isDashing && !isWallJumping && !IsAgainstWall()) {
-            isJumping = true;
-            jumpDurTimer = jumpDur;
-            playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
-            jumpCounter -= 1;
-        }
-
-        // Holding the jump button
-        if (Input.GetKey(jumpKey) && isJumping == true && !isDashing && !isWallJumping && !IsAgainstWall()) {
-            if (jumpDurTimer > 0) {
+            // Tapping the jump button
+            if (Input.GetKeyDown(jumpKey) && (IsGrounded() || jumpCounter > 0) && !isDashing && !isWallJumping && !IsAgainstWall()) {
+                isJumping = true;
+                jumpDurTimer = jumpDur;
                 playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
-                jumpDurTimer -= Time.deltaTime;
-            } else {
+                jumpCounter -= 1;
+            }
+
+            // Holding the jump button
+            if (Input.GetKey(jumpKey) && isJumping == true && !isDashing && !isWallJumping && !IsAgainstWall()) {
+                if (jumpDurTimer > 0) {
+                    playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
+                    jumpDurTimer -= Time.deltaTime;
+                } else {
+                    isJumping = false;
+                }
+            }
+
+            // Releasing the jump button
+            if (Input.GetKeyUp(jumpKey)) {
                 isJumping = false;
             }
-        }
 
-        // Releasing the jump button
-        if (Input.GetKeyUp(jumpKey)) {
-            isJumping = false;
-        }
-
-        // Tapping the dash button.
-        if (Input.GetKeyDown(dashKey) && !isDashing && !isJumping && !isWallJumping && (dashCounter > 0 || IsGrounded())) {
-            StartCoroutine(Dash());
-        }
-
-        // Sneaking
-        if (Input.GetKeyDown(KeyCode.DownArrow) && IsGrounded()) {
-            isSneaking = true;
-            speed = sneakSpeed;
-        }
-
-        if (Input.GetKeyUp(KeyCode.DownArrow)) {
-            speed = moveSpeed;
-            isSneaking = false;
-        }
-
-        // Wall Jumping
-        if (!isDashing && IsAgainstWall()) {
-            playerRB.velocity = new Vector2(0f, -1f * wallFallSpeed);
-            if (Input.GetKeyDown(jumpKey)) {
-                isWallJumping = true;
-                Invoke("SetWallJumpingFalse", wallJumpDur);
+            // Tapping the dash button.
+            if (Input.GetKeyDown(dashKey) && !isDashing && !isJumping && !isWallJumping && (dashCounter > 0 || IsGrounded())) {
+                StartCoroutine(Dash());
             }
-        }
 
-        if (isWallJumping) {
-            playerRB.velocity = new Vector2(-lastDir * moveSpeed, jumpVel);
+            // Sneaking
+            if (Input.GetKeyDown(KeyCode.DownArrow) && IsGrounded()) {
+                isSneaking = true;
+                speed = sneakSpeed;
+            }
+
+            if (Input.GetKeyUp(KeyCode.DownArrow)) {
+                speed = moveSpeed;
+                isSneaking = false;
+            }
+
+            // Wall Jumping
+            if (!isDashing && IsAgainstWall()) {
+                playerRB.velocity = new Vector2(0f, -1f * wallFallSpeed);
+                if (Input.GetKeyDown(jumpKey)) {
+                    isWallJumping = true;
+                    Invoke("SetWallJumpingFalse", wallJumpDur);
+                }
+            }
+
+            if (isWallJumping) {
+                playerRB.velocity = new Vector2(-lastDir * moveSpeed, jumpVel);
+            }
         }
     }
 
@@ -250,14 +254,16 @@ public class PlayerController : MonoBehaviour
 
     // Controls the dashing process.
     IEnumerator Dash() {
-        isDashing = true;
-        dashCounter -= 1;
-        playerRB.velocity = new Vector2(playerRB.velocity.x, 0f);
-        playerRB.AddForce(new Vector2(dashDist * lastDir, 0f), ForceMode2D.Impulse);
-        playerRB.gravityScale = 0;
-        yield return new WaitForSeconds(dashDur);
-        playerRB.gravityScale = gravity;
-        isDashing = false;
+        if (!isStunned) {
+            isDashing = true;
+            dashCounter -= 1;
+            playerRB.velocity = new Vector2(playerRB.velocity.x, 0f);
+            playerRB.AddForce(new Vector2(dashDist * lastDir, 0f), ForceMode2D.Impulse);
+            playerRB.gravityScale = 0;
+            yield return new WaitForSeconds(dashDur);
+            playerRB.gravityScale = gravity;
+            isDashing = false;
+        }
     }
 
     // Determines if the player is standing on ground.
@@ -312,7 +318,7 @@ public class PlayerController : MonoBehaviour
     }
 
     public bool CanAttack() {
-        return lastAttack + attackRate <= Time.time;
+        return (lastAttack + attackRate <= Time.time) && !isStunned;
     }
 
     private IEnumerator SpawnShuriken() {
@@ -428,6 +434,10 @@ public class PlayerController : MonoBehaviour
     #region Public Functions
     public float getPlayerDir() {
         return lastDir;
+    }
+
+    public void SetStunned(bool state) {
+        isStunned = state;
     }
     #endregion
 }
