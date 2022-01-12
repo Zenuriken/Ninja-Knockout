@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Shuriken : MonoBehaviour
 {
-    
+    //private float lastDir;
     public float spinSpeed;
     private GameObject player;
     private PlayerController playerScript;
@@ -14,6 +14,12 @@ public class Shuriken : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player");
         playerScript = player.GetComponent<PlayerController>();
+        // lastDir = playerScript.getPlayerDir();
+        // if (lastDir == -1) {
+        //     this.transform.Rotate(0, 0, spinSpeed); 
+        // } else {
+        //    this.transform.Rotate(0, 0, -spinSpeed);   
+        // } 
     }
 
     // When the shuriken hits an enemy
@@ -34,11 +40,11 @@ public class Shuriken : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float lastDir = playerScript.getPlayerDir();
-        if (lastDir == -1) {
-            this.transform.Rotate(0, 0, spinSpeed); 
-        } else {
-           this.transform.Rotate(0, 0, -spinSpeed);   
-        }  
+        // float lastDir = playerScript.getPlayerDir();
+        // if (lastDir == -1) {
+        //     this.transform.Rotate(0, 0, spinSpeed); 
+        // } else {
+        //    this.transform.Rotate(0, 0, -spinSpeed);   
+        // }  
     }
 }

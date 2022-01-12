@@ -90,6 +90,14 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The delay of spawning the shuriken.")]
     private float spawnDelay;
 
+    [SerializeField]
+    [Tooltip("The number of shurikens player spawns with.")]
+    private float numShurikens;
+
+    [SerializeField]
+    [Tooltip("The spin speed of shuriken.")]
+    private float spinSpeed;
+
 
     // Shooting private variables
     private KeyCode fireKey = KeyCode.Space;
@@ -97,7 +105,6 @@ public class PlayerController : MonoBehaviour
     private bool isAttacking;
     private GameObject firePoint;
     private float firePointDist;
-    private int numShurikens;
     private TMP_Text shurikenTxt;
     #endregion
 
@@ -149,7 +156,7 @@ public class PlayerController : MonoBehaviour
         gravity = playerRB.gravityScale;
         firePointDist = 1.0f;
         meleePointDist = 0.23f;
-        numShurikens = 5;
+        //numShurikens = 5;
         isStunned = false;
     }
     #endregion
@@ -325,8 +332,13 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(spawnDelay);
         GameObject shuriken = Object.Instantiate(shurikenPrefab, firePoint.transform.position, Quaternion.identity);
         Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
+        if (lastDir == -1) {
+           rb.AddTorque(spinSpeed);
+        } else {
+           rb.AddTorque(-spinSpeed);  
+        }  
         rb.velocity = new Vector2(lastDir * shurikenSpeed, 0);
-        //lastAttack = Time.time;
+
     }
 
     // Switches the attack point gameObject of the player based on direction.
