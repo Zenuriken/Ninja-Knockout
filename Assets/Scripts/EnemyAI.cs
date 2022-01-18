@@ -24,22 +24,24 @@ public class EnemyAI : MonoBehaviour
 
     private Path path;
     private int currentWaypoint = 0;
-    private bool isGrounded = false;
+    //private bool isGrounded = false;
     Seeker seeker;
     Rigidbody2D rb;
 
+    private BoxCollider2D boxCollider2D;
+    public LayerMask platformLayerMask;
+
     // Start is called before the first frame update
-    void Start()
-    {
+    private void Start() {
        seeker = GetComponent<Seeker>();
        rb = GetComponent<Rigidbody2D>();
+       boxCollider2D = GetComponent<BoxCollider2D>();
 
        InvokeRepeating("UpdatePath", 0f, pathUpdateSeconds);
     }
 
     // Update is called once per frame
-    void FixedUpdate()
-    {
+    private void Update() {
         if (TargetInDistance() && followEnabled) {
             PathFollow();
         }
@@ -61,21 +63,25 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
+
         // See if colliding with anything
-        isGrounded = Physics2D.Raycast(transform.position, -Vector3.up, GetComponent<Collider2D>().bounds.extents.y + jumpCheckOffset);
+        // Determines if the player is standing on ground.
+        // isGrounded = Physics2D.Raycast(transform.position, -Vector3.up, GetComponent<Collider2D>().bounds.extents.y + jumpCheckOffset);
+        // Debug.Log("Enemy is grounded");
         // Direction Calculation
         Vector2 direction = ((Vector2) path.vectorPath[currentWaypoint] - rb.position).normalized;
         Vector2 force = direction * speed * Time.deltaTime;
         
         // Jump
-        if (jumpEnabled && isGrounded) {
+        if (jumpEnabled && IsGrounded()) {
             if (direction.y > jumpNodeHeightRequirement) {
-                rb.AddForce(Vector2.up * speed * jumpModifier);
+                rb.AddForce(Vector2.up * jumpModifier);
             }
         }
 
         // Movement
-        rb.AddForce(force);
+        //rb.AddForce(force);
+        rb.velocity = new Vector2(direction.x * speed, rb.velocity.y);
 
         // Next Waypoint
         float distance = Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]);
@@ -86,9 +92,9 @@ public class EnemyAI : MonoBehaviour
         // Direction Graphics Handling
         if (directionLookEnabled) {
             if (rb.velocity.x > 0.05f) {
-                transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-            } else if (rb.velocity.x < -0.05f) {
                 transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            } else if (rb.velocity.x < -0.05f) {
+                transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             }
         }
     }
@@ -98,10 +104,16 @@ public class EnemyAI : MonoBehaviour
         return Vector3.Distance(transform.position, target.transform.position) < activateDistance;
     }
 
-    void OnPathComplete(Path p) {
+    private void OnPathComplete(Path p) {
         if (!p.error) {
             path = p;
             currentWaypoint = 0;
         }
+    }
+
+    private bool IsGrounded() {
+        RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.down, 0.1f, platformLayerMask);
+        bool onGround = raycastHit2D.collider != null;
+        return onGround;
     }
 }

@@ -102,7 +102,7 @@ public class PlayerController : MonoBehaviour
     // Shooting private variables
     private KeyCode fireKey = KeyCode.Space;
     private float lastAttack;
-    private bool isAttacking;
+    private bool isAttacking = false;
     private GameObject firePoint;
     private float firePointDist;
     private TMP_Text shurikenTxt;
@@ -245,10 +245,10 @@ public class PlayerController : MonoBehaviour
     // Sets the variable: lastDir based on the xInput of the player.
     private void setDirection() {
         xInput = Input.GetAxisRaw("Horizontal");
-        if (xInput > 0 && !isWallJumping) {
+        if (xInput > 0 && !isWallJumping && !isAttacking) {
             lastDir = 1;
             SwitchAttackPoint();
-        } else if (xInput < 0 && !isWallJumping) {
+        } else if (xInput < 0 && !isWallJumping && !isAttacking) {
             lastDir = -1;
             SwitchAttackPoint();
         }
@@ -363,11 +363,13 @@ public class PlayerController : MonoBehaviour
 
     #region Sprite Rendering Functions
     private void UpdateSprite() {
-        if (playerRB.velocity.x > 0) {
+        if (lastDir == 1) {
             playerSprite.flipX = false;
-            playerAnim.SetBool("isMoving", true);
-        } else if (playerRB.velocity.x < 0) {
+        } else if (lastDir == -1) {
             playerSprite.flipX = true;
+        }
+
+        if (Mathf.Abs(playerRB.velocity.x) > 0) {
             playerAnim.SetBool("isMoving", true);
         } else {
             playerAnim.SetBool("isMoving", false);

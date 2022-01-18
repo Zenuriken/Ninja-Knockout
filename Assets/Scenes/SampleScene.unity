@@ -144,14 +144,17 @@ MonoBehaviour:
   target: {fileID: 640572872}
   activateDistance: 50
   pathUpdateSeconds: 0.5
-  speed: 200
-  nextWaypointDistance: 3
+  speed: 10
+  nextWaypointDistance: 1
   jumpNodeHeightRequirement: 0.8
-  jumpModifier: 0.3
+  jumpModifier: 500
   jumpCheckOffset: 0.1
   followEnabled: 1
   jumpEnabled: 1
   directionLookEnabled: 1
+  platformLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!114 &25251864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -774,7 +777,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1
   data:
-    dataString: UEsDBBQAAAgIAACAn+tf3i0UXQIAABkFAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQFlVMty2jAU/RVG66ZjPJCE7logpIsEJrSTjTdCusYaZMmjB8/h33sl29ihK8S5r3OOrnwhQtkKmNNmYQR/0xzIjwEJZ/Jt0AVf4Ui3Wq3FGdqcT8FdEZJozPmgTmjEh6HM6hKcEeyn2sqQnCDolci1Ked8C1NtnUU4p9IChox2oVohdBmQI/48TELJCU/pUzid8TRJBlc8MlAOTC81+T5ucptjSK5zvWKSlhXwQLwrGbfNx3WaQklNRt2BaSmFbRgRd6qi4nVVgIEgmQuKAiOLoLcAsS1cINuvXea5BdeoN/Q0EwZ9qpuSX7o2r6R2VxPbU+nDmHT8GEnVTd/+iz8MYzg3unxt5w6TMMMVgu0+6IlR63ru9uHZV+JeHajc0Y2EzwLUu14Y7RXHoDM+lHoL6az7e5M2LYDtOrymegf6qjO89bu9yqDhGtUfp1KUm2j8qAbWUke74waAwav5jYTjftimBaKBxV8Lf+i2v0hN4EUY6zDUqFSB3kZ7E1LJPHoW1Hg31UZBhBvSFSgq3WmFbdz9Fd7FemPvIi80PJlmeBNrX8JdSYS7/CS5C6304XZZttCHN7DF0jspFHSkQ+AdfZpqpeoN63vSlq29ySnrlW294F9XizwO2RPNGXtOh5vJYz56GKX0OQWYjPgzZxuWkLh7QqFOKlc10cYevDXVNVe4Z+2XZLAwtIrbzg09LMS51D3Lhcr1mhkAtaw73IiDwSH4LPmcCzRoDc4JFe+bXDIiNdsBz26Nsqh0fnSGZl2XjFRir11AMjKNn46MBPi2yysDewGHMLxtdiXXf1BLAwQUAAAICAAAgJ/ryl/OIm0AAAB4AAAACQAkAG1ldGEuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAatWKkstKs7Mz1OyUjDRM9IzNNdRUEovSizIKAaKGII4pZkpIHa0kplhsnliWnKyhZFhkqVZmomuiVGihVFqqqVJikVKclKygVIsUH1JZUGqX2JuKkRPQGJJRlpmXkpmXrqee1FmijvIaKXYWgBQSwECLQAUAAAICAAAgJ/rX94tFF0CAAAZBQAACwAkAAAAAAAAAAAAAAAAAAAAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQFQSwECLQAUAAAICAAAgJ/ryl/OIm0AAAB4AAAACQAkAAAAAAAAAAAAAACqAgAAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0BUEsFBgAAAAACAAIAuAAAAGIDAAAAAA==
+    dataString: UEsDBBQAAAgIAACAn+uPyTAeXwIAABkFAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQFlVE2P2jAQ/SvI51KFCFjorQWW7YEFLV3tJRdjT4iFY0e2w6f47x07CUnpKZM3X2/eTHIjQtkCmNNmaQRfaQ7kR494m3zrtc43ONO9VltxhSbmS3CX+SAaYj6oExrxgU+zOgdnBPup9tIHRwiWSqTa5Au+h5m2ziKcUmkBXUY7n60QuvXIGR/9qU+5oBW/eOuK1jTq3dFkoByYTmj0fVTH1qYPrmJLxSTNC+CeeJsyaoqPqjCFI9URVQWmpRS2ZkTcpQgTb4sMDPiRuaA4YGAxxNcMxD5znmw3d52mFlw9vaGXuTCoU1WU/NKVeDm1h4rYkcrSt4lH40CqKrr6z98fBHdqdP7W9B1EvofLBDt80Auj1nXU7cLzlvgg6HOi8kB3Er4yUO96aXSpODqdKX1qaSGet6+P0WYZsEOLV1SfwLJoBW/0blbpZ7iH6c8zKfJdEH5YAVupg9zhAsDgan4j4XAfti6BqGfxaeEP3XcPqXa8CmMduuoplae306XxoWQRNPPTlG6mjYIA16QLUFS6ywbLuOcVPvk6bZ88r9R/MnXz2td8CU8pAW7jo+jJtdGnx7Jspk8rsNm6dFIoaEl7xzvqNNNKVRfW1aRJ25YmpayTti8F//e0yHjAXmjK2CQe7KbjdNgfxnQSA0yHfMLZjkUk3J5QOCeVm4poLQ9uTbXFFd5Z8yfpLQ0twrVzQ09Lcc11R3KhUr1lBkCtqwoP4mCwCX6WfMEFCrQF54QK+ya3hEjNDsCTR6EkTLo4O0OTtkpCCnHUziMJmYVfR0I8/LjljYGjgJNv3hS7k/tfUEsDBBQAAAgIAACAn+vKX84ibQAAAHgAAAAJACQAbWV0YS5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0Bq1YqSy0qzszPU7JSMNEz0jM011FQSi9KLMgoBooYgjilmSkgdrSSmWGyeWJacrKFkWGSpVmaia6JUaKFUWqqpUmKRUpyUrKBUixQfUllQapfYm4qRE9AYklGWmZeSmZeup57UWaKO8hopdhaAFBLAQItABQAAAgIAACAn+uPyTAeXwIAABkFAAALACQAAAAAAAAAAAAAAAAAAABncmFwaDAuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAVBLAQItABQAAAgIAACAn+vKX84ibQAAAHgAAAAJACQAAAAAAAAAAAAAAKwCAABtZXRhLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQFQSwUGAAAAAAIAAgC4AAAAZAMAAAAA
     upgradeData: 
     file_cachedStartup: {fileID: 0}
     data_cachedStartup: 
@@ -3440,6 +3443,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 6371837796901407288, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6371837796901407429, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
       propertyPath: m_Color.b
@@ -3457,8 +3465,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6371837796901407430, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
+      propertyPath: m_AngularDrag
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 6371837796901407430, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+        type: 3}
       propertyPath: m_Constraints
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6371837796901407430, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+        type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6371837796901407430, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+        type: 3}
+      propertyPath: m_GravityScale
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 6371837797275581661, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
@@ -3663,6 +3686,10 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 363391692, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
+      propertyPath: maxHealth
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 363391692, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
       propertyPath: stunDuration
       value: 0.5
       objectReference: {fileID: 0}
@@ -3723,6 +3750,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
+      propertyPath: moveSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
       propertyPath: spinSpeed
       value: 1000
       objectReference: {fileID: 0}
@@ -3735,6 +3767,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5612327972322969654, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
+      propertyPath: m_BodyType
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
