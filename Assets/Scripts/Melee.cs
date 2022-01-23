@@ -6,6 +6,7 @@ public class Melee : MonoBehaviour
 {
     private PolygonCollider2D meleeCollider;
     private List<Collider2D> enemyColliders;
+    private List<Collider2D> projectileColliders;
     
 
     // Start is called before the first frame update
@@ -13,13 +14,18 @@ public class Melee : MonoBehaviour
     {
         meleeCollider = this.GetComponent<PolygonCollider2D>();
         enemyColliders = new List<Collider2D>();
+        projectileColliders = new List<Collider2D>();
     }
 
-    // When the melee attack hits an enemy
+    // When the melee attack hits an enemy or projectile
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.tag == "Enemy") {
             if (!enemyColliders.Contains(other)) {
                 enemyColliders.Add(other);
+            }
+        } else if (other.gameObject.tag == "Projectile") {
+            if (!projectileColliders.Contains(other)) {
+                projectileColliders.Add(other);
             }
         }
     }
@@ -27,6 +33,8 @@ public class Melee : MonoBehaviour
     private void OnTriggerExit2D(Collider2D other) {
         if (other.gameObject.tag == "Enemy") {
             enemyColliders.Remove(other);
+        } else if (other.gameObject.tag == "Projectile") {
+            projectileColliders.Remove(other);
         }
     }
 
@@ -49,5 +57,10 @@ public class Melee : MonoBehaviour
     // Returns the list of enemy colliders the melee will contact with.
     public List<Collider2D> GetEnemyColliders() {
         return enemyColliders;
+    }
+
+    // Returns the list of projectile colliders the melee will contact with.
+    public List<Collider2D> GetProjectileColliders() {
+        return projectileColliders;
     }
 }

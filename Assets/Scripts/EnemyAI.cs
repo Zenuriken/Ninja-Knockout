@@ -14,6 +14,7 @@ public class EnemyAI : MonoBehaviour
     public float speed = 200f;
     public float nextWaypointDistance = 3f;
     public float jumpNodeHeightRequirement = 0.8f;
+    public float jumpNodeWidthRequirement = 0.2f;
     public float jumpModifier = 0.3f;
     public float jumpCheckOffset = 0.1f;
 
@@ -21,6 +22,8 @@ public class EnemyAI : MonoBehaviour
     public bool followEnabled = true;
     public bool jumpEnabled = true;
     public bool directionLookEnabled = true;
+
+    private Rigidbody2D targetRb;
 
     private Path path;
     private int currentWaypoint = 0;
@@ -36,6 +39,7 @@ public class EnemyAI : MonoBehaviour
        seeker = GetComponent<Seeker>();
        rb = GetComponent<Rigidbody2D>();
        boxCollider2D = GetComponent<BoxCollider2D>();
+       targetRb = target.gameObject.GetComponent<Rigidbody2D>();
 
        InvokeRepeating("UpdatePath", 0f, pathUpdateSeconds);
     }
@@ -60,6 +64,7 @@ public class EnemyAI : MonoBehaviour
 
         // Reached end of path.
         if (currentWaypoint >= path.vectorPath.Count) {
+            Debug.Log("Reached end of path");
             return;
         }
 
@@ -70,12 +75,14 @@ public class EnemyAI : MonoBehaviour
         // Debug.Log("Enemy is grounded");
         // Direction Calculation
         Vector2 direction = ((Vector2) path.vectorPath[currentWaypoint] - rb.position).normalized;
+        Debug.Log("DirectionX: " + direction.x + "   DirectionY: " + direction.y);
         Vector2 force = direction * speed * Time.deltaTime;
         
         // Jump
         if (jumpEnabled && IsGrounded()) {
-            if (direction.y > jumpNodeHeightRequirement) {
+            if (target.position.y - 1f > rb.transform.position.y && targetRb.velocity.y == 0 && path.vectorPath.Count < 20) {
                 rb.AddForce(Vector2.up * jumpModifier);
+                //rb.MovePosition(new Vector3(rb.position.x, target.position.y + 5f));
             }
         }
 

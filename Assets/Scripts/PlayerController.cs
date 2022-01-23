@@ -41,13 +41,19 @@ public class PlayerController : MonoBehaviour
     private float dashDur;
 
     [SerializeField]
+    [Tooltip("The delay between dashes.")]
+    private float dashDelay;
+
+    [SerializeField]
     [Tooltip("The distance of a dash (Uses a coroutine).")]
     private float dashDist;
 
     // Private Dash Variables
     private KeyCode dashKey = KeyCode.C;
-    private float dashCounter;
+    private int dashCounter;
     private bool isDashing;
+    private float lastDash = 0;
+
     #endregion
 
     #region Sneaking Variables
@@ -168,7 +174,6 @@ public class PlayerController : MonoBehaviour
         Move();
         Attack();
         UpdateSprite();
-        
     }
     #endregion
 
@@ -212,7 +217,8 @@ public class PlayerController : MonoBehaviour
             }
 
             // Tapping the dash button.
-            if (Input.GetKeyDown(dashKey) && !isDashing && !isJumping && !isWallJumping && (dashCounter > 0 || IsGrounded())) {
+            if (Input.GetKeyDown(dashKey) && !isDashing && !isJumping && !isWallJumping && (dashCounter > 0 || IsGrounded()) && CanDash()) {
+                lastDash = Time.time;
                 StartCoroutine(Dash());
             }
 
@@ -245,10 +251,10 @@ public class PlayerController : MonoBehaviour
     // Sets the variable: lastDir based on the xInput of the player.
     private void setDirection() {
         xInput = Input.GetAxisRaw("Horizontal");
-        if (xInput > 0 && !isWallJumping && !isAttacking) {
+        if (xInput > 0 && !isWallJumping && !isAttacking && !isDashing) {
             lastDir = 1;
             SwitchAttackPoint();
-        } else if (xInput < 0 && !isWallJumping && !isAttacking) {
+        } else if (xInput < 0 && !isWallJumping && !isAttacking && !isDashing) {
             lastDir = -1;
             SwitchAttackPoint();
         }
@@ -264,13 +270,19 @@ public class PlayerController : MonoBehaviour
         if (!isStunned) {
             isDashing = true;
             dashCounter -= 1;
+            playerRB.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
             playerRB.velocity = new Vector2(playerRB.velocity.x, 0f);
             playerRB.AddForce(new Vector2(dashDist * lastDir, 0f), ForceMode2D.Impulse);
             playerRB.gravityScale = 0;
             yield return new WaitForSeconds(dashDur);
             playerRB.gravityScale = gravity;
+            playerRB.constraints = RigidbodyConstraints2D.FreezeRotation;
             isDashing = false;
         }
+    }
+
+    public bool CanDash() {
+        return (lastDash + dashDelay <= Time.time) && !isStunned;
     }
 
     // Determines if the player is standing on ground.
@@ -308,7 +320,7 @@ public class PlayerController : MonoBehaviour
     #region Shooting Functions
     // Firing
     private void Attack() {
-        if (Input.GetKeyDown(fireKey) && CanAttack() && numShurikens > 0) {
+        if (Input.GetKeyDown(fireKey) && CanAttack() && numShurikens > 0 && !isDashing) {
             StartCoroutine("SpawnShuriken");
         } else if (Input.GetKeyDown(meleeKey) && CanAttack()) {
             List<Collider2D> enemyColliders = meleeScript.GetEnemyColliders();
@@ -321,6 +333,18 @@ public class PlayerController : MonoBehaviour
                 }
                 Debug.Log("Enemy health: " + enemy.GetHealth());
             }
+
+            // List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
+            // foreach (Collider2D collider in projectileColliders) {
+            //     EnemyController enemy = collider.gameObject.GetComponent<EnemyController>();
+            //     if (enemy.IsAlerted()) {
+            //         enemy.TakeDmg(1);
+            //     } else {
+            //         enemy.TakeDmg(5);
+            //     }
+            //     Debug.Log("Enemy health: " + enemy.GetHealth());
+            // }
+
         }
     }
 
@@ -333,9 +357,9 @@ public class PlayerController : MonoBehaviour
         GameObject shuriken = Object.Instantiate(shurikenPrefab, firePoint.transform.position, Quaternion.identity);
         Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
         if (lastDir == -1) {
-           rb.AddTorque(spinSpeed);
+            rb.AddTorque(spinSpeed);
         } else {
-           rb.AddTorque(-spinSpeed);  
+            rb.AddTorque(-spinSpeed);  
         }  
         rb.velocity = new Vector2(lastDir * shurikenSpeed, 0);
 
@@ -399,7 +423,7 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("isWallClimbing", false);
         }
 
-        if (Input.GetKeyDown(fireKey) && CanAttack() && numShurikens > 0) {
+        if (Input.GetKeyDown(fireKey) && CanAttack() && numShurikens > 0 && !isDashing) {
             isAttacking = true;
             playerAnim.SetBool("isThrowing", true);
             lastAttack = Time.time;
@@ -446,7 +470,7 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Public Functions
-    public float getPlayerDir() {
+    public int GetPlayerDir() {
         return lastDir;
     }
 

@@ -4,23 +4,27 @@ using UnityEngine;
 
 public class Shuriken : MonoBehaviour
 {
-    //private float lastDir;
-    public float spinSpeed;
-    private GameObject player;
+    public float shurikenSpeed = 20;
+    public float spinSpeed = 1000;
+    private Rigidbody2D rb;
+    private int throwDir;
     private PlayerController playerScript;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        player = GameObject.FindGameObjectWithTag("Player");
-        playerScript = player.GetComponent<PlayerController>();
-        // lastDir = playerScript.getPlayerDir();
-        // if (lastDir == -1) {
-        //     this.transform.Rotate(0, 0, spinSpeed); 
-        // } else {
-        //    this.transform.Rotate(0, 0, -spinSpeed);   
-        // } 
-    }
+    // private void Awake()
+    // {
+    //     rb = this.GetComponent<Rigidbody2D>();
+    //     playerScript = GameObject.Find("Player").GetComponent<PlayerController>();
+    //     throwDir = playerScript.GetPlayerDir();
+    // }
+
+    // private void Start() {
+    //     if (throwDir == -1) {
+    //         rb.AddTorque(spinSpeed);
+    //     } else {
+    //         rb.AddTorque(-spinSpeed);  
+    //     }  
+    //     rb.velocity = new Vector2(throwDir * shurikenSpeed, 0);
+    // }
 
     // When the shuriken hits an enemy
     private void OnTriggerEnter2D(Collider2D other) {
@@ -37,14 +41,8 @@ public class Shuriken : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        // float lastDir = playerScript.getPlayerDir();
-        // if (lastDir == -1) {
-        //     this.transform.Rotate(0, 0, spinSpeed); 
-        // } else {
-        //    this.transform.Rotate(0, 0, -spinSpeed);   
-        // }  
+    // Sets the shuriken's velocity direction
+    public void SetThrowDir(int dir) {
+        throwDir = dir;
     }
 }
