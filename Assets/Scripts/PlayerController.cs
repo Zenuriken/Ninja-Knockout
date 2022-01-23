@@ -331,20 +331,15 @@ public class PlayerController : MonoBehaviour
                 } else {
                     enemy.TakeDmg(5);
                 }
-                Debug.Log("Enemy health: " + enemy.GetHealth());
+                //Debug.Log("Enemy health: " + enemy.GetHealth());
             }
 
-            // List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
-            // foreach (Collider2D collider in projectileColliders) {
-            //     EnemyController enemy = collider.gameObject.GetComponent<EnemyController>();
-            //     if (enemy.IsAlerted()) {
-            //         enemy.TakeDmg(1);
-            //     } else {
-            //         enemy.TakeDmg(5);
-            //     }
-            //     Debug.Log("Enemy health: " + enemy.GetHealth());
-            // }
-
+            List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
+            foreach (Collider2D collider in projectileColliders) {
+                Shuriken shuriken = collider.gameObject.GetComponent<Shuriken>();
+                Debug.Log("Shuriken Deflected: " + Time.time);
+                shuriken.Deflected();
+            }
         }
     }
 
@@ -355,7 +350,9 @@ public class PlayerController : MonoBehaviour
     private IEnumerator SpawnShuriken() {
         yield return new WaitForSeconds(spawnDelay);
         GameObject shuriken = Object.Instantiate(shurikenPrefab, firePoint.transform.position, Quaternion.identity);
+        Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
         Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
+        shurikenScript.SetShurikenDir(lastDir);
         if (lastDir == -1) {
             rb.AddTorque(spinSpeed);
         } else {

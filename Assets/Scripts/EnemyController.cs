@@ -41,7 +41,7 @@ public class EnemyController : MonoBehaviour
     // Returns whether or not an enemy is alerted to the player's presence.
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.tag == "Player" && other.IsTouching(unalertedSight)) {
-            Debug.Log("Alerted!");
+            //Debug.Log("Alerted!");
             isAlerted = true;
         }
     }
@@ -60,7 +60,7 @@ public class EnemyController : MonoBehaviour
     }
 
     private void DestroyEnemy() {
-        meleeScript.RemoveFromList(enemyCollider);
+        meleeScript.RemoveEnemyFromList(enemyCollider);
         Destroy(this.gameObject);
     }
 

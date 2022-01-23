@@ -25,6 +25,7 @@ public class Melee : MonoBehaviour
             }
         } else if (other.gameObject.tag == "Projectile") {
             if (!projectileColliders.Contains(other)) {
+                Debug.Log("Shuriken entered: " + Time.time);
                 projectileColliders.Add(other);
             }
         }
@@ -35,6 +36,7 @@ public class Melee : MonoBehaviour
             enemyColliders.Remove(other);
         } else if (other.gameObject.tag == "Projectile") {
             projectileColliders.Remove(other);
+            Debug.Log("Shuriken exited: " + Time.time);
         }
     }
 
@@ -50,8 +52,15 @@ public class Melee : MonoBehaviour
     }
 
     // Removes an enemy from the list of enemy colliders upon death
-    public void RemoveFromList(Collider2D enemyCollider) {
+    public void RemoveEnemyFromList(Collider2D enemyCollider) {
         enemyColliders.Remove(enemyCollider);
+    }
+
+    // Removes an enemy from the list of projectile colliders upon destruction
+    public void RemoveProjFromList(Collider2D projCollider) {
+        if (projectileColliders.Contains(projCollider)) {
+            projectileColliders.Remove(projCollider);
+        }
     }
 
     // Returns the list of enemy colliders the melee will contact with.

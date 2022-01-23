@@ -119,7 +119,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 124c797de2b9a43488a70016524eaef6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shurikenSpeed: 20
   spinSpeed: 4
+  destroyDelay: 0.0001
 --- !u!58 &8747422646029415666
 CircleCollider2D:
   m_ObjectHideFlags: 0
