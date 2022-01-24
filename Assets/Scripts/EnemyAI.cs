@@ -75,7 +75,7 @@ public class EnemyAI : MonoBehaviour
         // Debug.Log("Enemy is grounded");
         // Direction Calculation
         Vector2 direction = ((Vector2) path.vectorPath[currentWaypoint] - rb.position).normalized;
-        Debug.Log("DirectionX: " + direction.x + "   DirectionY: " + direction.y);
+        //Debug.Log("DirectionX: " + direction.x + "   DirectionY: " + direction.y);
         Vector2 force = direction * speed * Time.deltaTime;
         
         // Jump

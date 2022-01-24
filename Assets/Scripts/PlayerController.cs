@@ -116,6 +116,7 @@ public class PlayerController : MonoBehaviour
 
     #region Melee Functions
     // Melee private variables
+    private bool meleeActive;
     private GameObject meleePoint;
     private RectTransform meleePointRectTrans;
     private float meleePointDist;
@@ -123,6 +124,8 @@ public class PlayerController : MonoBehaviour
     private float meleeSpeed;
     private Melee meleeScript;
     private int lastMeleeDir;
+
+    private static int meleeCounter;
     #endregion
 
     #region General Private Variables
@@ -164,6 +167,8 @@ public class PlayerController : MonoBehaviour
         meleePointDist = 0.23f;
         //numShurikens = 5;
         isStunned = false;
+        meleeActive = false;
+        meleeCounter = 0;
     }
     #endregion
 
@@ -323,15 +328,25 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(fireKey) && CanAttack() && numShurikens > 0 && !isDashing) {
             StartCoroutine("SpawnShuriken");
         } else if (Input.GetKeyDown(meleeKey) && CanAttack()) {
+            meleeActive = true;
+            meleeCounter += 1;
+            Invoke("SetMeleeActiveFalse", 0.18f);
+
+        }
+
+        if (meleeActive) {
             List<Collider2D> enemyColliders = meleeScript.GetEnemyColliders();
             foreach (Collider2D collider in enemyColliders) {
                 EnemyController enemy = collider.gameObject.GetComponent<EnemyController>();
-                if (enemy.IsAlerted()) {
-                    enemy.TakeDmg(1);
-                } else {
-                    enemy.TakeDmg(5);
+                if (!enemy.HasBeenDamaged(meleeCounter)) {
+                    if (enemy.IsAlerted()) {
+                        enemy.TakeDmg(1);
+                    } else {
+                        enemy.TakeDmg(5);
+                    }
+                    enemy.SetDamagedCounter(meleeCounter);
                 }
-                //Debug.Log("Enemy health: " + enemy.GetHealth());
+                Debug.Log("Enemy health: " + enemy.GetHealth());
             }
 
             List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
@@ -341,6 +356,10 @@ public class PlayerController : MonoBehaviour
                 shuriken.Deflected();
             }
         }
+    }
+
+    private void SetMeleeActiveFalse() {
+        meleeActive = false;
     }
 
     public bool CanAttack() {

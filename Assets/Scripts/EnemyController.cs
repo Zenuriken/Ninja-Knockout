@@ -23,6 +23,9 @@ public class EnemyController : MonoBehaviour
 
     private bool hasDied;
 
+    // The player's meleeCounter that damaged the enemy
+    private int damageCounter;
+
     
     // Start is called before the first frame update
     void Start()
@@ -71,6 +74,16 @@ public class EnemyController : MonoBehaviour
     
     public bool HasDied() {
         return this.hasDied;
+    }
+
+    // Assigns the player's melee counter to the enemy after being damaged.
+    public void SetDamagedCounter(int counter) {
+        this.damageCounter = counter;
+    }
+
+    // Checks to see if enemy has already been damaged by player's current meleeCounter.
+    public bool HasBeenDamaged(int counter) {
+        return this.damageCounter == counter;
     }
 
 
