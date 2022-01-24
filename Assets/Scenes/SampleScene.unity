@@ -136,7 +136,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 25251858}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4ecd10671f758af459cab36d035798d0, type: 3}
   m_Name: 
@@ -841,6 +841,11 @@ PrefabInstance:
       propertyPath: numShurikens
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
+      propertyPath: shurikenSpeed
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969652, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_Name
@@ -859,7 +864,7 @@ PrefabInstance:
     - target: {fileID: 5612327972322969655, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_FlipX
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
@@ -3810,6 +3815,11 @@ PrefabInstance:
       propertyPath: stunDuration
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 1013895035141517319, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_RootOrder
@@ -3884,6 +3894,11 @@ PrefabInstance:
         type: 3}
       propertyPath: numShurikens
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
+      propertyPath: shurikenSpeed
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969652, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
