@@ -25,7 +25,7 @@ public class Melee : MonoBehaviour
             }
         } else if (other.gameObject.tag == "Projectile") {
             if (!projectileColliders.Contains(other)) {
-                Debug.Log("Shuriken entered: " + Time.time);
+                //Debug.Log("Shuriken entered: " + Time.time);
                 projectileColliders.Add(other);
             }
         }
@@ -36,7 +36,7 @@ public class Melee : MonoBehaviour
             enemyColliders.Remove(other);
         } else if (other.gameObject.tag == "Projectile") {
             projectileColliders.Remove(other);
-            Debug.Log("Shuriken exited: " + Time.time);
+            //Debug.Log("Shuriken exited: " + Time.time);
         }
     }
 

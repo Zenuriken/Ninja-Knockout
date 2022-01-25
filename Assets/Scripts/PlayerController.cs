@@ -352,8 +352,10 @@ public class PlayerController : MonoBehaviour
             List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
             foreach (Collider2D collider in projectileColliders) {
                 Shuriken shuriken = collider.gameObject.GetComponent<Shuriken>();
-                Debug.Log("Shuriken Deflected: " + Time.time);
-                shuriken.Deflected();
+                if (!shuriken.HasBeenDeflected(meleeCounter)) {
+                    shuriken.Deflected();
+                    shuriken.SetDeflectedCounter(meleeCounter);
+                }
             }
         }
     }
