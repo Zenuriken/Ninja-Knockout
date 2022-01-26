@@ -260,6 +260,7 @@ MonoBehaviour:
   jumpVel: 20
   jumpDur: 0.25
   dashDur: 0.25
+  dashDelay: 1
   dashDist: 20
   sneakSpeed: 5
   wallJumpDur: 0.2
@@ -269,6 +270,8 @@ MonoBehaviour:
     type: 3}
   shurikenSpeed: 20
   spawnDelay: 0.15
+  numShurikens: 100
+  spinSpeed: 1000
 --- !u!95 &5612327972787155568
 Animator:
   serializedVersion: 3
@@ -301,7 +304,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 5
-  bufferDur: 5
+  bufferDur: 10
+  stunDuration: 0.5
 --- !u!1 &5612327972528906646
 GameObject:
   m_ObjectHideFlags: 0

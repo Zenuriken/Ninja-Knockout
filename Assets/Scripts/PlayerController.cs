@@ -375,9 +375,9 @@ public class PlayerController : MonoBehaviour
         Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
         shurikenScript.SetShurikenDir(lastDir);
         if (lastDir == -1) {
-            rb.AddTorque(spinSpeed);
+            rb.AddTorque(spinSpeed, ForceMode2D.Force);
         } else {
-            rb.AddTorque(-spinSpeed);  
+            rb.AddTorque(-spinSpeed, ForceMode2D.Force);  
         }  
         rb.velocity = new Vector2(lastDir * shurikenSpeed, 0);
 

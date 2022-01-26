@@ -32,7 +32,6 @@ public class Shuriken : MonoBehaviour
         player = GameObject.Find("Player");
         playerScript = player.GetComponent<PlayerController>();
         meleeScript = player.transform.GetChild(1).GetComponent<Melee>();
-        throwDir = playerScript.GetPlayerDir();
     }
 
     // private void Start() {
@@ -73,16 +72,7 @@ public class Shuriken : MonoBehaviour
     public void Deflected() {
         numDeflections += 1;
         Debug.Log(numDeflections);
-        rb.velocity = Vector2.zero;
-        if (throwDir == -1) {
-            throwDir = 1;
-            this.transform.rotation = Quaternion.identity;
-            //rb.AddTorque(-spinSpeed);
-        } else {
-            throwDir = -1;
-            //rb.AddTorque(spinSpeed);  
-            this.transform.rotation = Quaternion.identity;
-        }
+        throwDir = -throwDir;
         if (numDeflections == 1) {
            // Change trail color orange
            trailRen.colorGradient = deflectedOnceColor;
