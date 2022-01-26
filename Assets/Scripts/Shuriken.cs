@@ -8,7 +8,7 @@ public class Shuriken : MonoBehaviour
     public float spinSpeed = 1000;
     public float destroyDelay = 0.0001f;
     private Rigidbody2D rb;
-    private CircleCollider2D collider;
+    private CircleCollider2D col;
     private TrailRenderer trailRen;
     private int throwDir;
     private GameObject player;
@@ -27,7 +27,7 @@ public class Shuriken : MonoBehaviour
     private void Awake()
     {
         rb = this.GetComponent<Rigidbody2D>();
-        collider = this.GetComponent<CircleCollider2D>();
+        col = this.GetComponent<CircleCollider2D>();
         trailRen = this.GetComponent<TrailRenderer>();
         player = GameObject.Find("Player");
         playerScript = player.GetComponent<PlayerController>();
@@ -60,7 +60,7 @@ public class Shuriken : MonoBehaviour
 
     // Destroys Shuriken
     public void DestroyShuriken() {
-        meleeScript.RemoveProjFromList(collider);
+        meleeScript.RemoveProjFromList(col);
         Destroy(this.gameObject);
     }
 

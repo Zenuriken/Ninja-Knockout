@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Photon.Pun;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour   //, IPunObservable
 {
     #region Movement Variables
     [SerializeField]
@@ -143,6 +144,10 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer playerSprite;
     #endregion
 
+    #region Multiplayer Variables
+    PhotonView view;
+    #endregion
+
 /**********************************************************************************/
 
     #region Initializing Functions
@@ -169,6 +174,7 @@ public class PlayerController : MonoBehaviour
         isStunned = false;
         meleeActive = false;
         meleeCounter = 0;
+        view = this.GetComponent<PhotonView>();
     }
     #endregion
 
@@ -176,9 +182,11 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Move();
-        Attack();
-        UpdateSprite();
+        if (view.IsMine) {
+            Move();
+            Attack();
+            UpdateSprite();
+        }
     }
     #endregion
 
@@ -304,13 +312,13 @@ public class PlayerController : MonoBehaviour
     // Returns if the player is jumping against a wall.
     private bool IsAgainstWall() {
         RaycastHit2D raycastHit2D;
-        string side;
+        //string side;
         if (lastDir == 1) {
            raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.right, 0.1f, platformLayerMask);
-           side = "right";
+           //side = "right";
         } else {
             raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.left, 0.1f, platformLayerMask);
-            side = "left";
+            //side = "left";
         }
         bool againstWall = raycastHit2D.collider != null;
 
@@ -496,4 +504,12 @@ public class PlayerController : MonoBehaviour
         isStunned = state;
     }
     #endregion
+
+    // public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
+    //     if (stream.IsWriting) {
+    //         stream.SendNext(lastDir);
+    //     } else {
+    //         lastDir = (int)stream.ReceiveNext();
+    //     }
+    // }
 }
