@@ -323,7 +323,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
+  ObservedComponentsFoldoutOpen: 0
   Group: 0
   prefixField: -1
   Synchronization: 3
@@ -334,6 +334,7 @@ MonoBehaviour:
   - {fileID: -7310434078645829978}
   - {fileID: 5803215435741210805}
   - {fileID: -3786783326421845858}
+  - {fileID: 6241856178148973050}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0

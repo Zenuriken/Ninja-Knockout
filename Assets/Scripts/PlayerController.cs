@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 using Photon.Pun;
 
-public class PlayerController : MonoBehaviour   //, IPunObservable
+public class PlayerController : MonoBehaviour, IPunObservable
 {
     #region Movement Variables
     [SerializeField]
@@ -107,6 +107,7 @@ public class PlayerController : MonoBehaviour   //, IPunObservable
 
 
     // Shooting private variables
+    private bool isShooting;
     private KeyCode fireKey = KeyCode.Space;
     private float lastAttack;
     private bool isAttacking = false;
@@ -117,6 +118,8 @@ public class PlayerController : MonoBehaviour   //, IPunObservable
 
     #region Melee Functions
     // Melee private variables
+
+    private bool isMeleeing;
     private bool meleeActive;
     private GameObject meleePoint;
     private RectTransform meleePointRectTrans;
@@ -331,15 +334,31 @@ public class PlayerController : MonoBehaviour   //, IPunObservable
     #endregion
 
     #region Shooting Functions
+
+
     // Firing
     private void Attack() {
         if (Input.GetKeyDown(fireKey) && CanAttack() && numShurikens > 0 && !isDashing) {
+            isShooting = true;
+            //StartCoroutine("SpawnShuriken");
+        } else {
+            isShooting = false;
+        }
+
+        if (isShooting) {
             StartCoroutine("SpawnShuriken");
-        } else if (Input.GetKeyDown(meleeKey) && CanAttack()) {
+        }
+
+        if (Input.GetKeyDown(meleeKey) && CanAttack()) {
+            isMeleeing = true;
+        } else {
+            isMeleeing = false;
+        }
+
+        if (isMeleeing) {
             meleeActive = true;
             meleeCounter += 1;
             Invoke("SetMeleeActiveFalse", 0.18f);
-
         }
 
         if (meleeActive) {
@@ -378,7 +397,7 @@ public class PlayerController : MonoBehaviour   //, IPunObservable
 
     private IEnumerator SpawnShuriken() {
         yield return new WaitForSeconds(spawnDelay);
-        GameObject shuriken = Object.Instantiate(shurikenPrefab, firePoint.transform.position, Quaternion.identity);
+        GameObject shuriken = PhotonNetwork.Instantiate(shurikenPrefab.name, firePoint.transform.position, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
         Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
         shurikenScript.SetShurikenDir(lastDir);
@@ -505,11 +524,18 @@ public class PlayerController : MonoBehaviour   //, IPunObservable
     }
     #endregion
 
-    // public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
-    //     if (stream.IsWriting) {
-    //         stream.SendNext(lastDir);
-    //     } else {
-    //         lastDir = (int)stream.ReceiveNext();
-    //     }
-    // }
+
+    #region IPun Implementation
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
+        if (stream.IsWriting) {
+            stream.SendNext(playerSprite.flipX);
+            stream.SendNext(isShooting);
+            stream.SendNext(isMeleeing);
+        } else {
+            playerSprite.flipX = (bool)stream.ReceiveNext();
+            isShooting = (bool)stream.ReceiveNext();
+            isMeleeing = (bool)stream.ReceiveNext();
+        }
+    }
+    #endregion
 }
