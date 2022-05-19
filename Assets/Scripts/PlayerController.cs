@@ -9,136 +9,133 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     [Tooltip("The moveSpeed of the player.")]
     private float moveSpeed;
-    
     [SerializeField]
     [Tooltip("The max speed the player can fall.")]
     private float maxFallSpeed;
+    [SerializeField]
+    [Tooltip("Speed of the player when sneaking.")]
+    private float sneakSpeed;
+    [Space(10)]
     #endregion
 
     #region Jump Variables
     [SerializeField]
-    [Tooltip("The platform layer. Used to check if player is on the ground.")]
-    private LayerMask platformLayerMask;
-
-    [SerializeField]
     [Tooltip("The jump velocity of the player.")]
     private float jumpVel;
-
     [SerializeField]
     [Tooltip("The duration of a jump when holding down the jump key.")]
     private float jumpDur;
-
-    // Private Jump Variables
-    private KeyCode jumpKey = KeyCode.Z;
-    private float jumpDurTimer;
-    private bool isJumping;
-    private float jumpCounter;
+    [Space(10)]
     #endregion
 
     #region Dash Variables
     [SerializeField]
     [Tooltip("The duration of a dash (Uses a coroutine).")]
     private float dashDur;
-
     [SerializeField]
     [Tooltip("The delay between dashes.")]
     private float dashDelay;
-
     [SerializeField]
     [Tooltip("The distance of a dash (Uses a coroutine).")]
     private float dashDist;
-
-    // Private Dash Variables
-    private KeyCode dashKey = KeyCode.C;
-    private int dashCounter;
-    private bool isDashing;
-    private float lastDash = 0;
-
-    #endregion
-
-    #region Sneaking Variables
-    [SerializeField]
-    [Tooltip("Speed of the player when sneaking.")]
-    private float sneakSpeed;
-
-    // Private Sneaking Variables
-    private bool isSneaking;
+    [Space(10)]
     #endregion
 
     #region Wall Climbing Variables
-
     [SerializeField]
     [Tooltip("The duration of a single wall jump in the Vector(xWallJumpVel, yWallJumpVel) direction.")]
     private float wallJumpDur;
-
     [SerializeField]
     [Tooltip("The speed player glides down a wall.")]
     private float wallFallSpeed;
-
-    // Private Wall Climbing Variables
-    private bool isWallJumping;
+    [Space(10)]
     #endregion
 
     #region Shooting Variables
     [SerializeField]
-    [Tooltip("The attack rate.")]
-    private float attackRate;
-
-    [SerializeField]
     [Tooltip("The shuriken prefab.")]
     private GameObject shurikenPrefab;
-
+    [SerializeField]
+    [Tooltip("The attack rate.")]
+    private float attackRate;
     [SerializeField]
     [Tooltip("The speed a shuriken flies through the air.")]
     private float shurikenSpeed;
-
     [SerializeField]
     [Tooltip("The delay of spawning the shuriken.")]
     private float spawnDelay;
-
     [SerializeField]
     [Tooltip("The number of shurikens player spawns with.")]
     private float numShurikens;
-
     [SerializeField]
     [Tooltip("The spin speed of shuriken.")]
     private float spinSpeed;
-
-
-    // Shooting private variables
-    private KeyCode fireKey = KeyCode.Space;
-    private float lastAttack;
-    private bool isAttacking = false;
-    private GameObject firePoint;
-    private float firePointDist;
-    private TMP_Text shurikenTxt;
+    [Space(10)]
     #endregion
 
-    #region Melee Functions
+    #region Private Variables
+    // Private Input Variables
+    private KeyCode jumpKey = KeyCode.Z;
+    private KeyCode dashKey = KeyCode.C;
+    private KeyCode fireKey = KeyCode.Space;
+    private KeyCode meleeKey = KeyCode.X;
+    private KeyCode sneakKey = KeyCode.DownArrow;
+
+    // Player Input Variables
+    private bool rightPressed;
+    private bool leftPressed;
+    private bool jumpPressed;
+    private bool jumpHolding;
+    private bool jumpReleased;
+    private bool dashPressed;
+    private bool meleePressed;
+    private bool firePressed;
+    private bool sneakHolding;
+
+    // State Variables
+    private bool isJumping;
+    private bool isDashing;
+    private bool isWallJumping;
+    private bool isSneaking;
+    private bool isAttacking;
+    private bool isStunned;
+    private bool isGrounded;
+    private bool isAgainstWall;
+
+    // Private Dash Variables
+    private int dashCounter;
+    private float lastDash;
+
+    // Private shooting variables
+    private TMP_Text shurikenTxt;
+    private GameObject firePoint;
+    private float firePointDist;
+    private float lastAttack;
+
+    // Private Jump Variables
+    private float jumpDurTimer;
+    private float jumpCounter;
+
     // Melee private variables
     private bool meleeActive;
     private GameObject meleePoint;
     private RectTransform meleePointRectTrans;
-    private float meleePointDist;
-    private KeyCode meleeKey = KeyCode.X;
-    private float meleeSpeed;
     private Melee meleeScript;
+    private float meleePointDist;
+    private float meleeSpeed;
     private int lastMeleeDir;
-
     private static int meleeCounter;
-    #endregion
 
-    #region General Private Variables
+    // General private variables
     private Rigidbody2D playerRB;
     private BoxCollider2D boxCollider2D;
+    private LayerMask platformLayerMask;
     private float xInput;
-    private int lastDir;
     private float gravity;
     private float speed;
-    private bool isStunned;
-    #endregion
+    private int lastDir;
 
-    #region Animator Private Variables
+    // Private Animator Private Variables
     private Animator playerAnim;
     private SpriteRenderer playerSprite;
     #endregion
@@ -158,14 +155,14 @@ public class PlayerController : MonoBehaviour
         meleePoint = this.transform.GetChild(1).gameObject;
         meleePointRectTrans = meleePoint.GetComponent<RectTransform>();
         meleeScript = meleePoint.GetComponent<Melee>();
-        //meleeCollider.enabled = false;
+        platformLayerMask = LayerMask.GetMask("Platform");
+
         speed = moveSpeed;
         lastDir = 1;
         lastMeleeDir = 1;
         gravity = playerRB.gravityScale;
         firePointDist = 1.0f;
         meleePointDist = 0.23f;
-        //numShurikens = 5;
         isStunned = false;
         meleeActive = false;
         meleeCounter = 0;
@@ -176,18 +173,31 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Get Player Input
+        xInput = Input.GetAxisRaw("Horizontal");
+        jumpPressed = Input.GetKeyDown(jumpKey);
+        jumpHolding = Input.GetKey(jumpKey);
+        jumpReleased = Input.GetKeyUp(jumpKey);
+        dashPressed = Input.GetKeyDown(dashKey);
+        sneakHolding = Input.GetKey(sneakKey);
+        meleePressed = Input.GetKeyDown(meleeKey);
+        firePressed = Input.GetKeyDown(fireKey);
+    }
+
+    private void FixedUpdate() {
+        IsGrounded();
+        IsAgainstWall();
+        setDirection();
         Move();
         Attack();
         UpdateSprite();
     }
+
     #endregion
 
     #region Movement Functions
     // Controls the player's movement.
     void Move() {
-
-        // Set the current direction of player.
-        setDirection();
 
         // Limits the velocity when falling
         playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
@@ -199,7 +209,7 @@ public class PlayerController : MonoBehaviour
             }
 
             // Tapping the jump button
-            if (Input.GetKeyDown(jumpKey) && (IsGrounded() || jumpCounter > 0) && !isDashing && !isWallJumping && !IsAgainstWall()) {
+            if (jumpPressed && (isGrounded || jumpCounter > 0) && !isDashing && !isWallJumping && !isAgainstWall) {
                 isJumping = true;
                 jumpDurTimer = jumpDur;
                 playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
@@ -207,7 +217,7 @@ public class PlayerController : MonoBehaviour
             }
 
             // Holding the jump button
-            if (Input.GetKey(jumpKey) && isJumping == true && !isDashing && !isWallJumping && !IsAgainstWall()) {
+            if (jumpHolding && isJumping == true && !isDashing && !isWallJumping && !isAgainstWall) {
                 if (jumpDurTimer > 0) {
                     playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
                     jumpDurTimer -= Time.deltaTime;
@@ -217,31 +227,29 @@ public class PlayerController : MonoBehaviour
             }
 
             // Releasing the jump button
-            if (Input.GetKeyUp(jumpKey)) {
+            if (jumpReleased) {
                 isJumping = false;
             }
 
             // Tapping the dash button.
-            if (Input.GetKeyDown(dashKey) && !isDashing && !isJumping && !isWallJumping && (dashCounter > 0 || IsGrounded()) && CanDash()) {
+            if (dashPressed && !isDashing && !isJumping && !isWallJumping && (dashCounter > 0 || isGrounded) && CanDash()) {
                 lastDash = Time.time;
-                StartCoroutine(Dash());
+                StartCoroutine("Dash");
             }
 
             // Sneaking
-            if (Input.GetKeyDown(KeyCode.DownArrow) && IsGrounded()) {
+            if (sneakHolding && isGrounded) {
                 isSneaking = true;
                 speed = sneakSpeed;
-            }
-
-            if (Input.GetKeyUp(KeyCode.DownArrow)) {
+            } else if (!sneakHolding) {
                 speed = moveSpeed;
                 isSneaking = false;
             }
 
             // Wall Jumping
-            if (!isDashing && IsAgainstWall()) {
+            if (!isDashing && isAgainstWall) {
                 playerRB.velocity = new Vector2(0f, -1f * wallFallSpeed);
-                if (Input.GetKeyDown(jumpKey)) {
+                if (jumpPressed) {
                     isWallJumping = true;
                     Invoke("SetWallJumpingFalse", wallJumpDur);
                 }
@@ -255,7 +263,6 @@ public class PlayerController : MonoBehaviour
 
     // Sets the variable: lastDir based on the xInput of the player.
     private void setDirection() {
-        xInput = Input.GetAxisRaw("Horizontal");
         if (xInput > 0 && !isWallJumping && !isAttacking && !isDashing) {
             lastDir = 1;
             SwitchAttackPoint();
@@ -291,18 +298,19 @@ public class PlayerController : MonoBehaviour
     }
 
     // Determines if the player is standing on ground.
-    private bool IsGrounded() {
+    private void IsGrounded() {
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.down, 0.1f, platformLayerMask);
         bool onGround = raycastHit2D.collider != null;
         if (onGround) {
             jumpCounter = 2;
             dashCounter = 1;
         }
-        return onGround;
+        isGrounded = onGround;
+        return;
     }
 
     // Returns if the player is jumping against a wall.
-    private bool IsAgainstWall() {
+    private void IsAgainstWall() {
         RaycastHit2D raycastHit2D;
         // Check right
         if (lastDir == 1) {
@@ -317,16 +325,16 @@ public class PlayerController : MonoBehaviour
             dashCounter = 1;
             jumpCounter = 1;
         }
-        return againstWall; 
+        isAgainstWall = againstWall;
+        return; 
     }
     #endregion
 
     #region Shooting Functions
-    // Firing
     private void Attack() {
-        if (Input.GetKeyDown(fireKey) && CanAttack() && numShurikens > 0 && !isDashing) {
+        if (firePressed && CanAttack() && numShurikens > 0 && !isDashing) {
             StartCoroutine("SpawnShuriken");
-        } else if (Input.GetKeyDown(meleeKey) && CanAttack()) {
+        } else if (meleePressed && CanAttack()) {
             meleeActive = true;
             meleeCounter += 1;
             Invoke("SetMeleeActiveFalse", 0.18f);
@@ -428,19 +436,19 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("isFalling", false);
         }
 
-        if (IsGrounded()) {
+        if (isGrounded) {
             playerAnim.SetBool("isGrounded", true);
         } else {
             playerAnim.SetBool("isGrounded", false);
         }
 
-        if (IsAgainstWall()) {
+        if (isAgainstWall) {
             playerAnim.SetBool("isWallClimbing", true);
         } else {
             playerAnim.SetBool("isWallClimbing", false);
         }
 
-        if (Input.GetKeyDown(fireKey) && CanAttack() && numShurikens > 0 && !isDashing) {
+        if (firePressed && CanAttack() && numShurikens > 0 && !isDashing) {
             isAttacking = true;
             playerAnim.SetBool("isThrowing", true);
             lastAttack = Time.time;
@@ -449,7 +457,7 @@ public class PlayerController : MonoBehaviour
             Invoke("SetIsThrowingFalse", 0.5f);
         }
 
-        if (Input.GetKeyDown(meleeKey) && CanAttack()) {
+        if (meleePressed && CanAttack()) {
             isAttacking = true;
             playerAnim.SetBool("isMeleeing", true);
             lastAttack = Time.time;
