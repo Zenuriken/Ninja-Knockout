@@ -304,13 +304,12 @@ public class PlayerController : MonoBehaviour
     // Returns if the player is jumping against a wall.
     private bool IsAgainstWall() {
         RaycastHit2D raycastHit2D;
-        string side;
+        // Check right
         if (lastDir == 1) {
            raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.right, 0.1f, platformLayerMask);
-           side = "right";
+        // Check left
         } else {
             raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.left, 0.1f, platformLayerMask);
-            side = "left";
         }
         bool againstWall = raycastHit2D.collider != null;
 
