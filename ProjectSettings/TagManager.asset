@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - Platform
   - Cover
+  - PlayerCenter
   layers:
   - Default
   - TransparentFX

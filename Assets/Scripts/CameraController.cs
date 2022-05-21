@@ -49,10 +49,10 @@ public class CameraController : MonoBehaviour
         Vector3 pos = this.transform.position;
         Vector3 playerPos = player.transform.position;
 
-        if (playerPos.y > pos.y + cam.orthographicSize * yThreshold
-            || playerPos.y < pos.y - cam.orthographicSize * yThreshold) {
-                pos.y = Mathf.SmoothDamp(pos.y, playerPos.y, ref yVelocity, smoothTime);
-        }
+        // if (playerPos.y > pos.y + cam.orthographicSize * yThreshold
+        //     || playerPos.y < pos.y - cam.orthographicSize * yThreshold) {
+        //         pos.y = Mathf.SmoothDamp(pos.y, playerPos.y, ref yVelocity, smoothTime);
+        // }
         if (playerPos.x > pos.x + cam.orthographicSize * xThreshold
             || playerPos.x < pos.x - cam.orthographicSize * xThreshold) {
                 pos.x = Mathf.SmoothDamp(pos.x, playerPos.x, ref xVelocity, smoothTime);

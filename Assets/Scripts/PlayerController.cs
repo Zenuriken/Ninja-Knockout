@@ -101,6 +101,7 @@ public class PlayerController : MonoBehaviour
     private bool isStunned;
     private bool isGrounded;
     private bool isAgainstWall;
+    private bool isCovered;
 
     // Private Dash Variables
     private int dashCounter;
@@ -189,6 +190,7 @@ public class PlayerController : MonoBehaviour
         Move();
         Attack();
         UpdateSprite();
+        CoverPlayer();
     }
     #endregion
 
@@ -411,7 +413,6 @@ public class PlayerController : MonoBehaviour
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
-        Debug.Log("Y Velocity: " + playerRB.velocity.y);
         if (lastDir == 1) {
             playerSprite.flipX = false;
         } else if (lastDir == -1) {
@@ -492,6 +493,17 @@ public class PlayerController : MonoBehaviour
         playerAnim.SetBool("isMeleeing", false);
         isAttacking = false;
     }
+
+    private void CoverPlayer() {
+        if (isCovered && isSneaking) {
+            playerSprite.color = new Color(1f, 1f, 1f, 0.5f);
+        } else {
+            playerSprite.color = new Color(1f, 1f, 1f, 1f);
+        }
+    }
+
+
+
     #endregion
 
     #region Public Functions
@@ -501,6 +513,10 @@ public class PlayerController : MonoBehaviour
 
     public void SetStunned(bool state) {
         isStunned = state;
+    }
+
+    public void SetCoverStatus(bool status) {
+        isCovered = status;
     }
     #endregion
 }
