@@ -182,9 +182,7 @@ public class PlayerController : MonoBehaviour
         sneakHolding = Input.GetKey(sneakKey);
         meleePressed = Input.GetKeyDown(meleeKey);
         firePressed = Input.GetKeyDown(fireKey);
-    }
 
-    private void FixedUpdate() {
         IsGrounded();
         IsAgainstWall();
         setDirection();
@@ -192,7 +190,6 @@ public class PlayerController : MonoBehaviour
         Attack();
         UpdateSprite();
     }
-
     #endregion
 
     #region Movement Functions
@@ -217,7 +214,7 @@ public class PlayerController : MonoBehaviour
             }
 
             // Holding the jump button
-            if (jumpHolding && isJumping == true && !isDashing && !isWallJumping && !isAgainstWall) {
+            if (jumpHolding && isJumping && !isDashing && !isWallJumping && !isAgainstWall) {
                 if (jumpDurTimer > 0) {
                     playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
                     jumpDurTimer -= Time.deltaTime;
@@ -272,7 +269,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Sets Wall Climbing to Flase
+    // Sets Wall Climbing to false.
     private void SetWallJumpingFalse() {
         isWallJumping = false;
     }
@@ -282,17 +279,16 @@ public class PlayerController : MonoBehaviour
         if (!isStunned) {
             isDashing = true;
             dashCounter -= 1;
-            playerRB.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
             playerRB.velocity = new Vector2(playerRB.velocity.x, 0f);
-            playerRB.AddForce(new Vector2(dashDist * lastDir, 0f), ForceMode2D.Impulse);
             playerRB.gravityScale = 0;
+            playerRB.AddForce(new Vector2(dashDist * lastDir, 0f), ForceMode2D.Impulse);
             yield return new WaitForSeconds(dashDur);
             playerRB.gravityScale = gravity;
-            playerRB.constraints = RigidbodyConstraints2D.FreezeRotation;
             isDashing = false;
         }
     }
 
+    // Returns if the player is able to dash.
     public bool CanDash() {
         return (lastDash + dashDelay <= Time.time) && !isStunned;
     }
@@ -320,17 +316,17 @@ public class PlayerController : MonoBehaviour
             raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.left, 0.1f, platformLayerMask);
         }
         bool againstWall = raycastHit2D.collider != null;
-
         if (againstWall) {
             dashCounter = 1;
             jumpCounter = 1;
         }
-        isAgainstWall = againstWall;
+        isAgainstWall = false; //againstWall;
         return; 
     }
     #endregion
 
     #region Shooting Functions
+    // Main attack function.
     private void Attack() {
         if (firePressed && CanAttack() && numShurikens > 0 && !isDashing) {
             StartCoroutine("SpawnShuriken");
@@ -367,10 +363,12 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Sets meleeActive to false to end enemy damaging.
     private void SetMeleeActiveFalse() {
         meleeActive = false;
     }
 
+    // Returns whether the player can attack.
     public bool CanAttack() {
         return (lastAttack + attackRate <= Time.time) && !isStunned;
     }
@@ -411,7 +409,9 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Sprite Rendering Functions
+    // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
+        Debug.Log("Y Velocity: " + playerRB.velocity.y);
         if (lastDir == 1) {
             playerSprite.flipX = false;
         } else if (lastDir == -1) {
@@ -424,13 +424,13 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("isMoving", false);
         }
 
-        if (playerRB.velocity.y > 0) {
+        if (playerRB.velocity.y > 0.001) {
             playerAnim.SetBool("isJumping", true);
         } else {
             playerAnim.SetBool("isJumping", false);
         }
         
-        if (playerRB.velocity.y < 0) {
+        if (playerRB.velocity.y < -0.001) {
             playerAnim.SetBool("isFalling", true);
         } else {
             playerAnim.SetBool("isFalling", false);
