@@ -132,6 +132,7 @@ public class PlayerController : MonoBehaviour
     private CapsuleCollider2D boxCollider2D;
     private LayerMask platformLayerMask;
     private LayerMask allPlatformsLayerMask;
+    private TrailRenderer trail;
     private float xInput;
     private float gravity;
     private float speed;
@@ -152,6 +153,7 @@ public class PlayerController : MonoBehaviour
         boxCollider2D = GetComponent<CapsuleCollider2D>();
         playerAnim = GetComponent<Animator>();
         playerSprite = GetComponent<SpriteRenderer>();
+        trail = this.transform.GetChild(2).GetComponent<TrailRenderer>();
         shurikenTxt = GameObject.Find("Shurikens").GetComponent<TMP_Text>();
         firePoint = this.transform.GetChild(0).gameObject;
         meleePoint = this.transform.GetChild(1).gameObject;
@@ -168,6 +170,7 @@ public class PlayerController : MonoBehaviour
         isStunned = false;
         meleeActive = false;
         meleeCounter = 0;
+        trail.emitting = false;
     }
     #endregion
 
@@ -284,9 +287,11 @@ public class PlayerController : MonoBehaviour
             dashCounter -= 1;
             playerRB.velocity = new Vector2(playerRB.velocity.x, 0f);
             playerRB.gravityScale = 0;
+            trail.emitting = true;
             playerRB.AddForce(new Vector2(dashDist * lastDir, 0f), ForceMode2D.Impulse);
             yield return new WaitForSeconds(dashDur);
             playerRB.gravityScale = gravity;
+            trail.emitting = false;
             isDashing = false;
         }
     }
@@ -320,7 +325,6 @@ public class PlayerController : MonoBehaviour
         }
         bool againstWall = raycastHit2D.collider != null;
         if (againstWall) {
-            //Debug.Log("Collider: " + raycastHit2D.collider.gameObject.name);
             dashCounter = 1;
             jumpCounter = 1;
         }
@@ -448,9 +452,9 @@ public class PlayerController : MonoBehaviour
         }
 
         if (isAgainstWall) {
-            playerAnim.SetBool("isWallClimbing", true);
+            playerAnim.SetBool("isAgainstWall", true);
         } else {
-            playerAnim.SetBool("isWallClimbing", false);
+            playerAnim.SetBool("isAgainstWall", false);
         }
 
         if (firePressed && CanAttack() && numShurikens > 0 && !isDashing) {

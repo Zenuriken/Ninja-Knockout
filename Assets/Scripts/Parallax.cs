@@ -8,6 +8,7 @@ public class Parallax : MonoBehaviour
     private float startPos;
     public GameObject cam;
     public float parallaxEffect;
+    public float offset;
 
     private void Start() {
         startPos = transform.position.x;
@@ -21,9 +22,9 @@ public class Parallax : MonoBehaviour
 
         transform.position = new Vector3(startPos + dist, transform.position.y, transform.position.z);
 
-        if (temp > startPos + length) {
+        if (temp > startPos + length - offset) {
             startPos += length;
-        } else if (temp < startPos - length) {
+        } else if (temp < startPos - length + offset) {
             startPos -= length;
         }
     }
