@@ -6,7 +6,7 @@ public class Cover : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.tag == "PlayerCenter") {
-            Debug.Log("hiding in bush");
+            //Debug.Log("hiding in bush");
             PlayerController playerScript= other.gameObject.GetComponentInParent<PlayerController>();
             playerScript.SetCoverStatus(true);
         }

@@ -129,8 +129,9 @@ public class PlayerController : MonoBehaviour
 
     // General private variables
     private Rigidbody2D playerRB;
-    private BoxCollider2D boxCollider2D;
+    private CapsuleCollider2D boxCollider2D;
     private LayerMask platformLayerMask;
+    private LayerMask allPlatformsLayerMask;
     private float xInput;
     private float gravity;
     private float speed;
@@ -148,7 +149,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         playerRB = GetComponent<Rigidbody2D>();
-        boxCollider2D = GetComponent<BoxCollider2D>();
+        boxCollider2D = GetComponent<CapsuleCollider2D>();
         playerAnim = GetComponent<Animator>();
         playerSprite = GetComponent<SpriteRenderer>();
         shurikenTxt = GameObject.Find("Shurikens").GetComponent<TMP_Text>();
@@ -157,7 +158,7 @@ public class PlayerController : MonoBehaviour
         meleePointRectTrans = meleePoint.GetComponent<RectTransform>();
         meleeScript = meleePoint.GetComponent<Melee>();
         platformLayerMask = LayerMask.GetMask("Platform");
-
+        allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
         speed = moveSpeed;
         lastDir = 1;
         lastMeleeDir = 1;
@@ -297,7 +298,7 @@ public class PlayerController : MonoBehaviour
 
     // Determines if the player is standing on ground.
     private void IsGrounded() {
-        RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.down, 0.1f, platformLayerMask);
+        RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(0.6f, boxCollider2D.bounds.size.y), 0f, Vector2.down, 0.1f, allPlatformsLayerMask);
         bool onGround = raycastHit2D.collider != null;
         if (onGround) {
             jumpCounter = 2;
@@ -312,17 +313,18 @@ public class PlayerController : MonoBehaviour
         RaycastHit2D raycastHit2D;
         // Check right
         if (lastDir == 1) {
-           raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.right, 0.1f, platformLayerMask);
+           raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 1f), 0f, Vector2.right, 0.1f, platformLayerMask);
         // Check left
         } else {
-            raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.left, 0.1f, platformLayerMask);
+            raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 1f), 0f, Vector2.left, 0.1f, platformLayerMask);
         }
         bool againstWall = raycastHit2D.collider != null;
         if (againstWall) {
+            //Debug.Log("Collider: " + raycastHit2D.collider.gameObject.name);
             dashCounter = 1;
             jumpCounter = 1;
         }
-        isAgainstWall = false; //againstWall;
+        isAgainstWall = againstWall;
         return; 
     }
     #endregion
@@ -351,7 +353,7 @@ public class PlayerController : MonoBehaviour
                     }
                     enemy.SetDamagedCounter(meleeCounter);
                 }
-                Debug.Log("Enemy health: " + enemy.GetHealth());
+                //Debug.Log("Enemy health: " + enemy.GetHealth());
             }
 
             List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
@@ -413,6 +415,8 @@ public class PlayerController : MonoBehaviour
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
+        Debug.Log("Player y velocity: " + playerRB.velocity.y);
+
         if (lastDir == 1) {
             playerSprite.flipX = false;
         } else if (lastDir == -1) {
@@ -501,9 +505,6 @@ public class PlayerController : MonoBehaviour
             playerSprite.color = new Color(1f, 1f, 1f, 1f);
         }
     }
-
-
-
     #endregion
 
     #region Public Functions
