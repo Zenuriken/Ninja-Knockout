@@ -7,8 +7,12 @@ public class EnemyController : MonoBehaviour
     private GameObject player;
     private PlayerController playerScript;
     // Detecting the player
-    private PolygonCollider2D unalertedSight;
-    private PolygonCollider2D alertedSight; 
+    private GameObject unalertedObj;
+    private GameObject alertedObj;
+    private SpriteRenderer unalertedSprite;
+    private SpriteRenderer alertedSprite;
+    private PolygonCollider2D unalertedCol;
+    private PolygonCollider2D alertedCol; 
     private bool isAlerted;
     private bool playerDetected;
 
@@ -33,19 +37,29 @@ public class EnemyController : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         playerScript = player.GetComponent<PlayerController>();
         meleeScript = player.transform.GetChild(1).GetComponent<Melee>();
-        unalertedSight = this.transform.GetChild(0).GetComponent<PolygonCollider2D>();
-        alertedSight = this.transform.GetChild(1).GetComponent<PolygonCollider2D>();
+
+        unalertedObj = this.transform.GetChild(0).gameObject;
+        alertedObj = this.transform.GetChild(1).gameObject;
+        unalertedSprite = unalertedObj.GetComponent<SpriteRenderer>();
+        alertedSprite = alertedObj.GetComponent<SpriteRenderer>();
+        unalertedCol = unalertedObj.GetComponent<PolygonCollider2D>();
+        alertedCol = alertedObj.GetComponent<PolygonCollider2D>();
         enemyCollider = this.GetComponent<BoxCollider2D>();
         isAlerted = false;
         enemyHealth = 5;
         hasDied = false;
     }
 
+    private void Update() {
+        
+    }
+
     // Returns whether or not an enemy is alerted to the player's presence.
     private void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.tag == "Player" && other.IsTouching(unalertedSight)) {
-            //Debug.Log("Alerted!");
+        if (other.gameObject.tag == "Player" && other.IsTouching(unalertedCol) && !playerScript.GetHidingStatus()) {
             isAlerted = true;
+            unalertedSprite.color = new Color(1f, 1f, 0f, 0);
+            alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
         }
     }
 
@@ -85,6 +99,7 @@ public class EnemyController : MonoBehaviour
     public bool HasBeenDamaged(int counter) {
         return this.damageCounter == counter;
     }
+
 
 
 

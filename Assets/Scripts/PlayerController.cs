@@ -38,6 +38,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     [Tooltip("The distance of a dash (Uses a coroutine).")]
     private float dashDist;
+    [SerializeField]
+    [Tooltip("How long the trail lingers after a dash.")]
+    private float trailDur;
     [Space(10)]
     #endregion
 
@@ -102,6 +105,7 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded;
     private bool isAgainstWall;
     private bool isCovered;
+    private bool isHiding;
 
     // Private Dash Variables
     private int dashCounter;
@@ -288,12 +292,21 @@ public class PlayerController : MonoBehaviour
             playerRB.velocity = new Vector2(playerRB.velocity.x, 0f);
             playerRB.gravityScale = 0;
             trail.emitting = true;
+            trail.time = 0.25f;
             playerRB.AddForce(new Vector2(dashDist * lastDir, 0f), ForceMode2D.Impulse);
             yield return new WaitForSeconds(dashDur);
             playerRB.gravityScale = gravity;
-            trail.emitting = false;
             isDashing = false;
+            StartCoroutine("ReduceTrail");
         }
+    }
+
+    IEnumerator ReduceTrail() {
+        for (float t = 0.25f; t > 0; t -= 0.05f) {
+            trail.time = t;
+            yield return new WaitForSeconds(trailDur);
+        }
+        trail.emitting = false;
     }
 
     // Returns if the player is able to dash.
@@ -504,9 +517,11 @@ public class PlayerController : MonoBehaviour
 
     private void CoverPlayer() {
         if (isCovered && isSneaking) {
+            isHiding = true;
             playerSprite.color = new Color(1f, 1f, 1f, 0.5f);
         } else {
             playerSprite.color = new Color(1f, 1f, 1f, 1f);
+            isHiding = false;
         }
     }
     #endregion
@@ -522,6 +537,10 @@ public class PlayerController : MonoBehaviour
 
     public void SetCoverStatus(bool status) {
         isCovered = status;
+    }
+
+    public bool GetHidingStatus() {
+        return isHiding;
     }
     #endregion
 }
