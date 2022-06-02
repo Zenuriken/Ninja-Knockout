@@ -106,6 +106,7 @@ public class PlayerController : MonoBehaviour
     private bool isAgainstWall;
     private bool isCovered;
     private bool isHiding;
+    private bool isDamaged;
 
     // Private Dash Variables
     private int dashCounter;
@@ -432,7 +433,7 @@ public class PlayerController : MonoBehaviour
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
-        Debug.Log("Player y velocity: " + playerRB.velocity.y);
+        //Debug.Log("Player y velocity: " + playerRB.velocity.y);
 
         if (lastDir == 1) {
             playerSprite.flipX = false;
@@ -502,6 +503,12 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("isSneaking", true);
         } else {
             playerAnim.SetBool("isSneaking", false);
+        }
+
+        if (isStunned) {
+            playerAnim.SetBool("isStunned", true);
+        } else {
+            playerAnim.SetBool("isStunned", false);
         }
     }
 

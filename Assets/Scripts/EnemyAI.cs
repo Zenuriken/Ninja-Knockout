@@ -24,7 +24,7 @@ public class EnemyAI : MonoBehaviour
     public bool directionLookEnabled = true;
 
     private Rigidbody2D targetRb;
-
+    private EnemyController enemyControllerScript;
     private Path path;
     private int currentWaypoint = 0;
     //private bool isGrounded = false;
@@ -40,6 +40,7 @@ public class EnemyAI : MonoBehaviour
        rb = GetComponent<Rigidbody2D>();
        boxCollider2D = GetComponent<BoxCollider2D>();
        targetRb = target.gameObject.GetComponent<Rigidbody2D>();
+       enemyControllerScript = this.GetComponent<EnemyController>();
 
        InvokeRepeating("UpdatePath", 0f, pathUpdateSeconds);
     }
@@ -51,8 +52,9 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    // Called every pathUpdateSeconds. Updates the current path
     private void UpdatePath() {
-        if (followEnabled && TargetInDistance() && seeker.IsDone()) {
+        if (followEnabled && enemyControllerScript.IsAlerted() && TargetInDistance() && seeker.IsDone()) {
             seeker.StartPath(rb.position, target.position, OnPathComplete);
         }
     }
@@ -75,7 +77,7 @@ public class EnemyAI : MonoBehaviour
         // Debug.Log("Enemy is grounded");
         // Direction Calculation
         Vector2 direction = ((Vector2) path.vectorPath[currentWaypoint] - rb.position).normalized;
-        //Debug.Log("DirectionX: " + direction.x + "   DirectionY: " + direction.y);
+        Debug.Log("DirectionX: " + direction.x + "   DirectionY: " + direction.y);
         Vector2 force = direction * speed * Time.deltaTime;
         
         // Jump
@@ -88,7 +90,13 @@ public class EnemyAI : MonoBehaviour
 
         // Movement
         //rb.AddForce(force);
-        rb.velocity = new Vector2(direction.x * speed, rb.velocity.y);
+        if (enemyControllerScript.IsAlerted()) {
+            if (direction.x > 0) {
+                rb.velocity = new Vector2(speed, rb.velocity.y);
+            } else {
+                rb.velocity = new Vector2(-speed, rb.velocity.y);
+            }
+        }
 
         // Next Waypoint
         float distance = Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]);
@@ -111,6 +119,7 @@ public class EnemyAI : MonoBehaviour
         return Vector3.Distance(transform.position, target.transform.position) < activateDistance;
     }
 
+    // Called when the path is completed. Updates the current path and resets the path index to 0.
     private void OnPathComplete(Path p) {
         if (!p.error) {
             path = p;
