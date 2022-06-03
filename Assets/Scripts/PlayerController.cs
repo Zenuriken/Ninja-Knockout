@@ -138,6 +138,7 @@ public class PlayerController : MonoBehaviour
     private LayerMask platformLayerMask;
     private LayerMask allPlatformsLayerMask;
     private TrailRenderer trail;
+    public ParticleSystem dust;
     private float xInput;
     private float gravity;
     private float speed;
@@ -222,6 +223,7 @@ public class PlayerController : MonoBehaviour
                 jumpDurTimer = jumpDur;
                 playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
                 jumpCounter -= 1;
+                CreateDust();
             }
 
             // Holding the jump button
@@ -257,6 +259,7 @@ public class PlayerController : MonoBehaviour
             // Wall Jumping
             if (!isDashing && isAgainstWall) {
                 playerRB.velocity = new Vector2(0f, -1f * wallFallSpeed);
+                CreateDust();
                 if (jumpPressed) {
                     isWallJumping = true;
                     Invoke("SetWallJumpingFalse", wallJumpDur);
@@ -265,18 +268,23 @@ public class PlayerController : MonoBehaviour
 
             if (isWallJumping) {
                 playerRB.velocity = new Vector2(-lastDir * moveSpeed, jumpVel);
+                CreateDust();
             }
         }
     }
 
     // Sets the variable: lastDir based on the xInput of the player.
     private void setDirection() {
+        int dir = lastDir;
         if (xInput > 0 && !isWallJumping && !isAttacking && !isDashing) {
             lastDir = 1;
             SwitchAttackPoint();
         } else if (xInput < 0 && !isWallJumping && !isAttacking && !isDashing) {
             lastDir = -1;
             SwitchAttackPoint();
+        }
+        if (dir != lastDir) {
+            CreateDust();
         }
     }
 
@@ -291,6 +299,7 @@ public class PlayerController : MonoBehaviour
             isDashing = true;
             dashCounter -= 1;
             playerRB.velocity = new Vector2(playerRB.velocity.x, 0f);
+            CreateDust();
             playerRB.gravityScale = 0;
             trail.emitting = true;
             trail.time = 0.25f;
@@ -310,6 +319,10 @@ public class PlayerController : MonoBehaviour
         trail.emitting = false;
     }
 
+    void CreateDust() {
+        dust.Play();
+    }
+
     // Returns if the player is able to dash.
     public bool CanDash() {
         return (lastDash + dashDelay <= Time.time) && !isStunned;
@@ -317,6 +330,7 @@ public class PlayerController : MonoBehaviour
 
     // Determines if the player is standing on ground.
     private void IsGrounded() {
+        bool groundStatus = isGrounded;
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(0.6f, boxCollider2D.bounds.size.y), 0f, Vector2.down, 0.1f, allPlatformsLayerMask);
         bool onGround = raycastHit2D.collider != null;
         if (onGround) {
@@ -324,6 +338,9 @@ public class PlayerController : MonoBehaviour
             dashCounter = 1;
         }
         isGrounded = onGround;
+        if (groundStatus == false && isGrounded == true) {
+            CreateDust();
+        }
         return;
     }
 
