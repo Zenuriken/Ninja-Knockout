@@ -6,6 +6,7 @@ using TMPro;
 public class PlayerController : MonoBehaviour
 {
     #region Movement Variables
+    [Header("Movement")]
     [SerializeField]
     [Tooltip("The moveSpeed of the player.")]
     private float moveSpeed;
@@ -15,20 +16,25 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     [Tooltip("Speed of the player when sneaking.")]
     private float sneakSpeed;
-    [Space(10)]
+    [Space(5)]
     #endregion
 
     #region Jump Variables
+    [Header("Jumping")]
     [SerializeField]
     [Tooltip("The jump velocity of the player.")]
     private float jumpVel;
     [SerializeField]
     [Tooltip("The duration of a jump when holding down the jump key.")]
     private float jumpDur;
-    [Space(10)]
+    [SerializeField]
+    [Tooltip("The delay between dashes.")]
+    private float jumpDelay;
+    [Space(5)]
     #endregion
 
     #region Dash Variables
+    [Header("Dash")]
     [SerializeField]
     [Tooltip("The duration of a dash (Uses a coroutine).")]
     private float dashDur;
@@ -41,20 +47,22 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     [Tooltip("How long the trail lingers after a dash.")]
     private float trailDur;
-    [Space(10)]
+    [Space(5)]
     #endregion
 
     #region Wall Climbing Variables
+    [Header("Wall Climbing")]
     [SerializeField]
     [Tooltip("The duration of a single wall jump in the Vector(xWallJumpVel, yWallJumpVel) direction.")]
     private float wallJumpDur;
     [SerializeField]
     [Tooltip("The speed player glides down a wall.")]
     private float wallFallSpeed;
-    [Space(10)]
+    [Space(5)]
     #endregion
 
     #region Shooting Variables
+    [Header("Shooting")]
     [SerializeField]
     [Tooltip("The shuriken prefab.")]
     private GameObject shurikenPrefab;
@@ -73,7 +81,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     [Tooltip("The spin speed of shuriken.")]
     private float spinSpeed;
-    [Space(10)]
+    [Space(5)]
     #endregion
 
     #region Private Variables
@@ -121,6 +129,7 @@ public class PlayerController : MonoBehaviour
     // Private Jump Variables
     private float jumpDurTimer;
     private float jumpCounter;
+    private float lastJump;
 
     // Melee private variables
     private bool meleeActive;
@@ -201,6 +210,7 @@ public class PlayerController : MonoBehaviour
         Attack();
         UpdateSprite();
         CoverPlayer();
+        Debug.Log("Jump counter: " + jumpCounter);
     }
     #endregion
 
@@ -218,12 +228,19 @@ public class PlayerController : MonoBehaviour
             }
 
             // Tapping the jump button
-            if (jumpPressed && (isGrounded || jumpCounter > 0) && !isDashing && !isWallJumping && !isAgainstWall) {
+            if (jumpPressed && (isGrounded || jumpCounter > 0) && !isDashing && !isWallJumping && !isAgainstWall && CanJump()) {
                 isJumping = true;
                 jumpDurTimer = jumpDur;
                 playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
                 jumpCounter -= 1;
-                CreateDust();
+
+                if (!isGrounded) {
+                    trail.emitting = true;
+                    trail.time = 0.25f;
+                    StartCoroutine("ReduceTrail");
+                }
+    
+                //CreateDust();
             }
 
             // Holding the jump button
@@ -259,7 +276,7 @@ public class PlayerController : MonoBehaviour
             // Wall Jumping
             if (!isDashing && isAgainstWall) {
                 playerRB.velocity = new Vector2(0f, -1f * wallFallSpeed);
-                CreateDust();
+                //CreateDust();
                 if (jumpPressed) {
                     isWallJumping = true;
                     Invoke("SetWallJumpingFalse", wallJumpDur);
@@ -268,7 +285,7 @@ public class PlayerController : MonoBehaviour
 
             if (isWallJumping) {
                 playerRB.velocity = new Vector2(-lastDir * moveSpeed, jumpVel);
-                CreateDust();
+                //CreateDust();
             }
         }
     }
@@ -283,7 +300,7 @@ public class PlayerController : MonoBehaviour
             lastDir = -1;
             SwitchAttackPoint();
         }
-        if (dir != lastDir) {
+        if (dir != lastDir && isGrounded) {
             CreateDust();
         }
     }
@@ -328,13 +345,18 @@ public class PlayerController : MonoBehaviour
         return (lastDash + dashDelay <= Time.time) && !isStunned;
     }
 
+    // Returns if the player is able to jump.
+    public bool CanJump() {
+        return (lastJump + jumpDelay <= Time.time) && !isStunned;
+    }
+
     // Determines if the player is standing on ground.
     private void IsGrounded() {
         bool groundStatus = isGrounded;
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(0.6f, boxCollider2D.bounds.size.y), 0f, Vector2.down, 0.1f, allPlatformsLayerMask);
         bool onGround = raycastHit2D.collider != null;
         if (onGround) {
-            jumpCounter = 2;
+            jumpCounter = 1;
             dashCounter = 1;
         }
         isGrounded = onGround;
