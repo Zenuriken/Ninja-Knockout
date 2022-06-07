@@ -42,8 +42,8 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The delay between dashes.")]
     private float dashDelay;
     [SerializeField]
-    [Tooltip("The distance of a dash (Uses a coroutine).")]
-    private float dashDist;
+    [Tooltip("The force applied to the player when dashing (Uses a coroutine).")]
+    private float dashForce;
     [SerializeField]
     [Tooltip("How long the trail lingers after a dash.")]
     private float trailDur;
@@ -81,6 +81,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     [Tooltip("The spin speed of shuriken.")]
     private float spinSpeed;
+    [Space(5)]
+    #endregion
+
+    #region Particle Variables
+    [Header("Particles")]
+    [SerializeField]
+    [Tooltip("Dust particle effect when on the ground.")]
+    private ParticleSystem groundDust;
+    [SerializeField]
+    [Tooltip("Dust particle effect when wall climbing on the left.")]
+    private ParticleSystem wallClimbDust;
+    [SerializeField]
+    [Tooltip("Spark particle effect when clashing with an enemy.")]
+    private ParticleSystem sparks;
     [Space(5)]
     #endregion
 
@@ -141,13 +155,18 @@ public class PlayerController : MonoBehaviour
     private int lastMeleeDir;
     private static int meleeCounter;
 
+    // Private wallClimb variables
+    private float wallClimbDustDist;
+
     // General private variables
     private Rigidbody2D playerRB;
-    private CapsuleCollider2D boxCollider2D;
+    //private BoxCollider2D boxCollider2D;
+    private Collider2D boxCollider2D;
     private LayerMask platformLayerMask;
     private LayerMask allPlatformsLayerMask;
-    private TrailRenderer trail;
-    public ParticleSystem dust;
+    private TrailRenderer dashTrail;
+    private TrailRenderer doubleJumpTrail;
+
     private float xInput;
     private float gravity;
     private float speed;
@@ -165,10 +184,12 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         playerRB = GetComponent<Rigidbody2D>();
-        boxCollider2D = GetComponent<CapsuleCollider2D>();
+        //boxCollider2D = GetComponent<BoxCollider2D>();
+        boxCollider2D = GetComponent<Collider2D>();
         playerAnim = GetComponent<Animator>();
         playerSprite = GetComponent<SpriteRenderer>();
-        trail = this.transform.GetChild(2).GetComponent<TrailRenderer>();
+        dashTrail = this.transform.GetChild(2).GetChild(1).GetComponent<TrailRenderer>();
+        doubleJumpTrail = this.transform.GetChild(2).GetChild(2).GetComponent<TrailRenderer>();
         shurikenTxt = GameObject.Find("Shurikens").GetComponent<TMP_Text>();
         firePoint = this.transform.GetChild(0).gameObject;
         meleePoint = this.transform.GetChild(1).gameObject;
@@ -182,10 +203,12 @@ public class PlayerController : MonoBehaviour
         gravity = playerRB.gravityScale;
         firePointDist = 1.0f;
         meleePointDist = 0.23f;
+        wallClimbDustDist = 0.75f;
         isStunned = false;
         meleeActive = false;
         meleeCounter = 0;
-        trail.emitting = false;
+        dashTrail.emitting = false;
+        doubleJumpTrail.emitting = false;
     }
     #endregion
 
@@ -203,14 +226,13 @@ public class PlayerController : MonoBehaviour
         meleePressed = Input.GetKeyDown(meleeKey);
         firePressed = Input.GetKeyDown(fireKey);
 
+        Move();
         IsGrounded();
         IsAgainstWall();
         setDirection();
-        Move();
         Attack();
         UpdateSprite();
         CoverPlayer();
-        Debug.Log("Jump counter: " + jumpCounter);
     }
     #endregion
 
@@ -225,6 +247,11 @@ public class PlayerController : MonoBehaviour
             // Regular movement
             if (!isDashing && !isWallJumping && !isAttacking) {
                 playerRB.velocity = new Vector2(xInput * speed, playerRB.velocity.y);
+                if (isGrounded && Mathf.Abs(playerRB.velocity.x) > 0 && !isSneaking) {
+                    CreateDust(0);
+                }
+            } else if (isAttacking) {
+                playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
             }
 
             // Tapping the jump button
@@ -235,12 +262,10 @@ public class PlayerController : MonoBehaviour
                 jumpCounter -= 1;
 
                 if (!isGrounded) {
-                    trail.emitting = true;
-                    trail.time = 0.25f;
-                    StartCoroutine("ReduceTrail");
+                    doubleJumpTrail.emitting = true;
+                    doubleJumpTrail.time = 0.25f;
+                    StartCoroutine(ReduceTrail(doubleJumpTrail));
                 }
-    
-                //CreateDust();
             }
 
             // Holding the jump button
@@ -273,10 +298,13 @@ public class PlayerController : MonoBehaviour
                 isSneaking = false;
             }
 
-            // Wall Jumping
+            // Wall Climbing
             if (!isDashing && isAgainstWall) {
                 playerRB.velocity = new Vector2(0f, -1f * wallFallSpeed);
-                //CreateDust();
+                if (!isGrounded) {
+                    CreateDust(1);
+                }
+                // Wall Jumping
                 if (jumpPressed) {
                     isWallJumping = true;
                     Invoke("SetWallJumpingFalse", wallJumpDur);
@@ -285,7 +313,6 @@ public class PlayerController : MonoBehaviour
 
             if (isWallJumping) {
                 playerRB.velocity = new Vector2(-lastDir * moveSpeed, jumpVel);
-                //CreateDust();
             }
         }
     }
@@ -295,13 +322,10 @@ public class PlayerController : MonoBehaviour
         int dir = lastDir;
         if (xInput > 0 && !isWallJumping && !isAttacking && !isDashing) {
             lastDir = 1;
-            SwitchAttackPoint();
+            SwitchChildPositions();
         } else if (xInput < 0 && !isWallJumping && !isAttacking && !isDashing) {
             lastDir = -1;
-            SwitchAttackPoint();
-        }
-        if (dir != lastDir && isGrounded) {
-            CreateDust();
+            SwitchChildPositions();
         }
     }
 
@@ -316,19 +340,21 @@ public class PlayerController : MonoBehaviour
             isDashing = true;
             dashCounter -= 1;
             playerRB.velocity = new Vector2(playerRB.velocity.x, 0f);
-            CreateDust();
+            if (isGrounded) {
+                CreateDust(0);
+            }
             playerRB.gravityScale = 0;
-            trail.emitting = true;
-            trail.time = 0.25f;
-            playerRB.AddForce(new Vector2(dashDist * lastDir, 0f), ForceMode2D.Impulse);
+            dashTrail.emitting = true;
+            dashTrail.time = 0.25f;
+            playerRB.AddForce(new Vector2(dashForce * lastDir, 0f), ForceMode2D.Impulse);
             yield return new WaitForSeconds(dashDur);
             playerRB.gravityScale = gravity;
             isDashing = false;
-            StartCoroutine("ReduceTrail");
+            StartCoroutine(ReduceTrail(dashTrail));
         }
     }
 
-    IEnumerator ReduceTrail() {
+    IEnumerator ReduceTrail(TrailRenderer trail) {
         for (float t = 0.25f; t > 0; t -= 0.05f) {
             trail.time = t;
             yield return new WaitForSeconds(trailDur);
@@ -336,8 +362,18 @@ public class PlayerController : MonoBehaviour
         trail.emitting = false;
     }
 
-    void CreateDust() {
-        dust.Play();
+    void CreateDust(int s) {
+        // Create ground dust
+        if (s == 0) {
+            groundDust.Play();
+        // Create wall dust on appropriate side.
+        } else if (s == 1) {
+            wallClimbDust.Play();
+        }
+    }
+
+    void CreateSparks() {
+        sparks.Play();
     }
 
     // Returns if the player is able to dash.
@@ -349,11 +385,15 @@ public class PlayerController : MonoBehaviour
     public bool CanJump() {
         return (lastJump + jumpDelay <= Time.time) && !isStunned;
     }
+    #endregion
 
+
+    #region State Functions
     // Determines if the player is standing on ground.
     private void IsGrounded() {
         bool groundStatus = isGrounded;
-        RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(0.6f, boxCollider2D.bounds.size.y), 0f, Vector2.down, 0.1f, allPlatformsLayerMask);
+        //RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(0.6f, boxCollider2D.bounds.size.y), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
+        RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(0.6f, boxCollider2D.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
         bool onGround = raycastHit2D.collider != null;
         if (onGround) {
             jumpCounter = 1;
@@ -361,7 +401,7 @@ public class PlayerController : MonoBehaviour
         }
         isGrounded = onGround;
         if (groundStatus == false && isGrounded == true) {
-            CreateDust();
+            CreateDust(0);
         }
         return;
     }
@@ -371,10 +411,10 @@ public class PlayerController : MonoBehaviour
         RaycastHit2D raycastHit2D;
         // Check right
         if (lastDir == 1) {
-           raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 1f), 0f, Vector2.right, 0.1f, platformLayerMask);
+           raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 0.6f), 0f, Vector2.right, 0.1f, platformLayerMask);
         // Check left
         } else {
-            raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 1f), 0f, Vector2.left, 0.1f, platformLayerMask);
+            raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 0.6f), 0f, Vector2.left, 0.1f, platformLayerMask);
         }
         bool againstWall = raycastHit2D.collider != null;
         if (againstWall) {
@@ -382,7 +422,7 @@ public class PlayerController : MonoBehaviour
             jumpCounter = 1;
         }
         isAgainstWall = againstWall;
-        return; 
+        return;
     }
     #endregion
 
@@ -394,6 +434,7 @@ public class PlayerController : MonoBehaviour
         } else if (meleePressed && CanAttack()) {
             meleeActive = true;
             meleeCounter += 1;
+            CreateSparks();
             Invoke("SetMeleeActiveFalse", 0.18f);
 
         }
@@ -410,7 +451,6 @@ public class PlayerController : MonoBehaviour
                     }
                     enemy.SetDamagedCounter(meleeCounter);
                 }
-                //Debug.Log("Enemy health: " + enemy.GetHealth());
             }
 
             List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
@@ -430,8 +470,13 @@ public class PlayerController : MonoBehaviour
     }
 
     // Returns whether the player can attack.
-    public bool CanAttack() {
+    private bool CanAttack() {
         return (lastAttack + attackRate <= Time.time) && !isStunned;
+    }
+
+    // Knocks the player back when attacking or getting damaged.
+    private void KnockBack() {
+        
     }
 
     private IEnumerator SpawnShuriken() {
@@ -450,15 +495,19 @@ public class PlayerController : MonoBehaviour
     }
 
     // Switches the attack point gameObject of the player based on direction.
-    private void SwitchAttackPoint() {
+    private void SwitchChildPositions() {
         Vector3 firePos = firePoint.transform.position;
         Vector3 meleePos = meleePoint.transform.position;
+        Vector3 wallClimbDustPos = wallClimbDust.transform.position;
         if (lastDir == -1) {
             firePos.x = this.transform.position.x - firePointDist;
             meleePos.x = this.transform.position.x - meleePointDist;
+            wallClimbDustPos.x = this.transform.position.x - wallClimbDustDist;
+
         } else {
             firePos.x = this.transform.position.x + firePointDist;
             meleePos.x = this.transform.position.x + meleePointDist;
+            wallClimbDustPos.x = this.transform.position.x + wallClimbDustDist;
         }
         if (lastDir != lastMeleeDir) {
             meleePointRectTrans.Rotate(new Vector3(0, 180, 0), Space.Self);
@@ -466,17 +515,16 @@ public class PlayerController : MonoBehaviour
         }
         firePoint.transform.position = firePos;
         meleePoint.transform.position = meleePos;
+        wallClimbDust.transform.position = wallClimbDustPos;
     }
     #endregion
 
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
-        //Debug.Log("Player y velocity: " + playerRB.velocity.y);
-
-        if (lastDir == 1) {
+        if (lastDir == 1 && !isStunned) {
             playerSprite.flipX = false;
-        } else if (lastDir == -1) {
+        } else if (lastDir == -1 && !isStunned) {
             playerSprite.flipX = true;
         }
 

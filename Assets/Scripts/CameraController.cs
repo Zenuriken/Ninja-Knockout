@@ -10,6 +10,10 @@ public class CameraController : MonoBehaviour
     private Camera cam;
 
     [SerializeField]
+    [Tooltip("The proportion of the camera to move in the x dimension.")]
+    private float xProportion;
+
+    [SerializeField]
     [Tooltip("The Camera's horiztonal threshold for movement.")]
     private float xThreshold;
 
@@ -24,6 +28,8 @@ public class CameraController : MonoBehaviour
 
     #region Private Variables
     private GameObject player;
+    private PlayerController playerScript;
+    private int playerDir;
     private float yVelocity;
     private float xVelocity;
     #endregion
@@ -34,12 +40,16 @@ public class CameraController : MonoBehaviour
     {
         cam = GetComponent<Camera>();
         player = GameObject.FindGameObjectWithTag("Player");
+        playerScript = player.GetComponent<PlayerController>();
+        playerDir = playerScript.GetPlayerDir();
     }
 
     // Draws the bounds for the thresholds of the camera
     private void OnDrawGizmos() {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireCube(this.transform.position, new Vector2(cam.orthographicSize * 2 * xThreshold, cam.orthographicSize * 2 * yThreshold ));
+        Gizmos.DrawWireCube(this.transform.position, new Vector2(cam.orthographicSize * 2 * xThreshold, cam.orthographicSize * 2 * yThreshold));
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(this.transform.position, new Vector2(cam.orthographicSize * 2 * xProportion, cam.orthographicSize * 2));
     }
     #endregion
 
@@ -47,15 +57,23 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void LateUpdate() {
         Vector3 pos = this.transform.position;
-        Vector3 playerPos = player.transform.position;
+        Vector3 targetPos = player.transform.position;
+        playerDir = playerScript.GetPlayerDir();
+        float xOffset = cam.orthographicSize * 2 * xProportion;
+        if (playerDir == 1) {
+            targetPos = new Vector3(targetPos.x + xOffset, targetPos.y, targetPos.z);
+        } else {
+            targetPos = new Vector3(targetPos.x - xOffset, targetPos.y, targetPos.z);
+        }
 
         // if (playerPos.y > pos.y + cam.orthographicSize * yThreshold
         //     || playerPos.y < pos.y - cam.orthographicSize * yThreshold) {
         //         pos.y = Mathf.SmoothDamp(pos.y, playerPos.y, ref yVelocity, smoothTime);
         // }
-        if (playerPos.x > pos.x + cam.orthographicSize * xThreshold
-            || playerPos.x < pos.x - cam.orthographicSize * xThreshold) {
-                pos.x = Mathf.SmoothDamp(pos.x, playerPos.x, ref xVelocity, smoothTime);
+        
+        if (targetPos.x > pos.x + cam.orthographicSize * xThreshold
+            || targetPos.x < pos.x - cam.orthographicSize * xThreshold) {
+                pos.x = Mathf.SmoothDamp(pos.x, targetPos.x, ref xVelocity, smoothTime);
         }
         this.transform.position = pos;
     }
