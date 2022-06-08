@@ -104,6 +104,15 @@ public class PlayerController : MonoBehaviour
     [Space(5)]
     #endregion
 
+    #region Melee Trail Variables
+    [Header("Trail")]
+    [SerializeField]
+    private float meleeNumIters;
+    [SerializeField]
+    private float meleeTime;
+    [Space(5)]
+    #endregion
+
     #region Private Variables
     // Private Input Variables
     private KeyCode jumpKey = KeyCode.Z;
@@ -161,11 +170,11 @@ public class PlayerController : MonoBehaviour
     private int lastMeleeDir;
     private static int meleeCounter;
 
+    private Transform meleeBall;
     private Transform point0;
     private Transform point1;
     private Transform point2;
     private TrailRenderer meleeTrail;
-    private Rigidbody2D meleeBallRB;
 
     // Private wallClimb variables
     private float wallClimbDustDist;
@@ -224,7 +233,7 @@ public class PlayerController : MonoBehaviour
 
         meleeTrail = this.transform.GetChild(1).GetChild(1).GetComponent<TrailRenderer>();
         meleeTrail.emitting = false;
-        //meleeBallRB = this.transform.GetChild(1).GetChild(1).GetComponent<Rigidbody2D>();
+        meleeBall = this.transform.GetChild(1).GetChild(1).transform;
         point0 = this.transform.GetChild(1).GetChild(2).transform;
         point1 = this.transform.GetChild(1).GetChild(3).transform;
         point2 = this.transform.GetChild(1).GetChild(4).transform;
@@ -252,6 +261,7 @@ public class PlayerController : MonoBehaviour
         Attack();
         UpdateSprite();
         CoverPlayer();
+        playerSprite.color = new Color(1f, 1f, 1f, 0.0f);
     }
     #endregion
 
@@ -407,7 +417,6 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
-
     #region State Functions
     // Determines if the player is standing on ground.
     private void IsGrounded() {
@@ -457,10 +466,8 @@ public class PlayerController : MonoBehaviour
             }
             meleeActive = true;
             meleeCounter += 1;
-            meleeTrail.emitting = true;
-            meleeTrail.time = 0.25f;
             StartCoroutine("MeleeTrail");
-            StartCoroutine(ReduceTrail(meleeTrail));
+            //StartCoroutine(ReduceTrail(meleeTrail));
             Invoke("SetMeleeActiveFalse", 0.18f);
         }
 
@@ -521,14 +528,20 @@ public class PlayerController : MonoBehaviour
 
     // Makes the trail for the melee attack.
     IEnumerator MeleeTrail() {
-        Vector2 pos = point0.localPosition;
-        Debug.Log(pos.ToString());
-        // for (float t = 0; t < 1.0f; t += Time.deltaTime) {
-        //     newPos = (1.0f - t) * ((1.0f - t) * point1 + t * point2) + t * ((1.0f - t) * point2 + t * point3);
-        //     meleeBallRB.MovePosition(newPos);
-        //     yield return new WaitForSeconds(0.5f / Time.deltaTime);
-        // }
-        yield return new WaitForSeconds(0f);
+        meleeTrail.emitting = true;
+        meleeTrail.time = 0.25f;
+        Vector3 newPos = new Vector3(0f, 0f, 0f);
+        Vector3 p0 = point0.localPosition;
+        Vector3 p1 = point1.localPosition;
+        Vector3 p2 = point2.localPosition;
+        for (float t = 0; t <= 1.0f; t += 1.0f / meleeNumIters) {
+            newPos = Mathf.Pow(1 - t, 2) * p0 + 2 * (1 - t) * t * p1 + Mathf.Pow(t, 2) * p2;
+            Vector3 dir = newPos - meleeBall.localPosition;
+            meleeBall.Translate(dir, Space.Self);
+            yield return new WaitForSeconds(meleeTime / meleeNumIters);
+        }
+        meleeTrail.emitting = false;
+        meleeBall.localPosition = p0;
     }
 
     // Knocks the player back when attacking an enemy or platform.
