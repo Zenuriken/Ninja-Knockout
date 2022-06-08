@@ -5177,7 +5177,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 0.25
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -5230,7 +5230,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 15
+      scalar: 20
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -5662,7 +5662,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 1000
+    maxNumParticles: 100
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
     rotation3D: 0
@@ -14901,7 +14901,8 @@ PolygonCollider2D:
       - {x: 0.2286686, y: -0.5548537}
       - {x: 0.17801197, y: -0.80315995}
       - {x: 0.11294292, y: -1.0468673}
-      - {x: 0.6194041, y: -1.4537312}
+      - {x: 0.56804323, y: -1.4124707}
+      - {x: 0.63248974, y: -1.3585469}
       - {x: 0.6772388, y: -0.77289414}
       - {x: 0.6833143, y: -0.38882664}
       - {x: 0.6756087, y: -0.012388546}
@@ -15001,7 +15002,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 94bcc91c5cc4194468c830964663422a, type: 3}
   m_Color: {r: 0.8980393, g: 0.8980393, b: 0.8980393, a: 1}
   m_FlipX: 0
@@ -15065,6 +15066,8 @@ MonoBehaviour:
   spawnDelay: 0.15
   numShurikens: 100
   spinSpeed: 1000
+  knockBackForce: 15
+  knockBackDur: 0.5
   groundDust: {fileID: 1235888323}
   wallClimbDust: {fileID: 2141654167}
   sparks: {fileID: 1605555548}
@@ -15102,7 +15105,7 @@ MonoBehaviour:
   maxHealth: 1000
   bufferDur: 10
   stunDuration: 0.5
-  knockBackForce: 15
+  stunForce: 15
   stunnedGravity: 5
 --- !u!70 &1641313492
 CapsuleCollider2D:

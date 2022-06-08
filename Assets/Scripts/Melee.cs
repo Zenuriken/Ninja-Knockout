@@ -7,7 +7,7 @@ public class Melee : MonoBehaviour
     private PolygonCollider2D meleeCollider;
     private List<Collider2D> enemyColliders;
     private List<Collider2D> projectileColliders;
-    
+    private List<Collider2D> platformColliders;
 
     // Start is called before the first frame update
     void Start()
@@ -15,6 +15,7 @@ public class Melee : MonoBehaviour
         meleeCollider = this.GetComponent<PolygonCollider2D>();
         enemyColliders = new List<Collider2D>();
         projectileColliders = new List<Collider2D>();
+        platformColliders = new List<Collider2D>();
     }
 
     // When the melee attack hits an enemy or projectile
@@ -25,8 +26,11 @@ public class Melee : MonoBehaviour
             }
         } else if (other.gameObject.tag == "Projectile") {
             if (!projectileColliders.Contains(other)) {
-                //Debug.Log("Shuriken entered: " + Time.time);
                 projectileColliders.Add(other);
+            }
+        } else if (other.gameObject.tag == "Platform") {
+            if (!platformColliders.Contains(other)) {
+                platformColliders.Add(other);
             }
         }
     }
@@ -36,7 +40,8 @@ public class Melee : MonoBehaviour
             enemyColliders.Remove(other);
         } else if (other.gameObject.tag == "Projectile") {
             projectileColliders.Remove(other);
-            //Debug.Log("Shuriken exited: " + Time.time);
+        } else if (other.gameObject.tag == "Platform") {
+            platformColliders.Remove(other);
         }
     }
 
@@ -48,7 +53,6 @@ public class Melee : MonoBehaviour
         } else {
             enemyScript.TakeDmg(1);
         }
-        //Debug.Log(enemyScript.GetHealth());
     }
 
     // Removes an enemy from the list of enemy colliders upon death
@@ -63,6 +67,13 @@ public class Melee : MonoBehaviour
         }
     }
 
+    // Removes a platform from the list of platform colliders.
+    public void RemovePlatFromList(Collider2D platCollider) {
+        if (platformColliders.Contains(platCollider)) {
+            platformColliders.Remove(platCollider);
+        }
+    }
+
     // Returns the list of enemy colliders the melee will contact with.
     public List<Collider2D> GetEnemyColliders() {
         return enemyColliders;
@@ -71,5 +82,10 @@ public class Melee : MonoBehaviour
     // Returns the list of projectile colliders the melee will contact with.
     public List<Collider2D> GetProjectileColliders() {
         return projectileColliders;
+    }
+
+    // Returns the list of platform colliders the melee will contact with.
+    public List<Collider2D> GetPlatformColliders() {
+        return platformColliders;
     }
 }

@@ -9,7 +9,7 @@ public class Health : MonoBehaviour
     public float maxHealth;
     public float bufferDur;
     public float stunDuration;
-    public float knockBackForce;
+    public float stunForce;
     public float stunnedGravity;
 
     // Private variables
@@ -31,10 +31,6 @@ public class Health : MonoBehaviour
         gravity = playerRB.gravityScale;
     }
 
-    private void Update() {
-        //Debug.Log("Player health: " + currHealth.ToString() + "  Ignore layer collision: " + Physics2D.GetIgnoreLayerCollision(7, 9));
-    }
-
     private void OnCollisionStay2D(Collision2D other) {
         if (other.gameObject.tag == "Enemy") {
             currHealth -= 1;
@@ -42,12 +38,12 @@ public class Health : MonoBehaviour
                 Destroy(this.gameObject);
             }
             
+            // Knocks player back at a 60 degree angle.
             Vector2 dir = new Vector2(1f / 2f, Mathf.Sqrt(3) / 2f);
             float collisionDir = this.gameObject.transform.position.x - other.gameObject.transform.position.x;
             if (collisionDir < 0) {
                 dir.x *= -1;
             }
-            Debug.Log("Direction: " + dir.ToString());
             StartCoroutine(Stunned(dir));
             StartCoroutine("DamageBuffer");
         }
@@ -56,17 +52,9 @@ public class Health : MonoBehaviour
     // Prevents the player from moving when getting hit
     private IEnumerator Stunned(Vector2 dir) {
         playerScript.SetStunned(true);
-        // float t = 0;
-        // while (t < 100) {
-        //     float x = v0 * t * Mathf.Cos(angle);
-        //     float y = v0 * t * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(t, 2);
-        //     transform.position = new Vector3(x, y, 0);
-        //     t += Time.deltaTime;
-        //     yield return null;
-        // }
         playerRB.velocity = new Vector2(0f, 0f);
         playerRB.gravityScale = stunnedGravity;
-        playerRB.AddForce(dir * knockBackForce, ForceMode2D.Impulse);
+        playerRB.AddForce(dir * stunForce, ForceMode2D.Impulse);
         yield return new WaitForSeconds(stunDuration);
         playerRB.gravityScale = gravity;
         playerScript.SetStunned(false);
@@ -100,18 +88,6 @@ public class Health : MonoBehaviour
 
         Physics2D.IgnoreLayerCollision(7, 9, false);
     }
-
-    // Knocks the player back when getting damaged;
-    // private IEnumerator KnockBack(Vector2 dir) {
-    //     playerRB.velocity = new Vector2(0f, 0f);
-    //     playerRB.AddForce(dir * knockBackForce, ForceMode2D.Impulse);
-    //     yield return new WaitForSeconds(knockBackDur);
-    // }
-
-
-
-
-
 }
 
 

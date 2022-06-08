@@ -61,8 +61,8 @@ public class PlayerController : MonoBehaviour
     [Space(5)]
     #endregion
 
-    #region Shooting Variables
-    [Header("Shooting")]
+    #region Attack Variables
+    [Header("Attacking")]
     [SerializeField]
     [Tooltip("The shuriken prefab.")]
     private GameObject shurikenPrefab;
@@ -81,6 +81,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     [Tooltip("The spin speed of shuriken.")]
     private float spinSpeed;
+    [SerializeField]
+    [Tooltip("The knock back force when clashing with a platform or enemy.")]
+    private float knockBackForce;
+    [SerializeField]
+    [Tooltip("The knock back duration when clashing with a platform or enemy.")]
+    private float knockBackDur;
     [Space(5)]
     #endregion
 
@@ -155,6 +161,12 @@ public class PlayerController : MonoBehaviour
     private int lastMeleeDir;
     private static int meleeCounter;
 
+    private Transform point0;
+    private Transform point1;
+    private Transform point2;
+    private TrailRenderer meleeTrail;
+    private Rigidbody2D meleeBallRB;
+
     // Private wallClimb variables
     private float wallClimbDustDist;
 
@@ -209,6 +221,13 @@ public class PlayerController : MonoBehaviour
         meleeCounter = 0;
         dashTrail.emitting = false;
         doubleJumpTrail.emitting = false;
+
+        meleeTrail = this.transform.GetChild(1).GetChild(1).GetComponent<TrailRenderer>();
+        meleeTrail.emitting = false;
+        //meleeBallRB = this.transform.GetChild(1).GetChild(1).GetComponent<Rigidbody2D>();
+        point0 = this.transform.GetChild(1).GetChild(2).transform;
+        point1 = this.transform.GetChild(1).GetChild(3).transform;
+        point2 = this.transform.GetChild(1).GetChild(4).transform;
     }
     #endregion
 
@@ -355,6 +374,7 @@ public class PlayerController : MonoBehaviour
     }
 
     IEnumerator ReduceTrail(TrailRenderer trail) {
+        trail.emitting = true;
         for (float t = 0.25f; t > 0; t -= 0.05f) {
             trail.time = t;
             yield return new WaitForSeconds(trailDur);
@@ -432,14 +452,21 @@ public class PlayerController : MonoBehaviour
         if (firePressed && CanAttack() && numShurikens > 0 && !isDashing) {
             StartCoroutine("SpawnShuriken");
         } else if (meleePressed && CanAttack()) {
+            if (isGrounded) {
+                CreateDust(0);
+            }
             meleeActive = true;
             meleeCounter += 1;
-            CreateSparks();
+            meleeTrail.emitting = true;
+            meleeTrail.time = 0.25f;
+            StartCoroutine("MeleeTrail");
+            StartCoroutine(ReduceTrail(meleeTrail));
             Invoke("SetMeleeActiveFalse", 0.18f);
-
         }
 
         if (meleeActive) {
+            bool contact = false;
+            bool sparks = false;
             List<Collider2D> enemyColliders = meleeScript.GetEnemyColliders();
             foreach (Collider2D collider in enemyColliders) {
                 EnemyController enemy = collider.gameObject.GetComponent<EnemyController>();
@@ -451,6 +478,7 @@ public class PlayerController : MonoBehaviour
                     }
                     enemy.SetDamagedCounter(meleeCounter);
                 }
+                sparks = true;
             }
 
             List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
@@ -460,6 +488,23 @@ public class PlayerController : MonoBehaviour
                     shuriken.Deflected();
                     shuriken.SetDeflectedCounter(meleeCounter);
                 }
+                contact = true;
+                sparks = true;
+            }
+
+            List<Collider2D> platformColliders = meleeScript.GetPlatformColliders();
+            if (platformColliders.Count > 0) {
+                contact = true;
+                sparks = true;
+            }
+
+            if (contact) {
+                Vector2 dir = new Vector2(-lastDir, 0f);
+                StartCoroutine(KnockBack(dir));
+            }
+
+            if (sparks) {
+                CreateSparks();
             }
         }
     }
@@ -474,9 +519,23 @@ public class PlayerController : MonoBehaviour
         return (lastAttack + attackRate <= Time.time) && !isStunned;
     }
 
-    // Knocks the player back when attacking or getting damaged.
-    private void KnockBack() {
-        
+    // Makes the trail for the melee attack.
+    IEnumerator MeleeTrail() {
+        Vector2 pos = point0.localPosition;
+        Debug.Log(pos.ToString());
+        // for (float t = 0; t < 1.0f; t += Time.deltaTime) {
+        //     newPos = (1.0f - t) * ((1.0f - t) * point1 + t * point2) + t * ((1.0f - t) * point2 + t * point3);
+        //     meleeBallRB.MovePosition(newPos);
+        //     yield return new WaitForSeconds(0.5f / Time.deltaTime);
+        // }
+        yield return new WaitForSeconds(0f);
+    }
+
+    // Knocks the player back when attacking an enemy or platform.
+    IEnumerator KnockBack(Vector2 dir) {
+        playerRB.velocity = new Vector2(0f, 0f);
+        playerRB.AddForce(dir * knockBackForce, ForceMode2D.Impulse);
+        yield return new WaitForSeconds(knockBackDur);
     }
 
     private IEnumerator SpawnShuriken() {
