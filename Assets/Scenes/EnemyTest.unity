@@ -2741,30 +2741,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
-        type: 3}
-      propertyPath: meleeTime
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
-        type: 3}
-      propertyPath: meleeTrailTime
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
-        type: 3}
-      propertyPath: meleeTeleportTime
-      value: 0.6
-      objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969652, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 7618300674168063723, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
-        type: 3}
-      propertyPath: m_LocalScale.x
-      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
@@ -2798,6 +2778,14 @@ PrefabInstance:
     - target: {fileID: 25251864, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: graphMask.value
       value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 381119507, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: knockBackDur
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 381119507, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: knockBackForce
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 6371837796901407288, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}

@@ -18,7 +18,14 @@ public class EnemyController : MonoBehaviour
 
     private Melee meleeScript;
     private BoxCollider2D enemyCollider;
+    private Rigidbody2D enemyRB;
     private int enemyHealth;
+
+
+    // Getting Damaged
+    public float knockBackDur;
+    public float knockBackForce;
+
     // Attacking the player
     public float attackSpeed;
     public float dmg;
@@ -45,6 +52,7 @@ public class EnemyController : MonoBehaviour
         unalertedCol = unalertedObj.GetComponent<PolygonCollider2D>();
         alertedCol = alertedObj.GetComponent<PolygonCollider2D>();
         enemyCollider = this.GetComponent<BoxCollider2D>();
+        enemyRB = this.GetComponent<Rigidbody2D>();
         isAlerted = false;
         enemyHealth = 5;
         hasDied = false;
@@ -71,11 +79,13 @@ public class EnemyController : MonoBehaviour
     // Reduces the enemy's health by dmg.
     public void TakeDmg(int dmg) {
         enemyHealth -= dmg;
+        StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerDir(), 0f)));
         if (enemyHealth <= 0) {
             Invoke("DestroyEnemy", destroyDelay);
         }
     }
 
+    // Removes the enemy from the player's melee collider list and destroys the enemy.
     private void DestroyEnemy() {
         meleeScript.RemoveEnemyFromList(enemyCollider);
         Destroy(this.gameObject);
@@ -98,6 +108,12 @@ public class EnemyController : MonoBehaviour
     // Checks to see if enemy has already been damaged by player's current meleeCounter.
     public bool HasBeenDamaged(int counter) {
         return this.damageCounter == counter;
+    }
+
+    IEnumerator KnockBack(Vector2 playerDir) {
+        enemyRB.velocity = new Vector2(0f, 0f);
+        enemyRB.AddForce(playerDir * knockBackForce, ForceMode2D.Impulse);
+        yield return new WaitForSeconds(knockBackDur);
     }
 
 

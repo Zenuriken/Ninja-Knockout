@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The duration of a jump when holding down the jump key.")]
     private float jumpDur;
     [SerializeField]
-    [Tooltip("The delay between dashes.")]
+    [Tooltip("The delay between jumps.")]
     private float jumpDelay;
     [Space(5)]
     #endregion
@@ -114,8 +114,6 @@ public class PlayerController : MonoBehaviour
     private float meleeTime;
     [SerializeField]
     private float meleeTrailTime;
-    [SerializeField]
-    private float meleeTeleportTime;
     [Space(5)]
     #endregion
 
@@ -175,12 +173,9 @@ public class PlayerController : MonoBehaviour
     private int lastMeleeDir;
     private static int meleeCounter;
     private bool hitPlatform;
-
-    private GameObject meleeBallObj;
     private Transform point0;
     private Transform point1;
     private Transform point2;
-    private TrailRenderer meleeTrail;
 
     // Private wallClimb variables
     private float wallClimbDustDist;
@@ -223,11 +218,9 @@ public class PlayerController : MonoBehaviour
         // Getting Melee Components
         meleePointRectTrans = this.transform.GetChild(1).GetComponent<RectTransform>();
         meleeScript = meleePointRectTrans.GetComponent<Melee>();
-        meleeTrail = meleePointRectTrans.GetChild(1).GetComponent<TrailRenderer>();
-        meleeBallObj = meleePointRectTrans.GetChild(1).gameObject;
-        point0 = meleePointRectTrans.GetChild(2).transform;
-        point1 = meleePointRectTrans.GetChild(3).transform;
-        point2 = meleePointRectTrans.GetChild(4).transform;
+        point0 = meleePointRectTrans.GetChild(1).transform;
+        point1 = meleePointRectTrans.GetChild(2).transform;
+        point2 = meleePointRectTrans.GetChild(3).transform;
     }
 
     // Start is called before the first frame update
@@ -245,7 +238,7 @@ public class PlayerController : MonoBehaviour
         meleeCounter = 0;
         dashTrail.emitting = false;
         doubleJumpTrail.emitting = false;
-        meleeTrail.emitting = false;
+        //meleeTrail.emitting = false;
     }
     #endregion
 
@@ -292,16 +285,17 @@ public class PlayerController : MonoBehaviour
             }
 
             // Tapping the jump button
-            if (jumpPressed && (isGrounded || jumpCounter > 0) && !isDashing && !isWallJumping && !isAgainstWall && CanJump()) {
+            if (jumpPressed && (isGrounded || jumpCounter > 0) && !isDashing && !isWallJumping && !isAgainstWall && !isAttacking && CanJump()) {
                 isJumping = true;
                 jumpDurTimer = jumpDur;
                 playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
                 jumpCounter -= 1;
+                lastJump = Time.time;
 
                 if (!isGrounded) {
                     doubleJumpTrail.emitting = true;
                     doubleJumpTrail.time = 0.25f;
-                    StartCoroutine(ReduceTrail(doubleJumpTrail));
+                    StartCoroutine(ReduceTrail(doubleJumpTrail, false));
                 }
             }
 
@@ -341,13 +335,14 @@ public class PlayerController : MonoBehaviour
                 if (!isGrounded) {
                     CreateDust(1);
                 }
-                // Wall Jumping
+                // Setting Wall Jumping to true
                 if (jumpPressed) {
                     isWallJumping = true;
                     Invoke("SetWallJumpingFalse", wallJumpDur);
                 }
             }
 
+            // Wall Jumping
             if (isWallJumping) {
                 playerRB.velocity = new Vector2(-lastDir * moveSpeed, jumpVel);
             }
@@ -387,17 +382,21 @@ public class PlayerController : MonoBehaviour
             yield return new WaitForSeconds(dashDur);
             playerRB.gravityScale = gravity;
             isDashing = false;
-            StartCoroutine(ReduceTrail(dashTrail));
+            StartCoroutine(ReduceTrail(dashTrail, false));
         }
     }
 
-    IEnumerator ReduceTrail(TrailRenderer trail) {
+    IEnumerator ReduceTrail(TrailRenderer trail, bool destroy) {
         trail.emitting = true;
-        for (float t = 0.25f; t > 0; t -= 0.05f) {
+        for (float t = 0.25f; t >= 0; t -= 0.05f) {
             trail.time = t;
             yield return new WaitForSeconds(trailDur);
         }
         trail.emitting = false;
+
+        if (destroy) {
+            Destroy(trail.gameObject);
+        }
     }
 
     void CreateDust(int s) {
@@ -462,12 +461,12 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
-    #region Shooting Functions
+    #region Attack Functions
     // Main attack function.
     private void Attack() {
         if (firePressed && CanAttack() && numShurikens > 0 && !isDashing) {
             StartCoroutine("SpawnShuriken");
-        } else if (meleePressed && CanAttack()) {
+        } else if (meleePressed && CanAttack() && isGrounded) {
             if (isGrounded) {
                 CreateDust(0);
             }
@@ -538,33 +537,28 @@ public class PlayerController : MonoBehaviour
     // Makes the trail for the melee attack.
     IEnumerator MeleeTrail() {
         Vector3 newPos = new Vector3(0f, 0f, 0f);
-        // Vector3 p0 = point0.localPosition;
-        // Vector3 p1 = point1.localPosition;
-        // Vector3 p2 = point2.localPosition;
-        Vector3 p0 = point0.position;
-        Vector3 p1 = point1.position;
-        Vector3 p2 = point2.position;
+        Vector3 p0 = point0.localPosition;
+        Vector3 p1 = point1.localPosition;
+        Vector3 p2 = point2.localPosition;
 
-        GameObject potato = GameObject.Instantiate(meleeBallPrefab, p0, Quaternion.identity);
-        meleeTrail = potato.GetComponent<TrailRenderer>();
+        GameObject meleeBall = GameObject.Instantiate(meleeBallPrefab, meleePointRectTrans, false);
+        TrailRenderer meleeTrail = meleeBall.GetComponent<TrailRenderer>();
         meleeTrail.emitting = true;
         meleeTrail.time = meleeTrailTime;
         // Uses Bezier Curves to interpolate the ball's position along three points.
         for (float t = 0; t <= 1.0f; t += 1.0f / meleeNumIters) {
             if (hitPlatform) {
-                break;
+                meleeTrail.emitting = false;
+                Destroy(meleeBall);
+                yield break;
             }
             newPos = Mathf.Pow(1 - t, 2) * p0 + 2 * (1 - t) * t * p1 + Mathf.Pow(t, 2) * p2;
-            Vector3 dir = newPos - potato.transform.position;
-            potato.transform.Translate(dir, Space.Self);
+            Vector3 dir = newPos - meleeBall.transform.localPosition;
+            meleeBall.transform.Translate(dir, Space.Self);
             yield return new WaitForSeconds(meleeTime / meleeNumIters);
         }
-        StartCoroutine(ReduceTrail(meleeTrail));
-        yield return new WaitForSeconds(meleeTeleportTime);
-        Destroy(potato);
-        // GameObject newMeleeBallObj = GameObject.Instantiate(meleeBallPrefab, meleePointRectTrans, false);
-        // meleeBallObj = newMeleeBallObj;
-        // meleeTrail = newMeleeBallObj.GetComponent<TrailRenderer>();
+        meleeBall.transform.parent = null;
+        StartCoroutine(ReduceTrail(meleeTrail, true));
     }
 
     // Knocks the player back when attacking an enemy or platform.
@@ -661,7 +655,7 @@ public class PlayerController : MonoBehaviour
             Invoke("SetIsThrowingFalse", 0.5f);
         }
 
-        if (meleePressed && CanAttack()) {
+        if (meleePressed && CanAttack() && isGrounded) {
             isAttacking = true;
             playerAnim.SetBool("isMeleeing", true);
             lastAttack = Time.time;
