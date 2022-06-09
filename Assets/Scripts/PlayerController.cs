@@ -174,6 +174,7 @@ public class PlayerController : MonoBehaviour
     private float meleeSpeed;
     private int lastMeleeDir;
     private static int meleeCounter;
+    private bool hitPlatform;
 
     private GameObject meleeBallObj;
     private Transform point0;
@@ -508,6 +509,9 @@ public class PlayerController : MonoBehaviour
             if (platformColliders.Count > 0) {
                 contact = true;
                 sparks = true;
+                hitPlatform = true;
+            } else {
+                hitPlatform = false;
             }
 
             if (contact) {
@@ -533,27 +537,34 @@ public class PlayerController : MonoBehaviour
 
     // Makes the trail for the melee attack.
     IEnumerator MeleeTrail() {
+        Vector3 newPos = new Vector3(0f, 0f, 0f);
+        // Vector3 p0 = point0.localPosition;
+        // Vector3 p1 = point1.localPosition;
+        // Vector3 p2 = point2.localPosition;
+        Vector3 p0 = point0.position;
+        Vector3 p1 = point1.position;
+        Vector3 p2 = point2.position;
+
+        GameObject potato = GameObject.Instantiate(meleeBallPrefab, p0, Quaternion.identity);
+        meleeTrail = potato.GetComponent<TrailRenderer>();
         meleeTrail.emitting = true;
         meleeTrail.time = meleeTrailTime;
-        Vector3 newPos = new Vector3(0f, 0f, 0f);
-        Vector3 p0 = point0.localPosition;
-        Vector3 p1 = point1.localPosition;
-        Vector3 p2 = point2.localPosition;
-
         // Uses Bezier Curves to interpolate the ball's position along three points.
         for (float t = 0; t <= 1.0f; t += 1.0f / meleeNumIters) {
+            if (hitPlatform) {
+                break;
+            }
             newPos = Mathf.Pow(1 - t, 2) * p0 + 2 * (1 - t) * t * p1 + Mathf.Pow(t, 2) * p2;
-            Vector3 dir = newPos - meleeBallObj.transform.localPosition;
-            meleeBallObj.transform.Translate(dir, Space.Self);
+            Vector3 dir = newPos - potato.transform.position;
+            potato.transform.Translate(dir, Space.Self);
             yield return new WaitForSeconds(meleeTime / meleeNumIters);
         }
-        meleeTrail.emitting = false;
+        StartCoroutine(ReduceTrail(meleeTrail));
         yield return new WaitForSeconds(meleeTeleportTime);
-
-        Destroy(meleeBallObj);
-        GameObject newMeleeBallObj = GameObject.Instantiate(meleeBallPrefab, meleePointRectTrans, false);
-        meleeBallObj = newMeleeBallObj;
-        meleeTrail = newMeleeBallObj.GetComponent<TrailRenderer>();
+        Destroy(potato);
+        // GameObject newMeleeBallObj = GameObject.Instantiate(meleeBallPrefab, meleePointRectTrans, false);
+        // meleeBallObj = newMeleeBallObj;
+        // meleeTrail = newMeleeBallObj.GetComponent<TrailRenderer>();
     }
 
     // Knocks the player back when attacking an enemy or platform.
