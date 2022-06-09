@@ -107,9 +107,15 @@ public class PlayerController : MonoBehaviour
     #region Melee Trail Variables
     [Header("Trail")]
     [SerializeField]
+    private GameObject meleeBallPrefab;
+    [SerializeField]
     private float meleeNumIters;
     [SerializeField]
     private float meleeTime;
+    [SerializeField]
+    private float meleeTrailTime;
+    [SerializeField]
+    private float meleeTeleportTime;
     [Space(5)]
     #endregion
 
@@ -151,7 +157,7 @@ public class PlayerController : MonoBehaviour
 
     // Private shooting variables
     private TMP_Text shurikenTxt;
-    private GameObject firePoint;
+    private Transform firePointTrans;
     private float firePointDist;
     private float lastAttack;
 
@@ -161,16 +167,15 @@ public class PlayerController : MonoBehaviour
     private float lastJump;
 
     // Melee private variables
-    private bool meleeActive;
-    private GameObject meleePoint;
     private RectTransform meleePointRectTrans;
     private Melee meleeScript;
+    private bool meleeActive;
     private float meleePointDist;
     private float meleeSpeed;
     private int lastMeleeDir;
     private static int meleeCounter;
 
-    private Transform meleeBall;
+    private GameObject meleeBallObj;
     private Transform point0;
     private Transform point1;
     private Transform point2;
@@ -181,7 +186,6 @@ public class PlayerController : MonoBehaviour
 
     // General private variables
     private Rigidbody2D playerRB;
-    //private BoxCollider2D boxCollider2D;
     private Collider2D boxCollider2D;
     private LayerMask platformLayerMask;
     private LayerMask allPlatformsLayerMask;
@@ -201,23 +205,33 @@ public class PlayerController : MonoBehaviour
 /**********************************************************************************/
 
     #region Initializing Functions
-    // Start is called before the first frame update
-    void Start()
-    {
+    // Awake is called before Start
+    private void Awake() {
+        // Getting Player Components
         playerRB = GetComponent<Rigidbody2D>();
-        //boxCollider2D = GetComponent<BoxCollider2D>();
         boxCollider2D = GetComponent<Collider2D>();
         playerAnim = GetComponent<Animator>();
         playerSprite = GetComponent<SpriteRenderer>();
         dashTrail = this.transform.GetChild(2).GetChild(1).GetComponent<TrailRenderer>();
         doubleJumpTrail = this.transform.GetChild(2).GetChild(2).GetComponent<TrailRenderer>();
         shurikenTxt = GameObject.Find("Shurikens").GetComponent<TMP_Text>();
-        firePoint = this.transform.GetChild(0).gameObject;
-        meleePoint = this.transform.GetChild(1).gameObject;
-        meleePointRectTrans = meleePoint.GetComponent<RectTransform>();
-        meleeScript = meleePoint.GetComponent<Melee>();
         platformLayerMask = LayerMask.GetMask("Platform");
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
+        firePointTrans = this.transform.GetChild(0);
+
+        // Getting Melee Components
+        meleePointRectTrans = this.transform.GetChild(1).GetComponent<RectTransform>();
+        meleeScript = meleePointRectTrans.GetComponent<Melee>();
+        meleeTrail = meleePointRectTrans.GetChild(1).GetComponent<TrailRenderer>();
+        meleeBallObj = meleePointRectTrans.GetChild(1).gameObject;
+        point0 = meleePointRectTrans.GetChild(2).transform;
+        point1 = meleePointRectTrans.GetChild(3).transform;
+        point2 = meleePointRectTrans.GetChild(4).transform;
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
         speed = moveSpeed;
         lastDir = 1;
         lastMeleeDir = 1;
@@ -230,13 +244,7 @@ public class PlayerController : MonoBehaviour
         meleeCounter = 0;
         dashTrail.emitting = false;
         doubleJumpTrail.emitting = false;
-
-        meleeTrail = this.transform.GetChild(1).GetChild(1).GetComponent<TrailRenderer>();
         meleeTrail.emitting = false;
-        meleeBall = this.transform.GetChild(1).GetChild(1).transform;
-        point0 = this.transform.GetChild(1).GetChild(2).transform;
-        point1 = this.transform.GetChild(1).GetChild(3).transform;
-        point2 = this.transform.GetChild(1).GetChild(4).transform;
     }
     #endregion
 
@@ -261,7 +269,6 @@ public class PlayerController : MonoBehaviour
         Attack();
         UpdateSprite();
         CoverPlayer();
-        playerSprite.color = new Color(1f, 1f, 1f, 0.0f);
     }
     #endregion
 
@@ -421,7 +428,6 @@ public class PlayerController : MonoBehaviour
     // Determines if the player is standing on ground.
     private void IsGrounded() {
         bool groundStatus = isGrounded;
-        //RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(0.6f, boxCollider2D.bounds.size.y), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(0.6f, boxCollider2D.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
         bool onGround = raycastHit2D.collider != null;
         if (onGround) {
@@ -467,7 +473,6 @@ public class PlayerController : MonoBehaviour
             meleeActive = true;
             meleeCounter += 1;
             StartCoroutine("MeleeTrail");
-            //StartCoroutine(ReduceTrail(meleeTrail));
             Invoke("SetMeleeActiveFalse", 0.18f);
         }
 
@@ -529,19 +534,26 @@ public class PlayerController : MonoBehaviour
     // Makes the trail for the melee attack.
     IEnumerator MeleeTrail() {
         meleeTrail.emitting = true;
-        meleeTrail.time = 0.25f;
+        meleeTrail.time = meleeTrailTime;
         Vector3 newPos = new Vector3(0f, 0f, 0f);
         Vector3 p0 = point0.localPosition;
         Vector3 p1 = point1.localPosition;
         Vector3 p2 = point2.localPosition;
+
+        // Uses Bezier Curves to interpolate the ball's position along three points.
         for (float t = 0; t <= 1.0f; t += 1.0f / meleeNumIters) {
             newPos = Mathf.Pow(1 - t, 2) * p0 + 2 * (1 - t) * t * p1 + Mathf.Pow(t, 2) * p2;
-            Vector3 dir = newPos - meleeBall.localPosition;
-            meleeBall.Translate(dir, Space.Self);
+            Vector3 dir = newPos - meleeBallObj.transform.localPosition;
+            meleeBallObj.transform.Translate(dir, Space.Self);
             yield return new WaitForSeconds(meleeTime / meleeNumIters);
         }
         meleeTrail.emitting = false;
-        meleeBall.localPosition = p0;
+        yield return new WaitForSeconds(meleeTeleportTime);
+
+        Destroy(meleeBallObj);
+        GameObject newMeleeBallObj = GameObject.Instantiate(meleeBallPrefab, meleePointRectTrans, false);
+        meleeBallObj = newMeleeBallObj;
+        meleeTrail = newMeleeBallObj.GetComponent<TrailRenderer>();
     }
 
     // Knocks the player back when attacking an enemy or platform.
@@ -551,9 +563,10 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(knockBackDur);
     }
 
+    // Spawns the shuriken at the fire point of the player.
     private IEnumerator SpawnShuriken() {
         yield return new WaitForSeconds(spawnDelay);
-        GameObject shuriken = Object.Instantiate(shurikenPrefab, firePoint.transform.position, Quaternion.identity);
+        GameObject shuriken = Object.Instantiate(shurikenPrefab, firePointTrans.position, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
         Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
         shurikenScript.SetShurikenDir(lastDir);
@@ -563,19 +576,17 @@ public class PlayerController : MonoBehaviour
             rb.AddTorque(-spinSpeed, ForceMode2D.Force);  
         }  
         rb.velocity = new Vector2(lastDir * shurikenSpeed, 0);
-
     }
 
     // Switches the attack point gameObject of the player based on direction.
     private void SwitchChildPositions() {
-        Vector3 firePos = firePoint.transform.position;
-        Vector3 meleePos = meleePoint.transform.position;
+        Vector3 firePos = firePointTrans.position;
+        Vector3 meleePos = meleePointRectTrans.position;
         Vector3 wallClimbDustPos = wallClimbDust.transform.position;
         if (lastDir == -1) {
             firePos.x = this.transform.position.x - firePointDist;
             meleePos.x = this.transform.position.x - meleePointDist;
             wallClimbDustPos.x = this.transform.position.x - wallClimbDustDist;
-
         } else {
             firePos.x = this.transform.position.x + firePointDist;
             meleePos.x = this.transform.position.x + meleePointDist;
@@ -585,8 +596,8 @@ public class PlayerController : MonoBehaviour
             meleePointRectTrans.Rotate(new Vector3(0, 180, 0), Space.Self);
             lastMeleeDir = lastDir;
         }
-        firePoint.transform.position = firePos;
-        meleePoint.transform.position = meleePos;
+        firePointTrans.position = firePos;
+        meleePointRectTrans.position = meleePos;
         wallClimbDust.transform.position = wallClimbDustPos;
     }
     #endregion
