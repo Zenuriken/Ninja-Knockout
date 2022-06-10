@@ -14,6 +14,7 @@ public class Shuriken : MonoBehaviour
     private GameObject player;
     private PlayerController playerScript;
     private Melee meleeScript;
+    private SpriteRenderer shurikenSprite;
 
     private float deflectedMultiplier = 1.5f;
 
@@ -29,6 +30,7 @@ public class Shuriken : MonoBehaviour
         rb = this.GetComponent<Rigidbody2D>();
         col = this.GetComponent<CircleCollider2D>();
         trailRen = this.GetComponent<TrailRenderer>();
+        shurikenSprite = this.GetComponent<SpriteRenderer>();
         player = GameObject.Find("Player");
         playerScript = player.GetComponent<PlayerController>();
         meleeScript = player.transform.GetChild(1).GetComponent<Melee>();
@@ -80,6 +82,12 @@ public class Shuriken : MonoBehaviour
             // Change trail color red
             trailRen.colorGradient = deflectedTwiceColor;
             deflectedMultiplier += 0.5f;
+        }
+
+        if (throwDir == 1) {
+            shurikenSprite.flipX = false;
+        } else if (throwDir == -1) {
+            shurikenSprite.flipX = true;
         }
         rb.velocity = new Vector2(throwDir * shurikenSpeed * deflectedMultiplier, 0);
     }

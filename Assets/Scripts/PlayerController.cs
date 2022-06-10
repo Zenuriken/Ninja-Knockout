@@ -336,7 +336,7 @@ public class PlayerController : MonoBehaviour
                     CreateDust(1);
                 }
                 // Setting Wall Jumping to true
-                if (jumpPressed) {
+                if (jumpPressed && CanJump()) {
                     isWallJumping = true;
                     Invoke("SetWallJumpingFalse", wallJumpDur);
                 }
@@ -345,6 +345,7 @@ public class PlayerController : MonoBehaviour
             // Wall Jumping
             if (isWallJumping) {
                 playerRB.velocity = new Vector2(-lastDir * moveSpeed, jumpVel);
+                lastJump = Time.time;
             }
         }
     }
@@ -574,11 +575,12 @@ public class PlayerController : MonoBehaviour
         GameObject shuriken = Object.Instantiate(shurikenPrefab, firePointTrans.position, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
         Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
+        SpriteRenderer shurikenSprite = shuriken.GetComponent<SpriteRenderer>();
         shurikenScript.SetShurikenDir(lastDir);
         if (lastDir == -1) {
-            rb.AddTorque(spinSpeed, ForceMode2D.Force);
+            shurikenSprite.flipX = true;
         } else {
-            rb.AddTorque(-spinSpeed, ForceMode2D.Force);  
+            shurikenSprite.flipX = false;
         }  
         rb.velocity = new Vector2(lastDir * shurikenSpeed, 0);
     }

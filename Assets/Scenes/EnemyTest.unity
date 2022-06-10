@@ -307,7 +307,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -2682,6 +2682,30 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 139994243, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.3724
+      objectReference: {fileID: 0}
+    - target: {fileID: 139994243, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.267
+      objectReference: {fileID: 0}
+    - target: {fileID: 500484370, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.193
+      objectReference: {fileID: 0}
+    - target: {fileID: 500484370, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.37
+      objectReference: {fileID: 0}
+    - target: {fileID: 1419665963, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.687
+      objectReference: {fileID: 0}
+    - target: {fileID: 1419665963, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.418
+      objectReference: {fileID: 0}
     - target: {fileID: 1605555548, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
       propertyPath: CollisionModule.m_Planes.Array.data[0]
       value: 
@@ -2745,6 +2769,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5612327972322969655, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2979981823345329277}
   - component: {fileID: 8747422646029415666}
   - component: {fileID: -3981287193616733559}
+  - component: {fileID: -3107024557950177731}
   m_Layer: 0
   m_Name: Shuriken
   m_TagString: Projectile
@@ -306,6 +307,25 @@ TrailRenderer:
   m_MinVertexDistance: 0.01
   m_Autodestruct: 0
   m_Emitting: 1
+--- !u!95 &-3107024557950177731
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571422860314671873}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: caeffedc34d9f4161b7694ad0d84bbd3, type: 3}
+  m_Controller: {fileID: 9100000, guid: 0d0e10339d1d60144847afaebfc241b2, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &4081098207173951175
 GameObject:
   m_ObjectHideFlags: 0
