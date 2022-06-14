@@ -2698,6 +2698,22 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 2.37
       objectReference: {fileID: 0}
+    - target: {fileID: 1240132748, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1240132748, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1240132748, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 4.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 1240132748, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 4.02
+      objectReference: {fileID: 0}
     - target: {fileID: 1419665963, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.687
@@ -2718,12 +2734,12 @@ PrefabInstance:
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -20.66
+      value: -20.54
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -8.424469
+      value: -6.26
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
@@ -2753,7 +2769,7 @@ PrefabInstance:
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
@@ -2769,6 +2785,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5612327972322969655, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
+      propertyPath: m_FlipX
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5612327972322969655, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 4.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 5612327972322969655, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 4.02
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969655, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
