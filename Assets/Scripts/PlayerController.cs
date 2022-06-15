@@ -109,6 +109,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private GameObject meleeBallPrefab;
     [SerializeField]
+    private float meleeBallSpeed;
+    [SerializeField]
     private float meleeNumIters;
     [SerializeField]
     private float meleeTime;
@@ -485,13 +487,13 @@ public class PlayerController : MonoBehaviour
                 EnemyController enemy = collider.gameObject.GetComponent<EnemyController>();
                 if (!enemy.HasBeenDamaged(meleeCounter)) {
                     if (enemy.IsAlerted()) {
-                        enemy.TakeDmg(1);
+                        enemy.TakeDmg(1, true);
                     } else {
-                        enemy.TakeDmg(5);
+                        enemy.TakeDmg(5, true);
                     }
                     enemy.SetDamagedCounter(meleeCounter);
                 }
-                sparks = true;
+                contact = true;
             }
 
             List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
@@ -544,20 +546,30 @@ public class PlayerController : MonoBehaviour
 
         GameObject meleeBall = GameObject.Instantiate(meleeBallPrefab, meleePointRectTrans, false);
         TrailRenderer meleeTrail = meleeBall.GetComponent<TrailRenderer>();
+        //Rigidbody2D meleeBallRB = meleeBall.GetCOmponent<Rigidbody2D>();
         meleeTrail.emitting = true;
         meleeTrail.time = meleeTrailTime;
+
+        float lastTValue = 0f;
         // Uses Bezier Curves to interpolate the ball's position along three points.
-        for (float t = 0; t <= 1.0f; t += 1.0f / meleeNumIters) {
+        for (float t = 0; t <= 1.0f; t += Time.deltaTime * meleeBallSpeed) {
+            lastTValue = t;
             if (hitPlatform) {
                 meleeTrail.emitting = false;
                 Destroy(meleeBall);
                 yield break;
             }
             newPos = Mathf.Pow(1 - t, 2) * p0 + 2 * (1 - t) * t * p1 + Mathf.Pow(t, 2) * p2;
-            Vector3 dir = newPos - meleeBall.transform.localPosition;
-            meleeBall.transform.Translate(dir, Space.Self);
-            yield return new WaitForSeconds(meleeTime / meleeNumIters);
+            meleeBall.transform.localPosition = newPos;
+            yield return new WaitForEndOfFrame();
         }
+
+        // Sets the last position of the melee ball if it did not reach the full swing.
+        if (lastTValue < 1.0f) {
+            meleeBall.transform.localPosition = p2;
+            yield return new WaitForEndOfFrame();
+        }
+
         meleeBall.transform.parent = null;
         StartCoroutine(ReduceTrail(meleeTrail, true));
     }
@@ -574,15 +586,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(spawnDelay);
         GameObject shuriken = Object.Instantiate(shurikenPrefab, firePointTrans.position, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
-        Rigidbody2D rb = shuriken.GetComponent<Rigidbody2D>();
-        SpriteRenderer shurikenSprite = shuriken.GetComponent<SpriteRenderer>();
-        shurikenScript.SetShurikenDir(lastDir);
-        if (lastDir == -1) {
-            shurikenSprite.flipX = true;
-        } else {
-            shurikenSprite.flipX = false;
-        }  
-        rb.velocity = new Vector2(lastDir * shurikenSpeed, 0);
+        shurikenScript.SetShurikenVelocity(lastDir);
     }
 
     // Switches the attack point gameObject of the player based on direction.

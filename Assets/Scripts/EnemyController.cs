@@ -77,9 +77,11 @@ public class EnemyController : MonoBehaviour
     }
 
     // Reduces the enemy's health by dmg.
-    public void TakeDmg(int dmg) {
+    public void TakeDmg(int dmg, bool wasMeleed) {
         enemyHealth -= dmg;
-        StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerDir(), 0f)));
+        if (wasMeleed) {
+            StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerDir(), 0f)));
+        }
         if (enemyHealth <= 0) {
             Invoke("DestroyEnemy", destroyDelay);
         }

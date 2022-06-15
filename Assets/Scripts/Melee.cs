@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class Melee : MonoBehaviour
 {
+    #region Private Variables
     private PolygonCollider2D meleeCollider;
     private List<Collider2D> enemyColliders;
     private List<Collider2D> projectileColliders;
     private List<Collider2D> platformColliders;
+    #endregion
 
+    #region Initialization Functions
     // Start is called before the first frame update
     void Start()
     {
@@ -17,7 +20,9 @@ public class Melee : MonoBehaviour
         projectileColliders = new List<Collider2D>();
         platformColliders = new List<Collider2D>();
     }
+    #endregion
 
+    #region Collision Functions
     // When the melee attack hits an enemy or projectile
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.tag == "Enemy") {
@@ -44,17 +49,9 @@ public class Melee : MonoBehaviour
             platformColliders.Remove(other);
         }
     }
+    #endregion
 
-    // Damages the enemy
-    private void DamageEnemy(Collider2D other) {
-        EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
-        if (!enemyScript.IsAlerted()) {
-            enemyScript.TakeDmg(5);
-        } else {
-            enemyScript.TakeDmg(1);
-        }
-    }
-
+    #region Public Functions
     // Removes an enemy from the list of enemy colliders upon death
     public void RemoveEnemyFromList(Collider2D enemyCollider) {
         enemyColliders.Remove(enemyCollider);
@@ -88,4 +85,5 @@ public class Melee : MonoBehaviour
     public List<Collider2D> GetPlatformColliders() {
         return platformColliders;
     }
+    #endregion
 }

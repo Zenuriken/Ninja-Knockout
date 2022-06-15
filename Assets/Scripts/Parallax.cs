@@ -4,16 +4,24 @@ using UnityEngine;
 
 public class Parallax : MonoBehaviour
 {
+    [SerializeField]
+    [Tooltip("The camera to apply the parallax effect to.")]
+    private GameObject cam;
+    [SerializeField]
+    [Tooltip("The parallax effect to apply to this layer.")]
+    private float parallaxEffect;
+    [SerializeField]
+    [Tooltip("The parallax offset.")]
+    private float offset;
+    
     private float length;
     private float startPos;
-    public GameObject cam;
-    public float parallaxEffect;
-    public float offset;
 
     private void Start() {
         startPos = transform.position.x;
         length = GetComponent<SpriteRenderer>().bounds.size.x;
     }
+    
     // Update is called once per frame
     void Update()
     {
