@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour
     private Camera cam;
 
     [SerializeField]
-    [Tooltip("The proportion of the camera to move in the x dimension.")]
+    [Tooltip("The proportion of the camera's width size to move in the x dimension.")]
     private float xProportion;
 
     [SerializeField]
@@ -32,6 +32,7 @@ public class CameraController : MonoBehaviour
     private int playerDir;
     private float yVelocity;
     private float xVelocity;
+    private float currSmoothTime;
     #endregion
 
     #region Initializing Functions
@@ -42,6 +43,8 @@ public class CameraController : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         playerScript = player.GetComponent<PlayerController>();
         playerDir = playerScript.GetPlayerDir();
+
+        currSmoothTime = smoothTime;
     }
 
     // Draws the bounds for the thresholds of the camera
@@ -59,6 +62,7 @@ public class CameraController : MonoBehaviour
         Vector3 pos = this.transform.position;
         Vector3 targetPos = player.transform.position;
         playerDir = playerScript.GetPlayerDir();
+        SetSmoothTime(playerScript.GetSneakingStatus());
         float xOffset = cam.orthographicSize * 2 * xProportion;
         if (playerDir == 1) {
             targetPos = new Vector3(targetPos.x + xOffset, targetPos.y, targetPos.z);
@@ -73,9 +77,17 @@ public class CameraController : MonoBehaviour
         
         if (targetPos.x > pos.x + cam.orthographicSize * xThreshold
             || targetPos.x < pos.x - cam.orthographicSize * xThreshold) {
-                pos.x = Mathf.SmoothDamp(pos.x, targetPos.x, ref xVelocity, smoothTime);
+                pos.x = Mathf.SmoothDamp(pos.x, targetPos.x, ref xVelocity, currSmoothTime);
         }
         this.transform.position = pos;
     }
     #endregion
+
+    public void SetSmoothTime(bool isSneaking) {
+        if (isSneaking) {
+            currSmoothTime = smoothTime * 2;
+        } else {
+            currSmoothTime = smoothTime;
+        }
+    }
 }

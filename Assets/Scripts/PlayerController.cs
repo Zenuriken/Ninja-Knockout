@@ -730,5 +730,9 @@ public class PlayerController : MonoBehaviour
     public bool GetHidingStatus() {
         return isHiding;
     }
+
+    public bool GetSneakingStatus() {
+        return isSneaking;
+    }
     #endregion
 }
