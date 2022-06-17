@@ -27,7 +27,7 @@ public class EnemyAI : MonoBehaviour
     private EnemyController enemyControllerScript;
     private Path path;
     private int currentWaypoint = 0;
-    //private bool isGrounded = false;
+    private bool isGrounded = false;
     Seeker seeker;
     Rigidbody2D rb;
 
@@ -45,7 +45,21 @@ public class EnemyAI : MonoBehaviour
        InvokeRepeating("UpdatePath", 0f, pathUpdateSeconds);
     }
 
-    // Update is called once per frame
+    // Update is called once per frame// Determines if the player is standing on ground.
+    // private void IsGrounded() {
+    //     bool groundStatus = isGrounded;
+    //     RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(0.6f, boxCollider2D.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
+    //     bool onGround = raycastHit2D.collider != null;
+    //     if (onGround) {
+    //         jumpCounter = 1;
+    //         dashCounter = 1;
+    //     }
+    //     isGrounded = onGround;
+    //     if (groundStatus == false && isGrounded == true) {
+    //         CreateDust(0);
+    //     }
+    //     return;
+    // }
     private void Update() {
         if (TargetInDistance() && followEnabled) {
             PathFollow();

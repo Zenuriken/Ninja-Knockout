@@ -4,40 +4,54 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+    // Player cahced references
     private GameObject player;
     private PlayerController playerScript;
-    // Detecting the player
+    private Melee meleeScript;
+
+    // Cached components
     private GameObject unalertedObj;
     private GameObject alertedObj;
     private SpriteRenderer unalertedSprite;
     private SpriteRenderer alertedSprite;
+    private SpriteRenderer enemySprite;
     private PolygonCollider2D unalertedCol;
-    private PolygonCollider2D alertedCol; 
+    private PolygonCollider2D alertedCol;
+    private Animator enemyAnim;
+    private BoxCollider2D enemyCollider;
+    private Rigidbody2D enemyRB;
+
+    private RectTransform firePointTrans;
+    private RectTransform meleePointRectTrans;
+
+    // Private variables
+    private int enemyHealth;
     private bool isAlerted;
     private bool playerDetected;
 
-    private Melee meleeScript;
-    private BoxCollider2D enemyCollider;
-    private Rigidbody2D enemyRB;
-    private int enemyHealth;
-
-
-    // Getting Damaged
     public float knockBackDur;
     public float knockBackForce;
 
-    // Attacking the player
     public float attackSpeed;
     public float dmg;
 
-    public float destroyDelay;
+    public float firePointDist;
+    public float meleePointDist;
 
+    public float destroyDelay;
     private bool hasDied;
+
+    private int lastDir;
+    private int lastMeleeDir;
 
     // The player's meleeCounter that damaged the enemy
     private int damageCounter;
 
-    
+    private bool isStunned;
+    private bool isGrounded;
+
+    public LayerMask platformLayerMask;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -49,17 +63,24 @@ public class EnemyController : MonoBehaviour
         alertedObj = this.transform.GetChild(1).gameObject;
         unalertedSprite = unalertedObj.GetComponent<SpriteRenderer>();
         alertedSprite = alertedObj.GetComponent<SpriteRenderer>();
+        enemySprite = this.GetComponent<SpriteRenderer>();
         unalertedCol = unalertedObj.GetComponent<PolygonCollider2D>();
         alertedCol = alertedObj.GetComponent<PolygonCollider2D>();
         enemyCollider = this.GetComponent<BoxCollider2D>();
         enemyRB = this.GetComponent<Rigidbody2D>();
+        enemyAnim = this.GetComponent<Animator>();
+        firePointTrans = this.transform.GetChild(3).GetComponent<RectTransform>();
+        meleePointRectTrans = this.transform.GetChild(4).GetComponent<RectTransform>();
+
         isAlerted = false;
         enemyHealth = 5;
         hasDied = false;
+        lastMeleeDir = 1;
     }
 
     private void Update() {
-        
+        setDirection();
+        isGrounded = IsGrounded();
     }
 
     // Returns whether or not an enemy is alerted to the player's presence.
@@ -117,6 +138,109 @@ public class EnemyController : MonoBehaviour
         enemyRB.AddForce(playerDir * knockBackForce, ForceMode2D.Impulse);
         yield return new WaitForSeconds(knockBackDur);
     }
+
+    // Sets the variable: lastDir based on the velocity of the enemy.
+    private void setDirection() {
+        int dir = lastDir;
+        if (enemyRB.velocity.x > 0) {
+            lastDir = 1;
+            SwitchChildPositions();
+        } else if (enemyRB.velocity.x > 0) {
+            lastDir = -1;
+            SwitchChildPositions();
+        }
+    }
+
+    // Switches the attack point gameObject of the enemy based on direction.
+    private void SwitchChildPositions() {
+        Vector3 firePos = firePointTrans.position;
+        Vector3 meleePos = meleePointRectTrans.position;
+        if (lastDir == -1) {
+            firePos.x = this.transform.position.x - firePointDist;
+            meleePos.x = this.transform.position.x - meleePointDist;
+        } else {
+            firePos.x = this.transform.position.x + firePointDist;
+            meleePos.x = this.transform.position.x + meleePointDist;
+        }
+        if (lastDir != lastMeleeDir) {
+            meleePointRectTrans.Rotate(new Vector3(0, 180, 0), Space.Self);
+            lastMeleeDir = lastDir;
+        }
+        firePointTrans.position = firePos;
+        meleePointRectTrans.position = meleePos;
+    }
+
+    #region Sprite Rendering Functions
+    // Updates the player's sprites based on input/state.
+    private void UpdateSprite() {
+        if (lastDir == 1 && !isStunned) {
+            enemySprite.flipX = false;
+        } else if (lastDir == -1 && !isStunned) {
+            enemySprite.flipX = true;
+        }
+
+        if (Mathf.Abs(enemyRB.velocity.x) > 0) {
+            enemyAnim.SetBool("isMoving", true);
+        } else {
+            enemyAnim.SetBool("isMoving", false);
+        }
+
+        if (enemyRB.velocity.y > 0.001) {
+            enemyAnim.SetBool("isJumping", true);
+        } else {
+            enemyAnim.SetBool("isJumping", false);
+        }
+        
+        if (enemyRB.velocity.y < -0.001) {
+            enemyAnim.SetBool("isFalling", true);
+        } else {
+            enemyAnim.SetBool("isFalling", false);
+        }
+
+        if (isGrounded) {
+            enemyAnim.SetBool("isGrounded", true);
+        } else {
+            enemyAnim.SetBool("isGrounded", false);
+        }
+
+        // if (firePressed && CanAttack() && numShurikens > 0 && !isDashing) {
+        //     isAttacking = true;
+        //     enemyAnim.SetBool("isThrowing", true);
+        //     lastAttack = Time.time;
+        //     numShurikens -= 1;
+        //     shurikenTxt.text = "Shurikens: " + numShurikens.ToString();
+        //     Invoke("SetIsThrowingFalse", 0.5f);
+        // }
+
+        // if (meleePressed && CanAttack() && isGrounded) {
+        //     isAttacking = true;
+        //     enemyAnim.SetBool("isMeleeing", true);
+        //     lastAttack = Time.time;
+        //     Invoke("SetIsMeleeingFalse", 0.5f);
+        // }
+
+        if (isStunned) {
+            enemyAnim.SetBool("isStunned", true);
+        } else {
+            enemyAnim.SetBool("isStunned", false);
+        }
+    }
+
+    // private void SetIsThrowingFalse() {
+    //     playerAnim.SetBool("isThrowing", false);
+    //     isAttacking = false;
+    // }
+
+    // private void SetIsMeleeingFalse() {
+    //     playerAnim.SetBool("isMeleeing", false);
+    //     isAttacking = false;
+    // }
+    private bool IsGrounded() {
+        RaycastHit2D raycastHit2D = Physics2D.BoxCast(enemyCollider.bounds.center, enemyCollider.bounds.size, 0f, Vector2.down, 0.1f, platformLayerMask);
+        bool onGround = raycastHit2D.collider != null;
+        return onGround;
+    }
+    #endregion
 
 
 
