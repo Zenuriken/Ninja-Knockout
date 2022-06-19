@@ -44,13 +44,19 @@ public class EnemyController : MonoBehaviour
     private int lastDir;
     private int lastMeleeDir;
 
+    public float stunDuration;
+    public float stunForce;
+    public float stunnedGravity;
+
     // The player's meleeCounter that damaged the enemy
     private int damageCounter;
 
     private bool isStunned;
     private bool isGrounded;
 
-    public LayerMask platformLayerMask;
+    private int lastPlayerDir;
+
+    public LayerMask allPlatformsLayerMask;
 
     // Start is called before the first frame update
     void Start()
@@ -72,6 +78,8 @@ public class EnemyController : MonoBehaviour
         firePointTrans = this.transform.GetChild(3).GetComponent<RectTransform>();
         meleePointRectTrans = this.transform.GetChild(4).GetComponent<RectTransform>();
 
+        allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
+
         isAlerted = false;
         enemyHealth = 5;
         hasDied = false;
@@ -79,8 +87,13 @@ public class EnemyController : MonoBehaviour
     }
 
     private void Update() {
-        setDirection();
-        isGrounded = IsGrounded();
+        if (!hasDied) {
+            setDirection();
+            isGrounded = IsGrounded();
+            enemyRB.velocity = new Vector2(enemyRB.velocity.x, Mathf.Clamp(enemyRB.velocity.y, -25, 25));
+
+            UpdateSprite();
+        }
     }
 
     // Returns whether or not an enemy is alerted to the player's presence.
@@ -104,6 +117,7 @@ public class EnemyController : MonoBehaviour
             StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerDir(), 0f)));
         }
         if (enemyHealth <= 0) {
+            hasDied = true;
             Invoke("DestroyEnemy", destroyDelay);
         }
     }
@@ -134,9 +148,11 @@ public class EnemyController : MonoBehaviour
     }
 
     IEnumerator KnockBack(Vector2 playerDir) {
+        isStunned = true;
         enemyRB.velocity = new Vector2(0f, 0f);
         enemyRB.AddForce(playerDir * knockBackForce, ForceMode2D.Impulse);
         yield return new WaitForSeconds(knockBackDur);
+        isStunned = false;
     }
 
     // Sets the variable: lastDir based on the velocity of the enemy.
@@ -170,6 +186,23 @@ public class EnemyController : MonoBehaviour
         meleePointRectTrans.position = meleePos;
     }
 
+    private bool IsGrounded() {
+        RaycastHit2D raycastHit2D = Physics2D.BoxCast(enemyCollider.bounds.center, new Vector2(0.6f, enemyCollider.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
+        bool onGround = raycastHit2D.collider != null;
+        return onGround;
+    }
+
+    // Stuns enemy when getting hit
+    // private IEnumerator Stunned(Vector2 dir) {
+    //     isStunned = true;
+    //     enemyRB.velocity = new Vector2(0f, 0f);
+    //     enemyRB.gravityScale = stunnedGravity;
+    //     enemyRB.AddForce(dir * stunForce, ForceMode2D.Impulse);
+    //     yield return new WaitForSeconds(stunDuration);
+    //     enemyRB.gravityScale = gravity;
+    //     isStunned = false;
+    // }
+
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
@@ -179,7 +212,7 @@ public class EnemyController : MonoBehaviour
             enemySprite.flipX = true;
         }
 
-        if (Mathf.Abs(enemyRB.velocity.x) > 0) {
+        if (Mathf.Abs(enemyRB.velocity.x) > 0.001) {
             enemyAnim.SetBool("isMoving", true);
         } else {
             enemyAnim.SetBool("isMoving", false);
@@ -235,11 +268,6 @@ public class EnemyController : MonoBehaviour
     //     playerAnim.SetBool("isMeleeing", false);
     //     isAttacking = false;
     // }
-    private bool IsGrounded() {
-        RaycastHit2D raycastHit2D = Physics2D.BoxCast(enemyCollider.bounds.center, enemyCollider.bounds.size, 0f, Vector2.down, 0.1f, platformLayerMask);
-        bool onGround = raycastHit2D.collider != null;
-        return onGround;
-    }
     #endregion
 
 
