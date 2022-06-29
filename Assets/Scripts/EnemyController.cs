@@ -21,7 +21,7 @@ public class EnemyController : MonoBehaviour
     private BoxCollider2D enemyCollider;
     private Rigidbody2D enemyRB;
 
-    private RectTransform firePointTrans;
+    private Transform firePointTrans;
     private RectTransform meleePointRectTrans;
 
     // Private variables
@@ -41,8 +41,8 @@ public class EnemyController : MonoBehaviour
     public float destroyDelay;
     private bool hasDied;
 
-    private int lastDir;
-    private int lastMeleeDir;
+    //private int lastDir;
+    //private int lastMeleeDir;
 
     public float stunDuration;
     public float stunForce;
@@ -75,23 +75,23 @@ public class EnemyController : MonoBehaviour
         enemyCollider = this.GetComponent<BoxCollider2D>();
         enemyRB = this.GetComponent<Rigidbody2D>();
         enemyAnim = this.GetComponent<Animator>();
-        firePointTrans = this.transform.GetChild(3).GetComponent<RectTransform>();
-        meleePointRectTrans = this.transform.GetChild(4).GetComponent<RectTransform>();
+        firePointTrans = this.transform.GetChild(4).transform;
+        meleePointRectTrans = this.transform.GetChild(3).GetComponent<RectTransform>();
 
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
 
         isAlerted = false;
-        enemyHealth = 5;
+        enemyHealth = 1000;
         hasDied = false;
-        lastMeleeDir = 1;
+        //lastMeleeDir = 1;
+        //lastDir = 1;
     }
 
     private void Update() {
         if (!hasDied) {
-            setDirection();
+            //setDirection();
             isGrounded = IsGrounded();
             enemyRB.velocity = new Vector2(enemyRB.velocity.x, Mathf.Clamp(enemyRB.velocity.y, -25, 25));
-
             UpdateSprite();
         }
     }
@@ -156,35 +156,37 @@ public class EnemyController : MonoBehaviour
     }
 
     // Sets the variable: lastDir based on the velocity of the enemy.
-    private void setDirection() {
-        int dir = lastDir;
-        if (enemyRB.velocity.x > 0) {
-            lastDir = 1;
-            SwitchChildPositions();
-        } else if (enemyRB.velocity.x > 0) {
-            lastDir = -1;
-            SwitchChildPositions();
-        }
-    }
+    // private void setDirection() {
+    //     int currDir = lastDir;
+    //     if (enemyRB.velocity.x > 0.001) {
+    //         lastDir = 1;
+    //     } else if (enemyRB.velocity.x < -0.001) {
+    //         lastDir = -1;
+    //     }
+
+    //     if (currDir != lastDir) {
+    //         SwitchChildPositions();
+    //     }
+    // }
 
     // Switches the attack point gameObject of the enemy based on direction.
-    private void SwitchChildPositions() {
-        Vector3 firePos = firePointTrans.position;
-        Vector3 meleePos = meleePointRectTrans.position;
-        if (lastDir == -1) {
-            firePos.x = this.transform.position.x - firePointDist;
-            meleePos.x = this.transform.position.x - meleePointDist;
-        } else {
-            firePos.x = this.transform.position.x + firePointDist;
-            meleePos.x = this.transform.position.x + meleePointDist;
-        }
-        if (lastDir != lastMeleeDir) {
-            meleePointRectTrans.Rotate(new Vector3(0, 180, 0), Space.Self);
-            lastMeleeDir = lastDir;
-        }
-        firePointTrans.position = firePos;
-        meleePointRectTrans.position = meleePos;
-    }
+    // private void SwitchChildPositions() {
+    //     Vector3 firePos = firePointTrans.position;
+    //     Vector3 meleePos = meleePointRectTrans.position;
+    //     if (lastDir == -1) {
+    //         firePos.x = this.transform.position.x - firePointDist;
+    //         meleePos.x = this.transform.position.x - meleePointDist;
+    //     } else {
+    //         firePos.x = this.transform.position.x + firePointDist;
+    //         meleePos.x = this.transform.position.x + meleePointDist;
+    //     }
+    //     if (lastDir != lastMeleeDir) {
+    //         meleePointRectTrans.Rotate(new Vector3(0, 180, 0), Space.Self);
+    //         lastMeleeDir = lastDir;
+    //     }
+    //     firePointTrans.position = firePos;
+    //     meleePointRectTrans.position = meleePos;
+    // }
 
     private bool IsGrounded() {
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(enemyCollider.bounds.center, new Vector2(0.6f, enemyCollider.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
@@ -206,11 +208,11 @@ public class EnemyController : MonoBehaviour
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
-        if (lastDir == 1 && !isStunned) {
-            enemySprite.flipX = false;
-        } else if (lastDir == -1 && !isStunned) {
-            enemySprite.flipX = true;
-        }
+        // if (lastDir == 1 && !isStunned) {
+        //     enemySprite.flipX = false;
+        // } else if (lastDir == -1 && !isStunned) {
+        //     enemySprite.flipX = true;
+        // }
 
         if (Mathf.Abs(enemyRB.velocity.x) > 0.001) {
             enemyAnim.SetBool("isMoving", true);
@@ -234,6 +236,12 @@ public class EnemyController : MonoBehaviour
             enemyAnim.SetBool("isGrounded", true);
         } else {
             enemyAnim.SetBool("isGrounded", false);
+        }
+
+        if(isAlerted) {
+            enemyAnim.SetBool("isAlerted", true);
+        } else {
+            enemyAnim.SetBool("isAlerted", false);
         }
 
         // if (firePressed && CanAttack() && numShurikens > 0 && !isDashing) {

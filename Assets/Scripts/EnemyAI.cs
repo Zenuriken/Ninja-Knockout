@@ -27,7 +27,7 @@ public class EnemyAI : MonoBehaviour
     private EnemyController enemyControllerScript;
     private Path path;
     private int currentWaypoint = 0;
-    private bool isGrounded = false;
+    //private bool isGrounded = false;
     Seeker seeker;
     Rigidbody2D rb;
 
@@ -45,21 +45,6 @@ public class EnemyAI : MonoBehaviour
        InvokeRepeating("UpdatePath", 0f, pathUpdateSeconds);
     }
 
-    // Update is called once per frame// Determines if the player is standing on ground.
-    // private void IsGrounded() {
-    //     bool groundStatus = isGrounded;
-    //     RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(0.6f, boxCollider2D.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
-    //     bool onGround = raycastHit2D.collider != null;
-    //     if (onGround) {
-    //         jumpCounter = 1;
-    //         dashCounter = 1;
-    //     }
-    //     isGrounded = onGround;
-    //     if (groundStatus == false && isGrounded == true) {
-    //         CreateDust(0);
-    //     }
-    //     return;
-    // }
     private void Update() {
         if (TargetInDistance() && followEnabled) {
             PathFollow();
@@ -84,26 +69,17 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
-
-        // See if colliding with anything
-        // Determines if the player is standing on ground.
-        // isGrounded = Physics2D.Raycast(transform.position, -Vector3.up, GetComponent<Collider2D>().bounds.extents.y + jumpCheckOffset);
-        // Debug.Log("Enemy is grounded");
-        // Direction Calculation
         Vector2 direction = ((Vector2) path.vectorPath[currentWaypoint] - rb.position).normalized;
-        Debug.Log("DirectionX: " + direction.x + "   DirectionY: " + direction.y);
         Vector2 force = direction * speed * Time.deltaTime;
         
         // Jump
         if (jumpEnabled && IsGrounded()) {
             if (target.position.y - 1f > rb.transform.position.y && targetRb.velocity.y == 0 && path.vectorPath.Count < 20) {
                 rb.AddForce(Vector2.up * jumpModifier);
-                //rb.MovePosition(new Vector3(rb.position.x, target.position.y + 5f));
             }
         }
 
         // Movement
-        //rb.AddForce(force);
         if (enemyControllerScript.IsAlerted()) {
             if (direction.x > 0) {
                 rb.velocity = new Vector2(speed, rb.velocity.y);

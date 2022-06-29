@@ -540,11 +540,12 @@ public class PlayerController : MonoBehaviour
     // Makes the trail for the melee attack.
     IEnumerator MeleeTrail() {
         Vector3 newPos = new Vector3(0f, 0f, 0f);
-        Vector3 p0 = point0.localPosition;
-        Vector3 p1 = point1.localPosition;
-        Vector3 p2 = point2.localPosition;
+        Vector3 p0 = point0.position;
+        Vector3 p1 = point1.position;
+        Vector3 p2 = point2.position;
 
-        GameObject meleeBall = GameObject.Instantiate(meleeBallPrefab, meleePointRectTrans, false);
+        //GameObject meleeBall = GameObject.Instantiate(meleeBallPrefab, meleePointRectTrans, false);
+        GameObject meleeBall = GameObject.Instantiate(meleeBallPrefab, p0, Quaternion.identity);
         TrailRenderer meleeTrail = meleeBall.GetComponent<TrailRenderer>();
         //Rigidbody2D meleeBallRB = meleeBall.GetCOmponent<Rigidbody2D>();
         meleeTrail.emitting = true;
@@ -560,22 +561,23 @@ public class PlayerController : MonoBehaviour
                 yield break;
             }
             newPos = Mathf.Pow(1 - t, 2) * p0 + 2 * (1 - t) * t * p1 + Mathf.Pow(t, 2) * p2;
-            meleeBall.transform.localPosition = newPos;
+            meleeBall.transform.position = newPos;
             yield return new WaitForEndOfFrame();
         }
 
         // Sets the last position of the melee ball if it did not reach the full swing.
         if (lastTValue < 1.0f) {
-            meleeBall.transform.localPosition = p2;
+            meleeBall.transform.position = p2;
             yield return new WaitForEndOfFrame();
         }
 
-        meleeBall.transform.parent = null;
+        //meleeBall.transform.parent = null;
         StartCoroutine(ReduceTrail(meleeTrail, true));
     }
 
     // Knocks the player back when attacking an enemy or platform.
     IEnumerator KnockBack(Vector2 dir) {
+        yield return new WaitForSeconds(0.001f);
         playerRB.velocity = new Vector2(0f, 0f);
         playerRB.AddForce(dir * knockBackForce, ForceMode2D.Impulse);
         yield return new WaitForSeconds(knockBackDur);

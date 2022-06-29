@@ -48,12 +48,12 @@ public class CameraController : MonoBehaviour
     }
 
     // Draws the bounds for the thresholds of the camera
-    private void OnDrawGizmos() {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireCube(this.transform.position, new Vector2(cam.orthographicSize * 2 * xThreshold, cam.orthographicSize * 2 * yThreshold));
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(this.transform.position, new Vector2(cam.orthographicSize * 2 * xProportion, cam.orthographicSize * 2));
-    }
+    // private void OnDrawGizmos() {
+    //     Gizmos.color = Color.blue;
+    //     Gizmos.DrawWireCube(this.transform.position, new Vector2(cam.orthographicSize * 2 * xThreshold, cam.orthographicSize * 2 * yThreshold));
+    //     Gizmos.color = Color.red;
+    //     Gizmos.DrawWireCube(this.transform.position, new Vector2(cam.orthographicSize * 2 * xProportion, cam.orthographicSize * 2));
+    // }
     #endregion
 
     #region Update Functions
