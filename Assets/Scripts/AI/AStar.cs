@@ -28,7 +28,6 @@ public class AStar : MonoBehaviour
     public class Node {
         private Vector3Int pos;
         private Node parent;
-        private bool hasVisited;
         private float cost;
 
         // Constructor for the Node class
@@ -41,7 +40,7 @@ public class AStar : MonoBehaviour
             }
         }
 
-        // Returns the position of the Node.
+        // Returns the cell position of the Node.
         public Vector3Int GetPos() {
             return this.pos;
         }
@@ -51,17 +50,7 @@ public class AStar : MonoBehaviour
             return this.parent;
         }
 
-        // Returns if this Node has been visited already.
-        public bool WasVisited() {
-            return this.hasVisited;
-        }
-
-        // Marks this Node as being visited.
-        public void SetVisited() {
-            this.hasVisited = true;
-        }
-
-        // Returns the cost of getting to this Node from parent Node.
+        // Returns the cumulative cost of getting to this node from ancestor nodes.
         public float GetCost() {
             return this.cost;
         }
@@ -87,7 +76,7 @@ public class AStar : MonoBehaviour
             for (float y = lowerY; y <= upperY; y+=1f) {
                 Vector3Int coords = platformTilemap.WorldToCell(new Vector2(x, y));
                 if (IsWalkable(coords)) {
-                    GameObject node = GameObject.Instantiate(nodePrefab, coords, Quaternion.identity);
+                    GameObject node = GameObject.Instantiate(nodePrefab, new Vector2(x, y), Quaternion.identity);
                 }
             }
         }
@@ -104,7 +93,7 @@ public class AStar : MonoBehaviour
         return (isEmpty && hasPlatformUnder);
     }
 
-    // Returns a list of walkable neighbor platforms to explore that is not the parent.
+    // Returns a list of walkable neighbor nodes to explore.
     public List<Node> GetNeighbors(Node n) {
         List<Node> neighbors = new List<Node>();
         Vector3Int pos = n.GetPos();
@@ -127,14 +116,14 @@ public class AStar : MonoBehaviour
         // Check jump left
         testPos = new Vector3Int(pos.x - 2, pos.y + 4, 0);
         if (IsWalkable(testPos)) {
-            Node newNode = new Node(testPos, n, 3f);
+            Node newNode = new Node(testPos, n, 1f);
             neighbors.Add(newNode);
         }
 
         // Check jump right
         testPos = new Vector3Int(pos.x + 2, pos.y + 4, 0);
         if (IsWalkable(testPos)) {
-            Node newNode = new Node(testPos, n, 3f);
+            Node newNode = new Node(testPos, n, 1f);
             neighbors.Add(newNode);
         }
 
@@ -143,27 +132,30 @@ public class AStar : MonoBehaviour
         return neighbors;
     }
 
+
+    // An optimization would be have the nodes already constructed, and then identify which nodes the enemy/player lie on. Then traverse premade neighbors.
+
     // Calculates the path. If it exists, returns a list of node positions to follow.
     private List<Vector3Int> CalculatePath() {
 
         // Try to construct path only if enemy and player is at a walkable platform.
         // In this way the enemy only goes to the player's last known location.
-        Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1));
-        Vector3Int goalPos = platformTilemap.WorldToCell(new Vector2(target.position.x, target.position.y - 1));
+        Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
+        Vector3Int goalPos = platformTilemap.WorldToCell(new Vector2(target.position.x, target.position.y - 1f));
 
         if (IsWalkable(startPos) && IsWalkable(goalPos)) {
+            Vector3Int startCellPos = platformTilemap.WorldToCell(goalPos);
             Vector3Int goalCellPos = platformTilemap.WorldToCell(goalPos);
-
+            List<Vector3Int> reached = new List<Vector3Int>();
             PriorityQueue<Node> frontier = new PriorityQueue<Node>();
             Node startingNode = new Node(startPos, null, 0f); // Node: (position, parent Node, cost)
             frontier.Enqueue(0f, startingNode);
             int counter = 0;
             while (frontier.Count() > 0 && counter < 1000) {
                 Node currNode = frontier.Dequeue();
-
+                Debug.Log("Frontier nodes: " + frontier.Count());
                 // If we found the player.
                 if (platformTilemap.WorldToCell(currNode.GetPos()) == goalCellPos) {
-                    Debug.Log("Player found!");
                     List<Vector3Int> path = new List<Vector3Int>();
                     while (currNode.GetParent() != null) {
                         path.Add(currNode.GetPos());
@@ -174,8 +166,8 @@ public class AStar : MonoBehaviour
                 }
                 
                 // If we didn't find the player -> Search neighboring Nodes.
-                if (!currNode.WasVisited()) {
-                    currNode.SetVisited();
+                if (!reached.Contains(currNode.GetPos())) {
+                    reached.Add(currNode.GetPos());
                     List<Node> neighbors = GetNeighbors(currNode);
                     foreach (Node node in neighbors) {
                         float totalNodeCost = node.GetCost() + CalcHeuristic(node.GetPos(), goalPos);
@@ -184,6 +176,7 @@ public class AStar : MonoBehaviour
                 }
                 counter += 1;
             }
+            Debug.Log("Not found. Expanded: " + counter);
         }
         return null;
     }
@@ -196,7 +189,13 @@ public class AStar : MonoBehaviour
     // Draw the Path created by CalculatePath()
     private void DrawPath(List<Vector3Int> path) {
         for (int i = path.Count - 1; i > 0; i--) {
-            Debug.DrawLine(path[i], path[i - 1], Color.green, 0.5f, false);
+            Vector2 p1 = platformTilemap.CellToWorld(path[i]);
+            p1.x += 0.5f;
+            p1.y += 0.5f;
+            Vector2 p2 = platformTilemap.CellToWorld(path[i - 1]);
+            p2.x += 0.5f;
+            p2.y += 0.5f;
+            Debug.DrawLine(p1, p2, Color.green, 0.5f, false);
         }
     }
 }
