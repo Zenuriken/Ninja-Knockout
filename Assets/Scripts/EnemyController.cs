@@ -4,7 +4,54 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    // Player cahced references
+    #region Movement Variables
+    [SerializeField]
+    [Tooltip("The number of tiles the enemy can stray from starting pos while in patrol mode.")]
+    private int maxNodeDist;
+    [SerializeField]
+    [Tooltip("How long the enemy is in an idle state before patrolling.")]
+    private float idleDur;
+    [SerializeField]
+    [Tooltip("The speed of the enemy when patrolling.")]
+    private float patrolSpeed;
+    [SerializeField]
+    [Tooltip("The speed of the enemy when pursuing.")]
+    private float pursueSpeed;
+    [SerializeField]
+    [Tooltip("The jump velocity of the enemy when pursuing.")]
+    private float jumpVel;
+
+    #endregion
+    
+    #region Health Variables
+    [SerializeField]
+    [Tooltip("How much health this enemy has.")]
+    private int enemyHealth;
+    [SerializeField]
+    [Tooltip("The dealy before the enemy is destroyed")]
+    private float destroyDelay;
+    #endregion
+
+    #region Attack Variables
+    [SerializeField]
+    [Tooltip("How often the enemy can attack.")]
+    private float attackSpeed;
+    [SerializeField]
+    [Tooltip("How much damage this enemy deals per hit.")]
+    private float dmg;
+    #endregion
+
+    #region Knockback Variables
+    [SerializeField]
+    [Tooltip("The amount of force applied to enemy when getting hit.")]
+    private float knockBackForce;
+    [SerializeField]
+    [Tooltip("The duration in which knockback is applied.")]
+    private float knockBackDur;
+    #endregion
+    
+    #region Private Variables
+    // Player cached references
     private GameObject player;
     private PlayerController playerScript;
     private Melee meleeScript;
@@ -20,51 +67,30 @@ public class EnemyController : MonoBehaviour
     private Animator enemyAnim;
     private BoxCollider2D enemyCollider;
     private Rigidbody2D enemyRB;
-
-    private Transform firePointTrans;
-    private RectTransform meleePointRectTrans;
+    private AStar astarScript;
 
     // Private variables
-    private int enemyHealth;
-    private bool isAlerted;
-    private bool playerDetected;
-
-    public float knockBackDur;
-    public float knockBackForce;
-
-    public float attackSpeed;
-    public float dmg;
-
-    public float firePointDist;
-    public float meleePointDist;
-
-    public float destroyDelay;
-    private bool hasDied;
-
-    //private int lastDir;
-    //private int lastMeleeDir;
-
-    public float stunDuration;
-    public float stunForce;
-    public float stunnedGravity;
-
-    // The player's meleeCounter that damaged the enemy
+    public LayerMask allPlatformsLayerMask;
     private int damageCounter;
+    private int startingDir;
+    private Vector2 adjustedPos;
+    private float lastIdle;
 
+    // Pathfinding Variables
+    private List<Vector2> pursuePath;
+    private List<Vector2> newPath;
+    private int currPathIndex;
+
+    // Condition Variables
+    private bool isAlerted;
+    private bool hasDied;
     private bool isStunned;
     private bool isGrounded;
+    private bool isIdling;
+    #endregion
 
-    private int lastPlayerDir;
-
-    public LayerMask allPlatformsLayerMask;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        player = GameObject.FindGameObjectWithTag("Player");
-        playerScript = player.GetComponent<PlayerController>();
-        meleeScript = player.transform.GetChild(1).GetComponent<Melee>();
-
+    #region Initializaiton Functions
+    void Awake() {
         unalertedObj = this.transform.GetChild(0).gameObject;
         alertedObj = this.transform.GetChild(1).gameObject;
         unalertedSprite = unalertedObj.GetComponent<SpriteRenderer>();
@@ -75,50 +101,132 @@ public class EnemyController : MonoBehaviour
         enemyCollider = this.GetComponent<BoxCollider2D>();
         enemyRB = this.GetComponent<Rigidbody2D>();
         enemyAnim = this.GetComponent<Animator>();
-        firePointTrans = this.transform.GetChild(4).transform;
-        meleePointRectTrans = this.transform.GetChild(3).GetComponent<RectTransform>();
+        astarScript = this.GetComponent<AStar>();
+    }
 
+    // Start is called before the first frame update
+    void Start()
+    {
+        player = GameObject.FindGameObjectWithTag("Player");
+        playerScript = player.GetComponent<PlayerController>();
+        meleeScript = player.transform.GetChild(1).GetComponent<Melee>();
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
 
-        isAlerted = false;
-        enemyHealth = 1000;
-        hasDied = false;
-        //lastMeleeDir = 1;
-        //lastDir = 1;
+        // Determines whether the enemy will begin patrolling left or right.
+        float value = Random.Range(0, 1);
+        if (value < 0.5) {
+            startingDir = -1;
+        } else {
+            startingDir = 1;
+        }
+
+        InvokeRepeating("UpdatePursuePath", 0f, 0.5f);
+
     }
+    #endregion
 
     private void Update() {
         if (!hasDied) {
-            //setDirection();
-            isGrounded = IsGrounded();
-            enemyRB.velocity = new Vector2(enemyRB.velocity.x, Mathf.Clamp(enemyRB.velocity.y, -25, 25));
+            IsGrounded();
+            SetDirection();
+            adjustedPos = astarScript.GetAdjustedPosition();
+            Move();
             UpdateSprite();
         }
     }
 
-    // Returns whether or not an enemy is alerted to the player's presence.
+    #region Movement Functions
+    // Controls the enemy's movments.
+    private void Move() {
+        // Clamps the enemie's vertical velocity to 25
+        enemyRB.velocity = new Vector2(enemyRB.velocity.x, Mathf.Clamp(enemyRB.velocity.y, -25, 25));
+
+        if (!isAlerted) {
+            Patrol();
+        } else {
+            Pursue();
+        }
+    }
+
+    // The enemy's patrolling state
+    private void Patrol() {
+        List<Vector2> pathList = astarScript.CalculatePatrolPath(maxNodeDist);
+        if (pathList == null) {
+            enemyRB.velocity = new Vector2(0f, 0f);
+        } else if ((adjustedPos.x < pathList[1].x && startingDir == 1) || 
+                   (adjustedPos.x > pathList[0].x && startingDir == -1)) {
+            enemyRB.velocity = new Vector2(startingDir * patrolSpeed, 0f);
+        } else if (CanIdle()) {
+            StartCoroutine("Idle");
+        }
+    }
+
+    // Controls the player's Idle state when reaching the end of a platform.
+    IEnumerator Idle() {
+        lastIdle = Time.time;
+        enemyRB.velocity = new Vector2(0f, 0f);
+        yield return new WaitForSeconds(idleDur);
+        startingDir *= -1;
+    }
+
+    // Returns whether the enemy can start idling at the end of a platform
+    private bool CanIdle() {
+        return (lastIdle + idleDur * 2f) < Time.time;
+    }
+
+    // The enemy's pursuing state.
+    private void Pursue() {
+        if (pursuePath == null || currPathIndex >= pursuePath.Count) {
+            return;
+        }
+
+        Vector2 nextPos = pursuePath[currPathIndex];
+        Vector2 dir = (nextPos - adjustedPos).normalized;
+        //Debug.Log("CurrPos: " + adjustedPos.ToString() + "     NextPos: " + nextPos.ToString());
+        // Move/Drop right
+        if (dir.x > 0 && dir.y <= 0) {
+            enemyRB.velocity = new Vector2(pursueSpeed, enemyRB.velocity.y);
+        // Move/Drop left
+        } else if (dir.x < 0 && dir.y <= 0) {
+            enemyRB.velocity = new Vector2(-pursueSpeed, enemyRB.velocity.y);
+        // Jump right
+        } else if (dir.x > 0 && dir.y > 0) {
+            enemyRB.velocity = new Vector2(pursueSpeed, jumpVel);
+        // Jump left
+        } else if (dir.x < 0 && dir.y > 0) {
+            enemyRB.velocity = new Vector2(-pursueSpeed, jumpVel);
+        } else {
+            Debug.Log(dir);
+        }
+
+        // Increment path counter if enemy has reached the current path node.
+        if (adjustedPos == pursuePath[currPathIndex]) {
+            currPathIndex++;
+        }
+    }
+
+
+    // Calculates and returns the distance between two positions
+    private float CalcDist(Vector2 p0, Vector2 p1) {
+        return 0;
+    }
+
+    // Updates the enemy's pursue path.
+    private void UpdatePursuePath() {
+        newPath = astarScript.CalculatePath();
+        if (newPath != null) {
+            pursuePath = newPath;
+            currPathIndex = 0;
+        }
+    }
+    #endregion
+
+    // Controls whether or not an enemy is alerted to the player's presence.
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.tag == "Player" && other.IsTouching(unalertedCol) && !playerScript.GetHidingStatus()) {
             isAlerted = true;
             unalertedSprite.color = new Color(1f, 1f, 0f, 0);
             alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
-        }
-    }
-
-    // Returns if enemy is in alerted state.
-    public bool IsAlerted() {
-        return isAlerted;
-    }
-
-    // Reduces the enemy's health by dmg.
-    public void TakeDmg(int dmg, bool wasMeleed) {
-        enemyHealth -= dmg;
-        if (wasMeleed) {
-            StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerDir(), 0f)));
-        }
-        if (enemyHealth <= 0) {
-            hasDied = true;
-            Invoke("DestroyEnemy", destroyDelay);
         }
     }
 
@@ -128,25 +236,7 @@ public class EnemyController : MonoBehaviour
         Destroy(this.gameObject);
     }
 
-    // Returns the enemy's current health.
-    public int GetHealth() {
-        return this.enemyHealth;
-    }
-    
-    public bool HasDied() {
-        return this.hasDied;
-    }
-
-    // Assigns the player's melee counter to the enemy after being damaged.
-    public void SetDamagedCounter(int counter) {
-        this.damageCounter = counter;
-    }
-
-    // Checks to see if enemy has already been damaged by player's current meleeCounter.
-    public bool HasBeenDamaged(int counter) {
-        return this.damageCounter == counter;
-    }
-
+    // Knocks the enemy back when getting damaged.
     IEnumerator KnockBack(Vector2 playerDir) {
         isStunned = true;
         enemyRB.velocity = new Vector2(0f, 0f);
@@ -155,43 +245,20 @@ public class EnemyController : MonoBehaviour
         isStunned = false;
     }
 
-    // Sets the variable: lastDir based on the velocity of the enemy.
-    // private void setDirection() {
-    //     int currDir = lastDir;
-    //     if (enemyRB.velocity.x > 0.001) {
-    //         lastDir = 1;
-    //     } else if (enemyRB.velocity.x < -0.001) {
-    //         lastDir = -1;
-    //     }
-
-    //     if (currDir != lastDir) {
-    //         SwitchChildPositions();
-    //     }
-    // }
-
-    // Switches the attack point gameObject of the enemy based on direction.
-    // private void SwitchChildPositions() {
-    //     Vector3 firePos = firePointTrans.position;
-    //     Vector3 meleePos = meleePointRectTrans.position;
-    //     if (lastDir == -1) {
-    //         firePos.x = this.transform.position.x - firePointDist;
-    //         meleePos.x = this.transform.position.x - meleePointDist;
-    //     } else {
-    //         firePos.x = this.transform.position.x + firePointDist;
-    //         meleePos.x = this.transform.position.x + meleePointDist;
-    //     }
-    //     if (lastDir != lastMeleeDir) {
-    //         meleePointRectTrans.Rotate(new Vector3(0, 180, 0), Space.Self);
-    //         lastMeleeDir = lastDir;
-    //     }
-    //     firePointTrans.position = firePos;
-    //     meleePointRectTrans.position = meleePos;
-    // }
-
-    private bool IsGrounded() {
+    // Sets whether the enemy is grounded.
+    private void IsGrounded() {
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(enemyCollider.bounds.center, new Vector2(0.6f, enemyCollider.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
         bool onGround = raycastHit2D.collider != null;
-        return onGround;
+        isGrounded = onGround;
+    }
+
+    // Sets the direction of the enemy to where it's moving.
+    private void SetDirection() {
+        if (enemyRB.velocity.x > 0.05f) {
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        } else if (enemyRB.velocity.x < -0.05f) {
+            transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        }
     }
 
     // Stuns enemy when getting hit
@@ -208,25 +275,20 @@ public class EnemyController : MonoBehaviour
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
-        // if (lastDir == 1 && !isStunned) {
-        //     enemySprite.flipX = false;
-        // } else if (lastDir == -1 && !isStunned) {
-        //     enemySprite.flipX = true;
-        // }
 
-        if (Mathf.Abs(enemyRB.velocity.x) > 0.001) {
+        if (Mathf.Abs(enemyRB.velocity.x) > 0.05f) {
             enemyAnim.SetBool("isMoving", true);
         } else {
             enemyAnim.SetBool("isMoving", false);
         }
 
-        if (enemyRB.velocity.y > 0.001) {
+        if (enemyRB.velocity.y > 0.05f) {
             enemyAnim.SetBool("isJumping", true);
         } else {
             enemyAnim.SetBool("isJumping", false);
         }
         
-        if (enemyRB.velocity.y < -0.001) {
+        if (enemyRB.velocity.y < -0.05f) {
             enemyAnim.SetBool("isFalling", true);
         } else {
             enemyAnim.SetBool("isFalling", false);
@@ -278,8 +340,44 @@ public class EnemyController : MonoBehaviour
     // }
     #endregion
 
+    #region Public Functions
+    // Returns the enemy's current health.
+    public int GetHealth() {
+        return this.enemyHealth;
+    }
+    
+    // Returns if the enemy has died.
+    public bool HasDied() {
+        return this.hasDied;
+    }
 
+    // Assigns the player's melee counter to the enemy after being damaged.
+    public void SetDamagedCounter(int counter) {
+        this.damageCounter = counter;
+    }
 
+    // Checks to see if enemy has already been damaged by player's current meleeCounter.
+    public bool HasBeenDamaged(int counter) {
+        return this.damageCounter == counter;
+    }
 
+    // Returns if enemy is in alerted state.
+    public bool IsAlerted() {
+        return isAlerted;
+    }
 
+    // Reduces the enemy's health by dmg.
+    public void TakeDmg(int dmg, bool wasMeleed) {
+        enemyHealth -= dmg;
+        if (wasMeleed) {
+            StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerDir(), 0f)));
+        }
+        if (enemyHealth <= 0) {
+            hasDied = true;
+            Invoke("DestroyEnemy", destroyDelay);
+        } else {
+            isAlerted = true;
+        }
+    }
+    #endregion
 }

@@ -6,24 +6,29 @@ using System;
 
 public class AStar : MonoBehaviour
 {
+    [SerializeField]
     [Tooltip("Where the AStar object is located.")]
-    public Vector3 center;
+    private Vector3 center;
+    [SerializeField]
     [Tooltip("The maximum number of nodes width-wise to create nodes for.")]
-    public int width;
+    private int width;
+    [SerializeField]
     [Tooltip("The maximum number of nodes height-wise to create nodes for.")]
-    public int height;
+    private int height;
+    [SerializeField]
     [Tooltip("The Node prefab for visual aid.")]
-    public GameObject nodePrefab;
+    private GameObject nodePrefab;
+    [SerializeField]
     [Tooltip("The platform tilemap.")]
-    public Tilemap platformTilemap;
+    private Tilemap platformTilemap;
+    [SerializeField]
     [Tooltip("The target position of the path.")]
-    public Transform target;
+    private Transform target;
+    [SerializeField]
     [Tooltip("The starting position of the path.")]
-    public Transform start;
+    private Transform start;
 
     private LayerMask allPlatformsLayerMask;
-    private Vector3Int offset = new Vector3Int(0, -1, 0);
-
 
     public class Node {
         private Vector3Int pos;
@@ -93,6 +98,56 @@ public class AStar : MonoBehaviour
         return (isEmpty && hasPlatformUnder);
     }
 
+    // Returns whether the path is clear from p0 to p1 for jumping or dropping
+    private bool IsClear(Vector3Int p0, Vector3Int p1, bool isJump) {
+        if (isJump) {
+            bool clearUp = (!platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 1, 0)) && 
+                            !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 2, 0)) && 
+                            !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 3, 0)) &&
+                            !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 4, 0)));
+
+            // Jumping right
+            if (p1.x > p0.x) {
+                bool clearRight = (!platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y + 4, 0)) &&
+                                   !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y + 4, 0)) &&
+                                   !platformTilemap.HasTile(new Vector3Int(p0.x + 3, p0.y + 4, 0)) &&
+                                   !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y + 3, 0)));
+                return (clearUp && clearRight);
+            }
+
+            // Jumping left
+            else {
+                bool clearLeft = (!platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y + 4, 0)) &&
+                                  !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y + 4, 0)) &&
+                                  !platformTilemap.HasTile(new Vector3Int(p0.x - 3, p0.y + 4, 0)) &&
+                                  !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y + 3, 0)));
+                return (clearUp && clearLeft);
+            }
+        } else {
+            // Dropping right
+            if (p1.x > p0.x) {
+                bool clearDownRight = (!platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 1, 0)) && 
+                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 2, 0)) && 
+                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 3, 0)) &&
+                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 4, 0)) &&
+                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y - 4, 0)) &&
+                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 3, p0.y + 4, 0)));
+                return clearDownRight;
+            }
+
+            // Dropping left
+            else {
+                bool clearDownLeft = (!platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 1, 0)) && 
+                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 2, 0)) && 
+                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 3, 0)) &&
+                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 4, 0)) &&
+                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y - 4, 0)) &&
+                                      !platformTilemap.HasTile(new Vector3Int(p0.x + 3, p0.y + 4, 0)));
+                return clearDownLeft;
+            }
+        }
+    }
+
     // Returns a list of walkable neighbor nodes to explore.
     public List<Node> GetNeighbors(Node n) {
         List<Node> neighbors = new List<Node>();
@@ -114,57 +169,68 @@ public class AStar : MonoBehaviour
         }
 
         // Check jump left
-        testPos = new Vector3Int(pos.x - 2, pos.y + 4, 0);
-        if (IsWalkable(testPos)) {
-            Node newNode = new Node(testPos, n, 1f);
+        testPos = new Vector3Int(pos.x - 3, pos.y + 4, 0);
+        if (IsWalkable(testPos) && IsClear(pos, testPos, true)) {
+            Node newNode = new Node(testPos, n, 3f);
             neighbors.Add(newNode);
         }
 
         // Check jump right
-        testPos = new Vector3Int(pos.x + 2, pos.y + 4, 0);
-        if (IsWalkable(testPos)) {
-            Node newNode = new Node(testPos, n, 1f);
+        testPos = new Vector3Int(pos.x + 3, pos.y + 4, 0);
+        if (IsWalkable(testPos) && IsClear(pos, testPos, true)) {
+            Node newNode = new Node(testPos, n, 3f);
             neighbors.Add(newNode);
         }
 
-        // Check drop
+        // Check drop left
+        testPos = new Vector3Int(pos.x - 3, pos.y - 4, 0);
+        if (IsWalkable(testPos) && IsClear(pos, testPos, false)) {
+            Node newNode = new Node(testPos, n, 2f);
+            neighbors.Add(newNode);
+        }
+
+        // Check drop right
+        testPos = new Vector3Int(pos.x + 3, pos.y - 4, 0);
+        if (IsWalkable(testPos) && IsClear(pos, testPos, false)) {
+            Node newNode = new Node(testPos, n, 2f);
+            neighbors.Add(newNode);
+        }
 
         return neighbors;
     }
 
 
     // An optimization would be have the nodes already constructed, and then identify which nodes the enemy/player lie on. Then traverse premade neighbors.
-
+    // Try to construct path only if enemy and player is at a walkable platform.
+    // In this way the enemy only goes to the player's last known location.
     // Calculates the path. If it exists, returns a list of node positions to follow.
-    private List<Vector3Int> CalculatePath() {
-
-        // Try to construct path only if enemy and player is at a walkable platform.
-        // In this way the enemy only goes to the player's last known location.
+    public List<Vector2> CalculatePath() {
         Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
         Vector3Int goalPos = platformTilemap.WorldToCell(new Vector2(target.position.x, target.position.y - 1f));
 
         if (IsWalkable(startPos) && IsWalkable(goalPos)) {
-            Vector3Int startCellPos = platformTilemap.WorldToCell(goalPos);
-            Vector3Int goalCellPos = platformTilemap.WorldToCell(goalPos);
             List<Vector3Int> reached = new List<Vector3Int>();
             PriorityQueue<Node> frontier = new PriorityQueue<Node>();
-            Node startingNode = new Node(startPos, null, 0f); // Node: (position, parent Node, cost)
+            // Node: (position, parent Node, cost)
+            Node startingNode = new Node(startPos, null, 0f);
             frontier.Enqueue(0f, startingNode);
-            int counter = 0;
-            while (frontier.Count() > 0 && counter < 1000) {
+            // Number of nodes we will traverse before we quit searching.
+            int counter = 1000;
+
+            while (frontier.Count() > 0 && counter > 0) {
                 Node currNode = frontier.Dequeue();
-                Debug.Log("Frontier nodes: " + frontier.Count());
                 // If we found the player.
-                if (platformTilemap.WorldToCell(currNode.GetPos()) == goalCellPos) {
-                    List<Vector3Int> path = new List<Vector3Int>();
+                if (platformTilemap.WorldToCell(currNode.GetPos()) == goalPos) {
+                    List<Vector2> path = new List<Vector2>();
                     while (currNode.GetParent() != null) {
-                        path.Add(currNode.GetPos());
+                        Vector2 adjustedPos = AdjustPos(currNode.GetPos());
+                        path.Add(adjustedPos);
                         currNode = currNode.GetParent();
                     }
+                    path.Reverse();
                     DrawPath(path);
                     return path;
                 }
-                
                 // If we didn't find the player -> Search neighboring Nodes.
                 if (!reached.Contains(currNode.GetPos())) {
                     reached.Add(currNode.GetPos());
@@ -174,9 +240,9 @@ public class AStar : MonoBehaviour
                         frontier.Enqueue(totalNodeCost, node);
                     }
                 }
-                counter += 1;
+                counter -= 1;
             }
-            Debug.Log("Not found. Expanded: " + counter);
+            //Debug.Log("Not found. Expanded: " + counter);
         }
         return null;
     }
@@ -187,15 +253,56 @@ public class AStar : MonoBehaviour
     }
 
     // Draw the Path created by CalculatePath()
-    private void DrawPath(List<Vector3Int> path) {
+    private void DrawPath(List<Vector2> path) {
         for (int i = path.Count - 1; i > 0; i--) {
-            Vector2 p1 = platformTilemap.CellToWorld(path[i]);
-            p1.x += 0.5f;
-            p1.y += 0.5f;
-            Vector2 p2 = platformTilemap.CellToWorld(path[i - 1]);
-            p2.x += 0.5f;
-            p2.y += 0.5f;
-            Debug.DrawLine(p1, p2, Color.green, 0.5f, false);
+            Debug.DrawLine(path[i], path[i - 1], Color.green, 0.5f, false);
         }
+    }
+
+    // Converts the cell coords to the world position of the cell's center.
+    private Vector2 AdjustPos(Vector3Int cellCoords) {
+        Vector2 pos = (Vector2)platformTilemap.CellToWorld(cellCoords);
+        pos.x += 0.5f;
+        pos.y += 0.5f;
+        return pos;
+    }
+
+    // Calculates the position of two ends of a platform for the enemy to patrol
+    public List<Vector2> CalculatePatrolPath(int maxNodeDist) {
+        List<Vector2> posList = new List<Vector2>();
+        Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
+        Vector3Int leftEnd = startPos;
+        Vector3Int rightEnd = startPos;
+        Vector3Int testPos;
+        if (IsWalkable(startPos)) {
+            // Checking left
+            int currDist = 0;
+            testPos = startPos;
+            while (IsWalkable(testPos) && currDist <= maxNodeDist) {
+                leftEnd = testPos;
+                testPos = new Vector3Int(testPos.x - 1, testPos.y, 0);
+                currDist++;
+            }
+            posList.Add(AdjustPos(leftEnd));
+            
+            // Checking right
+            currDist = 0;
+            testPos = startPos;
+            while (IsWalkable(testPos) && currDist <= maxNodeDist) {
+                rightEnd = testPos;
+                testPos = new Vector3Int(testPos.x + 1, testPos.y, 0);
+                currDist++;
+            }
+            posList.Add(AdjustPos(rightEnd));
+            
+            return posList;
+        }   
+        return null;
+    }
+
+    // Returns the enemy's adjusted position.
+    public Vector2 GetAdjustedPosition() {
+        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
+        return AdjustPos(pos);
     }
 }
