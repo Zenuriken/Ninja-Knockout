@@ -37,6 +37,8 @@ public class Health : MonoBehaviour
             if (currHealth <= 0) {
                 Destroy(this.gameObject);
             }
+            EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
+            enemyScript.SetAlertStatus(true);
             
             // Knocks player back at a 60 degree angle.
             Vector2 dir = new Vector2(1f / 2f, Mathf.Sqrt(3) / 2f);

@@ -283,6 +283,7 @@ public class AStar : MonoBehaviour
                 testPos = new Vector3Int(testPos.x - 1, testPos.y, 0);
                 currDist++;
             }
+            Debug.Log("CurrDist: " + currDist);
             posList.Add(AdjustPos(leftEnd));
             
             // Checking right
@@ -294,7 +295,7 @@ public class AStar : MonoBehaviour
                 currDist++;
             }
             posList.Add(AdjustPos(rightEnd));
-            
+    
             return posList;
         }   
         return null;

@@ -79,7 +79,10 @@ public class EnemyController : MonoBehaviour
     // Pathfinding Variables
     private List<Vector2> pursuePath;
     private List<Vector2> newPath;
+    private List<Vector2> patrolPath;
     private int currPathIndex;
+    private float leftPatrolEnd;
+    private float rightPatrolEnd;
 
     // Condition Variables
     private bool isAlerted;
@@ -119,7 +122,10 @@ public class EnemyController : MonoBehaviour
         } else {
             startingDir = 1;
         }
-
+        adjustedPos = astarScript.GetAdjustedPosition();
+        patrolPath = astarScript.CalculatePatrolPath(maxNodeDist);
+        leftPatrolEnd = adjustedPos.x - maxNodeDist;
+        rightPatrolEnd = adjustedPos.x + maxNodeDist;
         InvokeRepeating("UpdatePursuePath", 0f, 0.5f);
 
     }
@@ -150,11 +156,10 @@ public class EnemyController : MonoBehaviour
 
     // The enemy's patrolling state
     private void Patrol() {
-        List<Vector2> pathList = astarScript.CalculatePatrolPath(maxNodeDist);
-        if (pathList == null) {
+        if (patrolPath == null) {
             enemyRB.velocity = new Vector2(0f, 0f);
-        } else if ((adjustedPos.x < pathList[1].x && startingDir == 1) || 
-                   (adjustedPos.x > pathList[0].x && startingDir == -1)) {
+        } else if ((adjustedPos.x < patrolPath[1].x && startingDir == 1) || 
+                   (adjustedPos.x > patrolPath[0].x && startingDir == -1)) {
             enemyRB.velocity = new Vector2(startingDir * patrolSpeed, 0f);
         } else if (CanIdle()) {
             StartCoroutine("Idle");
@@ -179,10 +184,8 @@ public class EnemyController : MonoBehaviour
         if (pursuePath == null || currPathIndex >= pursuePath.Count) {
             return;
         }
-
         Vector2 nextPos = pursuePath[currPathIndex];
         Vector2 dir = (nextPos - adjustedPos).normalized;
-        //Debug.Log("CurrPos: " + adjustedPos.ToString() + "     NextPos: " + nextPos.ToString());
         // Move/Drop right
         if (dir.x > 0 && dir.y <= 0) {
             enemyRB.velocity = new Vector2(pursueSpeed, enemyRB.velocity.y);
@@ -203,12 +206,6 @@ public class EnemyController : MonoBehaviour
         if (adjustedPos == pursuePath[currPathIndex]) {
             currPathIndex++;
         }
-    }
-
-
-    // Calculates and returns the distance between two positions
-    private float CalcDist(Vector2 p0, Vector2 p1) {
-        return 0;
     }
 
     // Updates the enemy's pursue path.
@@ -364,6 +361,11 @@ public class EnemyController : MonoBehaviour
     // Returns if enemy is in alerted state.
     public bool IsAlerted() {
         return isAlerted;
+    }
+
+    // Sets the alert status of the enemy
+    public void SetAlertStatus(bool status) {
+        isAlerted = status;
     }
 
     // Reduces the enemy's health by dmg.
