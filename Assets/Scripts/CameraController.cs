@@ -8,22 +8,24 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     [Tooltip("The Camera's camera object.")]
     private Camera cam;
-
     [SerializeField]
-    [Tooltip("The proportion of the camera's width size to move in the x dimension.")]
+    [Tooltip("The proportion of the camera's width size to move in the x dimension. (For increasing player's line of sight)")]
     private float xProportion;
-
     [SerializeField]
     [Tooltip("The Camera's horiztonal threshold for movement.")]
     private float xThreshold;
-
     [SerializeField]
     [Tooltip("The Camera's vertical threshold for movement.")]
     private float yThreshold;
-
     [SerializeField]
     [Tooltip("The time it takes for the camera to move to the player's last recorded position.")]
     private float smoothTime;
+    [SerializeField]
+    [Tooltip("Left bounds of the camera.")]
+    private float leftXLimit;
+    [SerializeField]
+    [Tooltip("The right bounds of the camera.")]
+    private float rightXLimit;
     #endregion
 
     #region Private Variables
@@ -33,6 +35,7 @@ public class CameraController : MonoBehaviour
     private float yVelocity;
     private float xVelocity;
     private float currSmoothTime;
+    private float cameraHalfWidth;
     #endregion
 
     #region Initializing Functions
@@ -45,6 +48,10 @@ public class CameraController : MonoBehaviour
         playerDir = playerScript.GetPlayerDir();
 
         currSmoothTime = smoothTime;
+
+        float screenAspect = (float)Screen.width / (float)Screen.height;
+        //float cameraHalfHeight = cam.orthographicSize;
+        cameraHalfWidth = cam.orthographicSize * screenAspect;
     }
 
     // Draws the bounds for the thresholds of the camera
@@ -75,8 +82,8 @@ public class CameraController : MonoBehaviour
         //         pos.y = Mathf.SmoothDamp(pos.y, playerPos.y, ref yVelocity, smoothTime);
         // }
         
-        if (targetPos.x > pos.x + cam.orthographicSize * xThreshold
-            || targetPos.x < pos.x - cam.orthographicSize * xThreshold) {
+        if ((targetPos.x > pos.x + cam.orthographicSize * xThreshold && pos.x < rightXLimit - cameraHalfWidth)
+            || (targetPos.x < pos.x - cam.orthographicSize * xThreshold && pos.x > leftXLimit + cameraHalfWidth)) {
                 pos.x = Mathf.SmoothDamp(pos.x, targetPos.x, ref xVelocity, currSmoothTime);
         }
         this.transform.position = pos;
