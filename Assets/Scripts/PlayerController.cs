@@ -77,7 +77,7 @@ public class PlayerController : MonoBehaviour
     private float spawnDelay;
     [SerializeField]
     [Tooltip("The number of shurikens player spawns with.")]
-    private float numShurikens;
+    private int numShurikens;
     [SerializeField]
     [Tooltip("The spin speed of shuriken.")]
     private float spinSpeed;
@@ -156,7 +156,6 @@ public class PlayerController : MonoBehaviour
     private float lastDash;
 
     // Private shooting variables
-    private TMP_Text shurikenTxt;
     private Transform firePointTrans;
     private float firePointDist;
     private float lastAttack;
@@ -212,7 +211,6 @@ public class PlayerController : MonoBehaviour
         playerSprite = GetComponent<SpriteRenderer>();
         dashTrail = this.transform.GetChild(2).GetChild(1).GetComponent<TrailRenderer>();
         doubleJumpTrail = this.transform.GetChild(2).GetChild(2).GetComponent<TrailRenderer>();
-        shurikenTxt = GameObject.Find("Shurikens").GetComponent<TMP_Text>();
         platformLayerMask = LayerMask.GetMask("Platform");
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
         firePointTrans = this.transform.GetChild(0);
@@ -485,7 +483,7 @@ public class PlayerController : MonoBehaviour
             List<Collider2D> enemyColliders = meleeScript.GetEnemyColliders();
             foreach (Collider2D collider in enemyColliders) {
                 EnemyController enemy = collider.gameObject.GetComponent<EnemyController>();
-                if (!enemy.HasBeenDamaged(meleeCounter)) {
+                if (!enemy.HasBeenDamaged(meleeCounter) && !enemy.HasDied()) {
                     if (enemy.IsAlerted()) {
                         enemy.TakeDmg(1, true);
                     } else {
@@ -518,7 +516,7 @@ public class PlayerController : MonoBehaviour
 
             if (contact) {
                 Vector2 dir = new Vector2(-lastDir, 0f);
-                StartCoroutine(KnockBack(dir));
+                //StartCoroutine(KnockBack(dir));
             }
 
             if (sparks) {
@@ -659,7 +657,7 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("isThrowing", true);
             lastAttack = Time.time;
             numShurikens -= 1;
-            shurikenTxt.text = "Shurikens: " + numShurikens.ToString();
+            ScoreManager.singleton.UpdateShurikenNum(numShurikens);
             Invoke("SetIsThrowingFalse", 0.5f);
         }
 

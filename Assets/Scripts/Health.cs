@@ -6,19 +6,18 @@ using TMPro;
 public class Health : MonoBehaviour
 {
     // Public variables
-    public float maxHealth;
+    public int maxHealth;
     public float bufferDur;
     public float stunDuration;
     public float stunForce;
     public float stunnedGravity;
 
     // Private variables
-    private float currHealth;
+    private int currHealth;
     private PlayerController playerScript;
     private BoxCollider2D playerCollider;
     private SpriteRenderer playerSprite;
     private Rigidbody2D playerRB;
-    private TMP_Text healthText;
     private float gravity;
 
     void Start() {
@@ -27,27 +26,29 @@ public class Health : MonoBehaviour
         playerSprite = this.GetComponent<SpriteRenderer>();
         playerCollider = this.GetComponent<BoxCollider2D>();
         playerRB = this.GetComponent<Rigidbody2D>();
-        healthText = GameObject.Find("Health").GetComponent<TMP_Text>();
         gravity = playerRB.gravityScale;
     }
 
     private void OnCollisionStay2D(Collision2D other) {
         if (other.gameObject.tag == "Enemy") {
-            currHealth -= 1;
-            if (currHealth <= 0) {
-                Destroy(this.gameObject);
-            }
             EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
-            enemyScript.SetAlertStatus(true);
-            
-            // Knocks player back at a 60 degree angle.
-            Vector2 dir = new Vector2(1f / 2f, Mathf.Sqrt(3) / 2f);
-            float collisionDir = this.gameObject.transform.position.x - other.gameObject.transform.position.x;
-            if (collisionDir < 0) {
-                dir.x *= -1;
+            if (!enemyScript.HasDied()) {
+                currHealth -= 1;
+                ScoreManager.singleton.UpdateHealth(currHealth);
+                if (currHealth <= 0) {
+                    Destroy(this.gameObject);
+                }
+                enemyScript.SetAlertStatus(true);
+                
+                // Knocks player back at a 60 degree angle.
+                Vector2 dir = new Vector2(1f / 2f, Mathf.Sqrt(3) / 2f);
+                float collisionDir = this.gameObject.transform.position.x - other.gameObject.transform.position.x;
+                if (collisionDir < 0) {
+                    dir.x *= -1;
+                }
+                StartCoroutine(Stunned(dir));
+                StartCoroutine("DamageBuffer");
             }
-            StartCoroutine(Stunned(dir));
-            StartCoroutine("DamageBuffer");
         }
     }
 

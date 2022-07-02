@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     #region Movement Variables
+    [Header("Movement")]
     [SerializeField]
     [Tooltip("The number of tiles the enemy can stray from starting pos while in patrol mode.")]
     private int maxNodeDist;
@@ -20,39 +21,47 @@ public class EnemyController : MonoBehaviour
     [SerializeField]
     [Tooltip("The jump velocity of the enemy when pursuing.")]
     private float jumpVel;
-
+    [Space(5)]
     #endregion
     
     #region Health Variables
+    [Header("Health")]
     [SerializeField]
     [Tooltip("How much health this enemy has.")]
     private int enemyHealth;
     [SerializeField]
-    [Tooltip("The dealy before the enemy is destroyed")]
+    [Tooltip("The delay before the enemy is destroyed")]
     private float destroyDelay;
+    [SerializeField]
+    [Tooltip("The amount this enemy's death will increse your score.")]
+    private int enemyPoints;
+    [Space(5)]
     #endregion
 
     #region Attack Variables
+    [Header("Attack")]
     [SerializeField]
     [Tooltip("How often the enemy can attack.")]
     private float attackSpeed;
     [SerializeField]
     [Tooltip("How much damage this enemy deals per hit.")]
     private float dmg;
+    [Space(5)]
     #endregion
 
     #region Knockback Variables
+    [Header("Knockback")]
     [SerializeField]
     [Tooltip("The amount of force applied to enemy when getting hit.")]
     private float knockBackForce;
     [SerializeField]
     [Tooltip("The duration in which knockback is applied.")]
     private float knockBackDur;
+    [Space(5)]
     #endregion
     
     #region Private Variables
     // Player cached references
-    private GameObject player;
     private PlayerController playerScript;
     private Melee meleeScript;
 
@@ -70,10 +79,10 @@ public class EnemyController : MonoBehaviour
     private AStar astarScript;
 
     // Private variables
-    public LayerMask allPlatformsLayerMask;
+    private LayerMask allPlatformsLayerMask;
+    private Vector2 adjustedPos;
     private int damageCounter;
     private int startingDir;
-    private Vector2 adjustedPos;
     private float lastIdle;
 
     // Pathfinding Variables
@@ -110,9 +119,8 @@ public class EnemyController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player");
-        playerScript = player.GetComponent<PlayerController>();
-        meleeScript = player.transform.GetChild(1).GetComponent<Melee>();
+        playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        meleeScript = playerScript.transform.GetChild(1).GetComponent<Melee>();
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
 
         // Determines whether the enemy will begin patrolling left or right.
@@ -134,11 +142,13 @@ public class EnemyController : MonoBehaviour
     private void Update() {
         if (!hasDied) {
             IsGrounded();
-            SetDirection();
             adjustedPos = astarScript.GetAdjustedPosition();
+            if (!isStunned) {
+                SetDirection();
+            }
             Move();
-            UpdateSprite();
         }
+        UpdateSprite();
     }
 
     #region Movement Functions
@@ -149,7 +159,7 @@ public class EnemyController : MonoBehaviour
 
         if (!isAlerted) {
             Patrol();
-        } else {
+        } else if (!isStunned) {
             Pursue();
         }
     }
@@ -198,8 +208,6 @@ public class EnemyController : MonoBehaviour
         // Jump left
         } else if (dir.x < 0 && dir.y > 0) {
             enemyRB.velocity = new Vector2(-pursueSpeed, jumpVel);
-        } else {
-            Debug.Log(dir);
         }
 
         // Increment path counter if enemy has reached the current path node.
@@ -220,17 +228,11 @@ public class EnemyController : MonoBehaviour
 
     // Controls whether or not an enemy is alerted to the player's presence.
     private void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.tag == "Player" && other.IsTouching(unalertedCol) && !playerScript.GetHidingStatus()) {
+        if (other.gameObject.tag == "Player" && other.IsTouching(unalertedCol) && !playerScript.GetHidingStatus() && !hasDied) {
             isAlerted = true;
             unalertedSprite.color = new Color(1f, 1f, 0f, 0);
             alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
         }
-    }
-
-    // Removes the enemy from the player's melee collider list and destroys the enemy.
-    private void DestroyEnemy() {
-        meleeScript.RemoveEnemyFromList(enemyCollider);
-        Destroy(this.gameObject);
     }
 
     // Knocks the enemy back when getting damaged.
@@ -240,6 +242,26 @@ public class EnemyController : MonoBehaviour
         enemyRB.AddForce(playerDir * knockBackForce, ForceMode2D.Impulse);
         yield return new WaitForSeconds(knockBackDur);
         isStunned = false;
+    }
+
+    // Kills the enemy
+    IEnumerator Death() {
+        hasDied = true;
+        if (!isAlerted) {
+            ScoreManager.singleton.IncreaseScore(enemyPoints * 2);
+        } else {
+            ScoreManager.singleton.IncreaseScore(enemyPoints);
+        }
+        unalertedSprite.color = new Color(1f, 1f, 0f, 0f);
+        alertedSprite.color = new Color(1f, 0f, 0f, 0f);
+        //enemyRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+        //enemyCollider.isTrigger = true;
+
+        // 7 = Player Layer, 9 = Enemy Layer
+        Physics2D.IgnoreLayerCollision(7, 9, true);
+        yield return new WaitForSeconds(destroyDelay);
+        meleeScript.RemoveEnemyFromList(enemyCollider);
+        Destroy(this.gameObject);
     }
 
     // Sets whether the enemy is grounded.
@@ -258,21 +280,9 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // Stuns enemy when getting hit
-    // private IEnumerator Stunned(Vector2 dir) {
-    //     isStunned = true;
-    //     enemyRB.velocity = new Vector2(0f, 0f);
-    //     enemyRB.gravityScale = stunnedGravity;
-    //     enemyRB.AddForce(dir * stunForce, ForceMode2D.Impulse);
-    //     yield return new WaitForSeconds(stunDuration);
-    //     enemyRB.gravityScale = gravity;
-    //     isStunned = false;
-    // }
-
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
-
         if (Mathf.Abs(enemyRB.velocity.x) > 0.05f) {
             enemyAnim.SetBool("isMoving", true);
         } else {
@@ -301,6 +311,12 @@ public class EnemyController : MonoBehaviour
             enemyAnim.SetBool("isAlerted", true);
         } else {
             enemyAnim.SetBool("isAlerted", false);
+        }
+
+        if(hasDied) {
+            enemyAnim.SetBool("hasDied", true);
+        } else {
+            enemyAnim.SetBool("hasDied", false);
         }
 
         // if (firePressed && CanAttack() && numShurikens > 0 && !isDashing) {
@@ -366,6 +382,10 @@ public class EnemyController : MonoBehaviour
     // Sets the alert status of the enemy
     public void SetAlertStatus(bool status) {
         isAlerted = status;
+        if (isAlerted) {
+            unalertedSprite.color = new Color(1f, 1f, 0f, 0);
+            alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
+        }
     }
 
     // Reduces the enemy's health by dmg.
@@ -375,8 +395,7 @@ public class EnemyController : MonoBehaviour
             StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerDir(), 0f)));
         }
         if (enemyHealth <= 0) {
-            hasDied = true;
-            Invoke("DestroyEnemy", destroyDelay);
+            StartCoroutine("Death");
         } else {
             isAlerted = true;
         }

@@ -71,23 +71,23 @@ public class AStar : MonoBehaviour
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
     }
 
-    private void Start() {
-        float lowerX = center.x - width / 2f + 0.5f;
-        float upperX = center.x + width / 2f - 0.5f;
-        float lowerY = center.y - height / 2f + 0.5f;
-        float upperY = center.y + height / 2f - 0.5f;
+    // private void Start() {
+    //     float lowerX = center.x - width / 2f + 0.5f;
+    //     float upperX = center.x + width / 2f - 0.5f;
+    //     float lowerY = center.y - height / 2f + 0.5f;
+    //     float upperY = center.y + height / 2f - 0.5f;
 
-        for (float x = lowerX; x <= upperX; x+=1f) {
-            for (float y = lowerY; y <= upperY; y+=1f) {
-                Vector3Int coords = platformTilemap.WorldToCell(new Vector2(x, y));
-                if (IsWalkable(coords)) {
-                    GameObject node = GameObject.Instantiate(nodePrefab, new Vector2(x, y), Quaternion.identity);
-                }
-            }
-        }
+    //     for (float x = lowerX; x <= upperX; x+=1f) {
+    //         for (float y = lowerY; y <= upperY; y+=1f) {
+    //             Vector3Int coords = platformTilemap.WorldToCell(new Vector2(x, y));
+    //             if (IsWalkable(coords)) {
+    //                 GameObject node = GameObject.Instantiate(nodePrefab, new Vector2(x, y), Quaternion.identity);
+    //             }
+    //         }
+    //     }
 
-        InvokeRepeating("CalculatePath", 0f, 0.5f);
-    }
+    //     InvokeRepeating("CalculatePath", 0f, 0.5f);
+    // }
 
     // Returns whether the position is walkable.
     private bool IsWalkable(Vector3Int coords) {
@@ -283,7 +283,6 @@ public class AStar : MonoBehaviour
                 testPos = new Vector3Int(testPos.x - 1, testPos.y, 0);
                 currDist++;
             }
-            Debug.Log("CurrDist: " + currDist);
             posList.Add(AdjustPos(leftEnd));
             
             // Checking right
