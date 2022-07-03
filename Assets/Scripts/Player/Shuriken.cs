@@ -58,9 +58,9 @@ public class Shuriken : MonoBehaviour
             if (other.gameObject.tag == "Enemy") {
             EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
             if (!enemyScript.IsAlerted()) {
-                enemyScript.TakeDmg(5, false);
+                enemyScript.TakeDmg(5);
             } else {
-                enemyScript.TakeDmg(1, false);
+                enemyScript.TakeDmg(1);
             }
         }
             if (other.gameObject.tag == "Enemy") {

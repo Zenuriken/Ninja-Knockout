@@ -157,7 +157,6 @@ public class PlayerController : MonoBehaviour
 
     // Private shooting variables
     private Transform firePointTrans;
-    private float firePointDist;
     private float lastAttack;
 
     // Private Jump Variables
@@ -166,20 +165,14 @@ public class PlayerController : MonoBehaviour
     private float lastJump;
 
     // Melee private variables
-    private RectTransform meleePointRectTrans;
     private Melee meleeScript;
     private bool meleeActive;
-    private float meleePointDist;
     private float meleeSpeed;
-    private int lastMeleeDir;
     private static int meleeCounter;
     private bool hitPlatform;
     private Transform point0;
     private Transform point1;
     private Transform point2;
-
-    // Private wallClimb variables
-    private float wallClimbDustDist;
 
     // General private variables
     private Rigidbody2D playerRB;
@@ -199,6 +192,8 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer playerSprite;
     #endregion
 
+    private FieldOfView fov;
+
 /**********************************************************************************/
 
     #region Initializing Functions
@@ -213,14 +208,14 @@ public class PlayerController : MonoBehaviour
         doubleJumpTrail = this.transform.GetChild(2).GetChild(2).GetComponent<TrailRenderer>();
         platformLayerMask = LayerMask.GetMask("Platform");
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
-        firePointTrans = this.transform.GetChild(0);
+        meleeScript = this.transform.GetChild(1).GetComponent<Melee>();
+        firePointTrans = this.transform.GetChild(0).transform;
 
-        // Getting Melee Components
-        meleePointRectTrans = this.transform.GetChild(1).GetComponent<RectTransform>();
-        meleeScript = meleePointRectTrans.GetComponent<Melee>();
-        point0 = meleePointRectTrans.GetChild(1).transform;
-        point1 = meleePointRectTrans.GetChild(2).transform;
-        point2 = meleePointRectTrans.GetChild(3).transform;
+        point0 = this.transform.GetChild(1).GetChild(1).transform;
+        point1 = this.transform.GetChild(1).GetChild(2).transform;
+        point2 = this.transform.GetChild(1).GetChild(3).transform;
+
+        fov = GameObject.Find("FieldOFView").GetComponent<FieldOfView>();
     }
 
     // Start is called before the first frame update
@@ -228,11 +223,7 @@ public class PlayerController : MonoBehaviour
     {
         speed = moveSpeed;
         lastDir = 1;
-        lastMeleeDir = 1;
         gravity = playerRB.gravityScale;
-        firePointDist = 1.0f;
-        meleePointDist = 0.23f;
-        wallClimbDustDist = 0.75f;
         isStunned = false;
         meleeActive = false;
         meleeCounter = 0;
@@ -256,10 +247,11 @@ public class PlayerController : MonoBehaviour
         meleePressed = Input.GetKeyDown(meleeKey);
         firePressed = Input.GetKeyDown(fireKey);
 
+        fov.SetOrigin(transform.position);
         Move();
         IsGrounded();
         IsAgainstWall();
-        setDirection();
+        SetDirection();
         Attack();
         UpdateSprite();
         CoverPlayer();
@@ -351,14 +343,25 @@ public class PlayerController : MonoBehaviour
     }
 
     // Sets the variable: lastDir based on the xInput of the player.
-    private void setDirection() {
-        int dir = lastDir;
-        if (xInput > 0 && !isWallJumping && !isAttacking && !isDashing) {
-            lastDir = 1;
-            SwitchChildPositions();
-        } else if (xInput < 0 && !isWallJumping && !isAttacking && !isDashing) {
-            lastDir = -1;
-            SwitchChildPositions();
+    private void SetDirection() {
+        if (!isWallJumping && !isAttacking && !isDashing) {
+            if (xInput > 0) {
+                lastDir = 1;
+                fov.SetStartingAngle(15f);
+            } else if (xInput < 0) {
+                lastDir = -1;
+                fov.SetStartingAngle(200f);
+            }
+            FlipPlayer();
+        }
+    }
+
+    // Sets the direction of the player to where it's moving.
+    private void FlipPlayer() {
+        if (lastDir == 1) {
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        } else if (lastDir == -1) {
+            transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
     }
 
@@ -485,9 +488,9 @@ public class PlayerController : MonoBehaviour
                 EnemyController enemy = collider.gameObject.GetComponent<EnemyController>();
                 if (!enemy.HasBeenDamaged(meleeCounter) && !enemy.HasDied()) {
                     if (enemy.IsAlerted()) {
-                        enemy.TakeDmg(1, true);
+                        enemy.TakeDmg(1);
                     } else {
-                        enemy.TakeDmg(5, true);
+                        enemy.TakeDmg(5);
                     }
                     enemy.SetDamagedCounter(meleeCounter);
                 }
@@ -588,40 +591,11 @@ public class PlayerController : MonoBehaviour
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
         shurikenScript.SetShurikenVelocity(lastDir);
     }
-
-    // Switches the attack point gameObject of the player based on direction.
-    private void SwitchChildPositions() {
-        Vector3 firePos = firePointTrans.position;
-        Vector3 meleePos = meleePointRectTrans.position;
-        Vector3 wallClimbDustPos = wallClimbDust.transform.position;
-        if (lastDir == -1) {
-            firePos.x = this.transform.position.x - firePointDist;
-            meleePos.x = this.transform.position.x - meleePointDist;
-            wallClimbDustPos.x = this.transform.position.x - wallClimbDustDist;
-        } else {
-            firePos.x = this.transform.position.x + firePointDist;
-            meleePos.x = this.transform.position.x + meleePointDist;
-            wallClimbDustPos.x = this.transform.position.x + wallClimbDustDist;
-        }
-        if (lastDir != lastMeleeDir) {
-            meleePointRectTrans.Rotate(new Vector3(0, 180, 0), Space.Self);
-            lastMeleeDir = lastDir;
-        }
-        firePointTrans.position = firePos;
-        meleePointRectTrans.position = meleePos;
-        wallClimbDust.transform.position = wallClimbDustPos;
-    }
     #endregion
 
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
-        if (lastDir == 1 && !isStunned) {
-            playerSprite.flipX = false;
-        } else if (lastDir == -1 && !isStunned) {
-            playerSprite.flipX = true;
-        }
-
         if (Mathf.Abs(playerRB.velocity.x) > 0) {
             playerAnim.SetBool("isMoving", true);
         } else {

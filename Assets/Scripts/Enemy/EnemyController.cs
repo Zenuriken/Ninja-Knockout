@@ -21,6 +21,9 @@ public class EnemyController : MonoBehaviour
     [SerializeField]
     [Tooltip("The jump velocity of the enemy when pursuing.")]
     private float jumpVel;
+    [SerializeField]
+    [Tooltip("Dust particle effect when on the ground.")]
+    private ParticleSystem groundDust;
     [Space(5)]
     #endregion
     
@@ -209,6 +212,10 @@ public class EnemyController : MonoBehaviour
         } else if (dir.x < 0 && dir.y > 0) {
             enemyRB.velocity = new Vector2(-pursueSpeed, jumpVel);
         }
+        // Create dust when running on the ground.
+        if (Mathf.Abs(enemyRB.velocity.x) > 0f && isGrounded) {
+            CreateDust();
+        }
 
         // Increment path counter if enemy has reached the current path node.
         if (adjustedPos == pursuePath[currPathIndex]) {
@@ -223,6 +230,10 @@ public class EnemyController : MonoBehaviour
             pursuePath = newPath;
             currPathIndex = 0;
         }
+    }
+
+    void CreateDust() {
+        groundDust.Play();
     }
     #endregion
 
@@ -389,11 +400,9 @@ public class EnemyController : MonoBehaviour
     }
 
     // Reduces the enemy's health by dmg.
-    public void TakeDmg(int dmg, bool wasMeleed) {
+    public void TakeDmg(int dmg) {
         enemyHealth -= dmg;
-        if (wasMeleed) {
-            StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerDir(), 0f)));
-        }
+        StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerDir(), 0f)));
         if (enemyHealth <= 0) {
             StartCoroutine("Death");
         } else {
