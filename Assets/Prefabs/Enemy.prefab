@@ -10189,6 +10189,7 @@ MonoBehaviour:
   patrolSpeed: 2.5
   pursueSpeed: 10
   jumpVel: 30
+  groundDust: {fileID: 1236189714}
   enemyHealth: 5
   destroyDelay: 5
   enemyPoints: 10
@@ -10252,7 +10253,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6129600426513699755
 Transform:
   m_ObjectHideFlags: 0

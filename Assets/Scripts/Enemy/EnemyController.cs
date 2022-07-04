@@ -19,8 +19,11 @@ public class EnemyController : MonoBehaviour
     [Tooltip("The speed of the enemy when pursuing.")]
     private float pursueSpeed;
     [SerializeField]
-    [Tooltip("The jump velocity of the enemy when pursuing.")]
-    private float jumpVel;
+    [Tooltip("The vertical jump velocity of the enemy when pursuing.")]
+    private float jumpVelY;
+    [SerializeField]
+    [Tooltip("The horizontal jump velocity of the enemy when pursuing.")]
+    private float jumpVelX;
     [SerializeField]
     [Tooltip("Dust particle effect when on the ground.")]
     private ParticleSystem groundDust;
@@ -97,7 +100,7 @@ public class EnemyController : MonoBehaviour
     private float rightPatrolEnd;
 
     // Condition Variables
-    private bool isAlerted;
+    public bool isAlerted;
     private bool hasDied;
     private bool isStunned;
     private bool isGrounded;
@@ -207,10 +210,10 @@ public class EnemyController : MonoBehaviour
             enemyRB.velocity = new Vector2(-pursueSpeed, enemyRB.velocity.y);
         // Jump right
         } else if (dir.x > 0 && dir.y > 0) {
-            enemyRB.velocity = new Vector2(pursueSpeed, jumpVel);
+            enemyRB.velocity = new Vector2(jumpVelX, jumpVelY);
         // Jump left
         } else if (dir.x < 0 && dir.y > 0) {
-            enemyRB.velocity = new Vector2(-pursueSpeed, jumpVel);
+            enemyRB.velocity = new Vector2(-jumpVelX, jumpVelY);
         }
         // Create dust when running on the ground.
         if (Mathf.Abs(enemyRB.velocity.x) > 0f && isGrounded) {

@@ -98,51 +98,69 @@ public class AStar : MonoBehaviour
         return (isEmpty && hasPlatformUnder);
     }
 
-    // Returns whether the path is clear from p0 to p1 for jumping or dropping
+    // Returns whether the path is clear from p0 to p1 for jumping or dropping not including p0 and p1
     private bool IsClear(Vector3Int p0, Vector3Int p1, bool isJump) {
+
+        // For jumping:
+        // [X][X][X][G]
+        // [X][ ][X][-]
+        // [X][ ][ ][ ]
+        // [X][ ][ ][ ]
+        // [X][ ][ ][ ]
+        // [S][ ][ ][ ]
+
+        // For dropping
+        // [S][X][ ][ ]
+        // [-][X][ ][ ]
+        // [ ][X][ ][ ]
+        // [ ][X][ ][ ]
+        // [ ][X][ ][ ]
+        // [ ][X][X][G]
+
         if (isJump) {
             bool clearUp = (!platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 1, 0)) && 
                             !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 2, 0)) && 
                             !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 3, 0)) &&
-                            !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 4, 0)));
+                            !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 4, 0)) &&
+                            !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 5, 0)));
 
             // Jumping right
             if (p1.x > p0.x) {
-                bool clearRight = (!platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y + 4, 0)) &&
-                                   !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y + 4, 0)) &&
-                                   !platformTilemap.HasTile(new Vector3Int(p0.x + 3, p0.y + 4, 0)) &&
-                                   !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y + 3, 0)));
+                bool clearRight = (!platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y + 5, 0)) &&
+                                   !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y + 5, 0)) &&
+                                   !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y + 4, 0)));
                 return (clearUp && clearRight);
             }
 
             // Jumping left
             else {
-                bool clearLeft = (!platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y + 4, 0)) &&
-                                  !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y + 4, 0)) &&
-                                  !platformTilemap.HasTile(new Vector3Int(p0.x - 3, p0.y + 4, 0)) &&
-                                  !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y + 3, 0)));
+                bool clearLeft = (!platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y + 5, 0)) &&
+                                  !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y + 5, 0)) &&
+                                  !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y + 4, 0)));
                 return (clearUp && clearLeft);
             }
         } else {
             // Dropping right
             if (p1.x > p0.x) {
-                bool clearDownRight = (!platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 1, 0)) && 
+                bool clearDownRight = (!platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y, 0))     && 
+                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 1, 0)) && 
                                        !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 2, 0)) && 
                                        !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 3, 0)) &&
                                        !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 4, 0)) &&
-                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y - 4, 0)) &&
-                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 3, p0.y + 4, 0)));
+                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 5, 0)) &&
+                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y - 5, 0)));
                 return clearDownRight;
             }
 
             // Dropping left
             else {
-                bool clearDownLeft = (!platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 1, 0)) && 
+                bool clearDownLeft = (!platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y, 0))     && 
+                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 1, 0)) && 
                                       !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 2, 0)) && 
                                       !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 3, 0)) &&
                                       !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 4, 0)) &&
-                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y - 4, 0)) &&
-                                      !platformTilemap.HasTile(new Vector3Int(p0.x + 3, p0.y + 4, 0)));
+                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 5, 0)) &&
+                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y - 5, 0)));
                 return clearDownLeft;
             }
         }
@@ -169,28 +187,28 @@ public class AStar : MonoBehaviour
         }
 
         // Check jump left
-        testPos = new Vector3Int(pos.x - 3, pos.y + 4, 0);
+        testPos = new Vector3Int(pos.x - 3, pos.y + 5, 0);
         if (IsWalkable(testPos) && IsClear(pos, testPos, true)) {
             Node newNode = new Node(testPos, n, 3f);
             neighbors.Add(newNode);
         }
 
         // Check jump right
-        testPos = new Vector3Int(pos.x + 3, pos.y + 4, 0);
+        testPos = new Vector3Int(pos.x + 3, pos.y + 5, 0);
         if (IsWalkable(testPos) && IsClear(pos, testPos, true)) {
             Node newNode = new Node(testPos, n, 3f);
             neighbors.Add(newNode);
         }
 
         // Check drop left
-        testPos = new Vector3Int(pos.x - 3, pos.y - 4, 0);
+        testPos = new Vector3Int(pos.x - 3, pos.y - 5, 0);
         if (IsWalkable(testPos) && IsClear(pos, testPos, false)) {
             Node newNode = new Node(testPos, n, 2f);
             neighbors.Add(newNode);
         }
 
         // Check drop right
-        testPos = new Vector3Int(pos.x + 3, pos.y - 4, 0);
+        testPos = new Vector3Int(pos.x + 3, pos.y - 5, 0);
         if (IsWalkable(testPos) && IsClear(pos, testPos, false)) {
             Node newNode = new Node(testPos, n, 2f);
             neighbors.Add(newNode);

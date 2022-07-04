@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class FieldOfView : MonoBehaviour
 {
-    LayerMask allPlatformsLayerMask;
+    
+    private Transform playerTrans;
+    private LayerMask allPlatformsLayerMask;
+    private LayerMask playerLayerMask;
     private Mesh mesh;
     private Vector3 origin;
     public Vector3 originOffset;
@@ -18,9 +21,10 @@ public class FieldOfView : MonoBehaviour
     void Start()
     {
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
+        playerLayerMask = LayerMask.GetMask("Enemy");
         mesh = new Mesh();
         this.GetComponent<MeshFilter>().mesh = mesh;
-        origin = Vector3.zero;
+        playerTrans = GameObject.Find("Enemy").transform;
     }
 
     // Update is called once per frame
@@ -67,6 +71,24 @@ public class FieldOfView : MonoBehaviour
         mesh.uv = uv;
         mesh.triangles = triangles;
         mesh.bounds = new Bounds(origin, Vector3. one * 1000f);
+
+        Vector3 dirOfPlayer = playerTrans.position - origin;
+        float endingAngle = startingAngle - fov;
+        if (endingAngle < 0) {
+            endingAngle += 360;
+        }
+        float playerAngle = GetAngleFromVectorFloat(dirOfPlayer);
+        // Debug.DrawRay(origin, GetVectorFromAngle(playerAngle) * viewDistance, Color.cyan);
+        // Debug.DrawRay(origin, GetVectorFromAngle(startingAngle) * viewDistance, Color.green);
+        // Debug.DrawRay(origin, GetVectorFromAngle(endingAngle) * viewDistance, Color.red);
+        //Debug.Log("starting: " + startingAngle + "    playAngle: " + playerAngle + "   endingAngle: " + endingAngle);
+        if ((startingAngle == 15f && playerAngle <= startingAngle + 360f && playerAngle >= endingAngle) ||
+            (startingAngle == 200f && playerAngle <= startingAngle && playerAngle >= endingAngle)) {
+            RaycastHit2D playerRaycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(playerAngle), viewDistance, playerLayerMask);
+            if (playerRaycastHit2D.collider != null) {
+                Debug.Log("enemy detected: " + Time.time);
+            }
+        }
     }
 
     public Vector3 GetVectorFromAngle(float angle) {
