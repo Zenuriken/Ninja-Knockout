@@ -19,6 +19,7 @@ public class Health : MonoBehaviour
     private SpriteRenderer playerSprite;
     private Rigidbody2D playerRB;
     private float gravity;
+    private int x;
 
     void Start() {
         currHealth = maxHealth;
@@ -29,7 +30,7 @@ public class Health : MonoBehaviour
         gravity = playerRB.gravityScale;
     }
 
-    private void OnCollisionStay2D(Collision2D other) {
+    private void OnCollisionEnter2D(Collision2D other) {
         if (other.gameObject.tag == "Enemy") {
             EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
             if (!enemyScript.HasDied()) {
@@ -65,9 +66,10 @@ public class Health : MonoBehaviour
 
     // Controls the invincibility and blinking animation when getting damaged.
     private IEnumerator DamageBuffer() {
+        x += 1;
         // 7 = Player Layer, 9 = Enemy Layer
         Physics2D.IgnoreLayerCollision(7, 9, true);
-
+        Debug.Log("Start: " + Time.time + ", counter: " + x);
         for (float alpha = 1f; alpha >= 0.75f; alpha -= 0.05f) {
             playerSprite.color = new Color(1f, 1f, 1f, alpha);
             yield return new WaitForSeconds(0.01f);
@@ -88,7 +90,7 @@ public class Health : MonoBehaviour
             playerSprite.color = new Color(1f, 1f, 1f, alpha);
             yield return new WaitForSeconds(0.01f);
         }
-
+        Debug.Log("End: " + Time.time + ", counter: " + x);
         Physics2D.IgnoreLayerCollision(7, 9, false);
     }
 }

@@ -22,8 +22,8 @@ public class EnemyController : MonoBehaviour
     [Tooltip("The vertical jump velocity of the enemy when pursuing.")]
     private float jumpVelY;
     [SerializeField]
-    [Tooltip("The horizontal jump velocity of the enemy when pursuing.")]
-    private float jumpVelX;
+    [Tooltip("The horizontal airborne velocity of the enemy when pursuing.")]
+    private float airborneVelX;
     [SerializeField]
     [Tooltip("Dust particle effect when on the ground.")]
     private ParticleSystem groundDust;
@@ -65,6 +65,14 @@ public class EnemyController : MonoBehaviour
     private float knockBackDur;
     [Space(5)]
     #endregion
+
+    #region GameObject Variables
+    [Header("GameObjects")]
+    [SerializeField]
+    [Tooltip("The line of sight prefab for player detection.")]
+    private GameObject lineOfSightObj;
+    [Space(5)]
+    #endregion
     
     #region Private Variables
     // Player cached references
@@ -72,17 +80,15 @@ public class EnemyController : MonoBehaviour
     private Melee meleeScript;
 
     // Cached components
-    private GameObject unalertedObj;
     private GameObject alertedObj;
-    private SpriteRenderer unalertedSprite;
     private SpriteRenderer alertedSprite;
     private SpriteRenderer enemySprite;
-    private PolygonCollider2D unalertedCol;
     private PolygonCollider2D alertedCol;
     private Animator enemyAnim;
     private BoxCollider2D enemyCollider;
     private Rigidbody2D enemyRB;
     private AStar astarScript;
+    private FieldOfView fov;
 
     // Private variables
     private LayerMask allPlatformsLayerMask;
@@ -100,7 +106,7 @@ public class EnemyController : MonoBehaviour
     private float rightPatrolEnd;
 
     // Condition Variables
-    public bool isAlerted;
+    private bool isAlerted;
     private bool hasDied;
     private bool isStunned;
     private bool isGrounded;
@@ -109,12 +115,9 @@ public class EnemyController : MonoBehaviour
 
     #region Initializaiton Functions
     void Awake() {
-        unalertedObj = this.transform.GetChild(0).gameObject;
         alertedObj = this.transform.GetChild(1).gameObject;
-        unalertedSprite = unalertedObj.GetComponent<SpriteRenderer>();
         alertedSprite = alertedObj.GetComponent<SpriteRenderer>();
         enemySprite = this.GetComponent<SpriteRenderer>();
-        unalertedCol = unalertedObj.GetComponent<PolygonCollider2D>();
         alertedCol = alertedObj.GetComponent<PolygonCollider2D>();
         enemyCollider = this.GetComponent<BoxCollider2D>();
         enemyRB = this.GetComponent<Rigidbody2D>();
@@ -136,6 +139,10 @@ public class EnemyController : MonoBehaviour
         } else {
             startingDir = 1;
         }
+
+        GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj);
+        fov = lineOfSight.GetComponent<FieldOfView>();
+        fov.InitializeEnemyScript(this);
         adjustedPos = astarScript.GetAdjustedPosition();
         patrolPath = astarScript.CalculatePatrolPath(maxNodeDist);
         leftPatrolEnd = adjustedPos.x - maxNodeDist;
@@ -147,6 +154,7 @@ public class EnemyController : MonoBehaviour
 
     private void Update() {
         if (!hasDied) {
+            fov.SetOrigin(transform.position);
             IsGrounded();
             adjustedPos = astarScript.GetAdjustedPosition();
             if (!isStunned) {
@@ -210,14 +218,23 @@ public class EnemyController : MonoBehaviour
             enemyRB.velocity = new Vector2(-pursueSpeed, enemyRB.velocity.y);
         // Jump right
         } else if (dir.x > 0 && dir.y > 0) {
-            enemyRB.velocity = new Vector2(jumpVelX, jumpVelY);
+            enemyRB.velocity = new Vector2(airborneVelX, jumpVelY);
         // Jump left
         } else if (dir.x < 0 && dir.y > 0) {
-            enemyRB.velocity = new Vector2(-jumpVelX, jumpVelY);
+            enemyRB.velocity = new Vector2(-airborneVelX, jumpVelY);
         }
         // Create dust when running on the ground.
         if (Mathf.Abs(enemyRB.velocity.x) > 0f && isGrounded) {
             CreateDust();
+        }
+
+        // Set horizontal velocity when falling.
+        if (enemyRB.velocity.y < -0.05) {
+            if (enemyRB.velocity.x < -0.05) {
+                enemyRB.velocity = new Vector2(-airborneVelX, enemyRB.velocity.y);
+            } else if (enemyRB.velocity.x > 0.05) {
+                enemyRB.velocity = new Vector2(airborneVelX, enemyRB.velocity.y);
+            }
         }
 
         // Increment path counter if enemy has reached the current path node.
@@ -241,13 +258,12 @@ public class EnemyController : MonoBehaviour
     #endregion
 
     // Controls whether or not an enemy is alerted to the player's presence.
-    private void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.tag == "Player" && other.IsTouching(unalertedCol) && !playerScript.GetHidingStatus() && !hasDied) {
-            isAlerted = true;
-            unalertedSprite.color = new Color(1f, 1f, 0f, 0);
-            alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
-        }
-    }
+    // private void OnTriggerEnter2D(Collider2D other) {
+    //     if (other.gameObject.tag == "Player" && other.IsTouching(unalertedCol) && !playerScript.GetHidingStatus() && !hasDied) {
+    //         isAlerted = true;
+    //         alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
+    //     }
+    // }
 
     // Knocks the enemy back when getting damaged.
     IEnumerator KnockBack(Vector2 playerDir) {
@@ -266,7 +282,6 @@ public class EnemyController : MonoBehaviour
         } else {
             ScoreManager.singleton.IncreaseScore(enemyPoints);
         }
-        unalertedSprite.color = new Color(1f, 1f, 0f, 0f);
         alertedSprite.color = new Color(1f, 0f, 0f, 0f);
         //enemyRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
         //enemyCollider.isTrigger = true;
@@ -289,8 +304,10 @@ public class EnemyController : MonoBehaviour
     private void SetDirection() {
         if (enemyRB.velocity.x > 0.05f) {
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            fov.SetStartingAngle(15f);
         } else if (enemyRB.velocity.x < -0.05f) {
             transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            fov.SetStartingAngle(200f);
         }
     }
 
@@ -397,7 +414,6 @@ public class EnemyController : MonoBehaviour
     public void SetAlertStatus(bool status) {
         isAlerted = status;
         if (isAlerted) {
-            unalertedSprite.color = new Color(1f, 1f, 0f, 0);
             alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
         }
     }

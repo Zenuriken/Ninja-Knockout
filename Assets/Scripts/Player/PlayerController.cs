@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.IO.IsolatedStorage;
 
 public class PlayerController : MonoBehaviour
 {
@@ -192,8 +193,6 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer playerSprite;
     #endregion
 
-    private FieldOfView fov;
-
 /**********************************************************************************/
 
     #region Initializing Functions
@@ -214,8 +213,6 @@ public class PlayerController : MonoBehaviour
         point0 = this.transform.GetChild(1).GetChild(1).transform;
         point1 = this.transform.GetChild(1).GetChild(2).transform;
         point2 = this.transform.GetChild(1).GetChild(3).transform;
-
-        fov = GameObject.Find("FieldOFView").GetComponent<FieldOfView>();
     }
 
     // Start is called before the first frame update
@@ -246,8 +243,6 @@ public class PlayerController : MonoBehaviour
         sneakHolding = Input.GetKey(sneakKey);
         meleePressed = Input.GetKeyDown(meleeKey);
         firePressed = Input.GetKeyDown(fireKey);
-
-        fov.SetOrigin(transform.position);
         Move();
         IsGrounded();
         IsAgainstWall();
@@ -344,13 +339,11 @@ public class PlayerController : MonoBehaviour
 
     // Sets the variable: lastDir based on the xInput of the player.
     private void SetDirection() {
-        if (!isWallJumping && !isAttacking && !isDashing) {
+        if (!isWallJumping && !isAttacking && !isDashing && !isStunned) {
             if (xInput > 0) {
                 lastDir = 1;
-                fov.SetStartingAngle(15f);
             } else if (xInput < 0) {
                 lastDir = -1;
-                fov.SetStartingAngle(200f);
             }
             FlipPlayer();
         }

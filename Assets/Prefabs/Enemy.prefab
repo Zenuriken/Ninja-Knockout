@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4281099}
   - component: {fileID: 4281101}
   - component: {fileID: 4281100}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Melee Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -119,7 +119,7 @@ GameObject:
   - component: {fileID: 881891642}
   - component: {fileID: 881891644}
   - component: {fileID: 881891643}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Sparks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4926,7 +4926,7 @@ GameObject:
   m_Component:
   - component: {fileID: 964506669}
   - component: {fileID: 964506670}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Point2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5008,7 +5008,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1002254738}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Fire Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5040,7 +5040,7 @@ GameObject:
   - component: {fileID: 1236189712}
   - component: {fileID: 1236189714}
   - component: {fileID: 1236189713}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Ground Dust Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9845,7 +9845,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1308001162}
   - component: {fileID: 1308001163}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Point1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9928,7 +9928,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2061756757}
   - component: {fileID: 2061756758}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Point0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10188,7 +10188,8 @@ MonoBehaviour:
   idleDur: 4
   patrolSpeed: 2.5
   pursueSpeed: 10
-  jumpVel: 30
+  jumpVelY: 0
+  airborneVelX: 0
   groundDust: {fileID: 1236189714}
   enemyHealth: 5
   destroyDelay: 5
@@ -10197,6 +10198,7 @@ MonoBehaviour:
   dmg: 0
   knockBackForce: 15
   knockBackDur: 0.5
+  lineOfSightObj: {fileID: 0}
 --- !u!95 &1977679683
 Animator:
   serializedVersion: 3
