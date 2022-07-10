@@ -19,7 +19,7 @@ public class Health : MonoBehaviour
     private SpriteRenderer playerSprite;
     private Rigidbody2D playerRB;
     private float gravity;
-    private int x;
+    public bool isBuffering;
 
     void Start() {
         currHealth = maxHealth;
@@ -30,8 +30,8 @@ public class Health : MonoBehaviour
         gravity = playerRB.gravityScale;
     }
 
-    private void OnCollisionEnter2D(Collision2D other) {
-        if (other.gameObject.tag == "Enemy") {
+    private void OnCollisionStay2D(Collision2D other) {
+        if (other.gameObject.tag == "Enemy" && !isBuffering) {
             EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
             if (!enemyScript.HasDied()) {
                 currHealth -= 1;
@@ -66,10 +66,9 @@ public class Health : MonoBehaviour
 
     // Controls the invincibility and blinking animation when getting damaged.
     private IEnumerator DamageBuffer() {
-        x += 1;
+        isBuffering = true;
         // 7 = Player Layer, 9 = Enemy Layer
         Physics2D.IgnoreLayerCollision(7, 9, true);
-        Debug.Log("Start: " + Time.time + ", counter: " + x);
         for (float alpha = 1f; alpha >= 0.75f; alpha -= 0.05f) {
             playerSprite.color = new Color(1f, 1f, 1f, alpha);
             yield return new WaitForSeconds(0.01f);
@@ -90,8 +89,22 @@ public class Health : MonoBehaviour
             playerSprite.color = new Color(1f, 1f, 1f, alpha);
             yield return new WaitForSeconds(0.01f);
         }
-        Debug.Log("End: " + Time.time + ", counter: " + x);
+        isBuffering = false;
         Physics2D.IgnoreLayerCollision(7, 9, false);
+    }
+
+    // Decreases the player's current health by x amount.
+    public void TakeDmg(int x, Vector3 enemyPos) {
+        if (!isBuffering) {
+            currHealth -= x;
+            Vector2 dir = new Vector2(1f / 2f, Mathf.Sqrt(3) / 2f);
+            float collisionDir = this.gameObject.transform.position.x - enemyPos.x;
+            if (collisionDir < 0) {
+                dir.x *= -1;
+            }
+            StartCoroutine(Stunned(dir));
+            StartCoroutine("DamageBuffer");
+        }
     }
 }
 

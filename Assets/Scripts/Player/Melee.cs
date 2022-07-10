@@ -5,7 +5,6 @@ using UnityEngine;
 public class Melee : MonoBehaviour
 {
     #region Private Variables
-    private PolygonCollider2D meleeCollider;
     private List<Collider2D> enemyColliders;
     private List<Collider2D> projectileColliders;
     private List<Collider2D> platformColliders;
@@ -15,7 +14,6 @@ public class Melee : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        meleeCollider = this.GetComponent<PolygonCollider2D>();
         enemyColliders = new List<Collider2D>();
         projectileColliders = new List<Collider2D>();
         platformColliders = new List<Collider2D>();

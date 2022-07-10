@@ -80,9 +80,6 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The number of shurikens player spawns with.")]
     private int numShurikens;
     [SerializeField]
-    [Tooltip("The spin speed of shuriken.")]
-    private float spinSpeed;
-    [SerializeField]
     [Tooltip("The knock back force when clashing with a platform or enemy.")]
     private float knockBackForce;
     [SerializeField]

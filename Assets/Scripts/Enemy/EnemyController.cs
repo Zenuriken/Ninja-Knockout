@@ -48,10 +48,15 @@ public class EnemyController : MonoBehaviour
     [Header("Attack")]
     [SerializeField]
     [Tooltip("How often the enemy can attack.")]
-    private float attackSpeed;
+    private float attackRate;
     [SerializeField]
     [Tooltip("How much damage this enemy deals per hit.")]
-    private float dmg;
+    private int dmg;
+    [Tooltip("The speed a shuriken flies through the air.")]
+    private float shurikenSpeed;
+    [SerializeField]
+    [Tooltip("The delay of spawning the shuriken.")]
+    private float spawnDelay;
     [Space(5)]
     #endregion
 
@@ -71,16 +76,21 @@ public class EnemyController : MonoBehaviour
     [SerializeField]
     [Tooltip("The line of sight prefab for player detection.")]
     private GameObject lineOfSightObj;
+    [SerializeField]
+    [Tooltip("The shuriken prefab.")]
+    private GameObject shurikenPrefab;
     [Space(5)]
     #endregion
     
     #region Private Variables
     // Player cached references
     private PlayerController playerScript;
+    private Health playerHealthScript;
     private Melee meleeScript;
 
     // Cached components
     private GameObject alertedObj;
+    private Transform firePointTrans;
     private SpriteRenderer alertedSprite;
     private SpriteRenderer enemySprite;
     private PolygonCollider2D alertedCol;
@@ -89,6 +99,7 @@ public class EnemyController : MonoBehaviour
     private Rigidbody2D enemyRB;
     private AStar astarScript;
     private FieldOfView fov;
+    private MeleeEnemy meleeEnemyScript;
 
     // Private variables
     private LayerMask allPlatformsLayerMask;
@@ -96,6 +107,7 @@ public class EnemyController : MonoBehaviour
     private int damageCounter;
     private int startingDir;
     private float lastIdle;
+    private float lastAttack;
 
     // Pathfinding Variables
     private List<Vector2> pursuePath;
@@ -111,11 +123,13 @@ public class EnemyController : MonoBehaviour
     private bool isStunned;
     private bool isGrounded;
     private bool isIdling;
+    private bool playerIsInMeleeRange;
+    private bool isMeleeing;
     #endregion
 
     #region Initializaiton Functions
     void Awake() {
-        alertedObj = this.transform.GetChild(1).gameObject;
+        alertedObj = this.transform.GetChild(0).gameObject;
         alertedSprite = alertedObj.GetComponent<SpriteRenderer>();
         enemySprite = this.GetComponent<SpriteRenderer>();
         alertedCol = alertedObj.GetComponent<PolygonCollider2D>();
@@ -123,12 +137,15 @@ public class EnemyController : MonoBehaviour
         enemyRB = this.GetComponent<Rigidbody2D>();
         enemyAnim = this.GetComponent<Animator>();
         astarScript = this.GetComponent<AStar>();
+        meleeEnemyScript = this.transform.GetChild(2).GetComponent<MeleeEnemy>();
+        firePointTrans = this.transform.GetChild(3).transform;
     }
 
     // Start is called before the first frame update
     void Start()
     {
         playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        playerHealthScript = playerScript.gameObject.GetComponent<Health>();
         meleeScript = playerScript.transform.GetChild(1).GetComponent<Melee>();
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
 
@@ -143,6 +160,7 @@ public class EnemyController : MonoBehaviour
         GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj);
         fov = lineOfSight.GetComponent<FieldOfView>();
         fov.InitializeEnemyScript(this);
+
         adjustedPos = astarScript.GetAdjustedPosition();
         patrolPath = astarScript.CalculatePatrolPath(maxNodeDist);
         leftPatrolEnd = adjustedPos.x - maxNodeDist;
@@ -160,9 +178,11 @@ public class EnemyController : MonoBehaviour
             if (!isStunned) {
                 SetDirection();
             }
+            Attack();
             Move();
         }
         UpdateSprite();
+        Debug.Log("InMeleeRange: " + playerIsInMeleeRange);
     }
 
     #region Movement Functions
@@ -173,7 +193,7 @@ public class EnemyController : MonoBehaviour
 
         if (!isAlerted) {
             Patrol();
-        } else if (!isStunned) {
+        } else if (!isStunned && !isMeleeing) {
             Pursue();
         }
     }
@@ -283,6 +303,7 @@ public class EnemyController : MonoBehaviour
             ScoreManager.singleton.IncreaseScore(enemyPoints);
         }
         alertedSprite.color = new Color(1f, 0f, 0f, 0f);
+        Destroy(fov.gameObject);
         //enemyRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
         //enemyCollider.isTrigger = true;
 
@@ -310,6 +331,23 @@ public class EnemyController : MonoBehaviour
             fov.SetStartingAngle(200f);
         }
     }
+
+    #region Attack Functions
+    private void Attack() {
+        playerIsInMeleeRange = meleeEnemyScript.GetPlayerContactStatus();
+        if (playerIsInMeleeRange && isGrounded && CanAttack()) {
+            isMeleeing = true;
+            playerHealthScript.TakeDmg(dmg, this.transform.position);
+        // } else if (playerIsInThrowingRange && isGrounded && CanAttack()) {
+        //     isMeleeing = false;
+        // }
+        }
+    }
+
+    private bool CanAttack() {
+        return (lastAttack + attackRate <= Time.time) && !isStunned;
+    }
+    #endregion
 
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
@@ -359,12 +397,12 @@ public class EnemyController : MonoBehaviour
         //     Invoke("SetIsThrowingFalse", 0.5f);
         // }
 
-        // if (meleePressed && CanAttack() && isGrounded) {
-        //     isAttacking = true;
-        //     enemyAnim.SetBool("isMeleeing", true);
-        //     lastAttack = Time.time;
-        //     Invoke("SetIsMeleeingFalse", 0.5f);
-        // }
+        if (isMeleeing) {
+           // isAttacking = true;
+            enemyAnim.SetBool("isMeleeing", true);
+            lastAttack = Time.time;
+            Invoke("SetIsMeleeingFalse", 0.5f);
+        }
 
         if (isStunned) {
             enemyAnim.SetBool("isStunned", true);
@@ -378,10 +416,10 @@ public class EnemyController : MonoBehaviour
     //     isAttacking = false;
     // }
 
-    // private void SetIsMeleeingFalse() {
-    //     playerAnim.SetBool("isMeleeing", false);
-    //     isAttacking = false;
-    // }
+    private void SetIsMeleeingFalse() {
+        enemyAnim.SetBool("isMeleeing", false);
+        //isAttacking = false;
+    }
     #endregion
 
     #region Public Functions
