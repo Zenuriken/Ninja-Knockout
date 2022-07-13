@@ -77,6 +77,9 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The amount of time the player needs to hold the shoot button to aim a shuriken.")]
     private float holdTime;
     [SerializeField]
+    [Tooltip("The speed in which the skillshot arrow moves.")]
+    private float skillShotSpeed;
+    [SerializeField]
     [Tooltip("The number of shurikens player spawns with.")]
     private int numShurikens;
     [SerializeField]
@@ -119,11 +122,13 @@ public class PlayerController : MonoBehaviour
 
     #region Private Variables
     // Private Input Variables
-    private KeyCode jumpKey = KeyCode.Space;
-    private KeyCode dashKey = KeyCode.LeftShift;
-    private KeyCode fireKey = KeyCode.Mouse1;
-    private KeyCode meleeKey = KeyCode.Mouse0;
-    private KeyCode sneakKey = KeyCode.S;
+    private KeyCode jumpKey = KeyCode.Z;
+    private KeyCode dashKey = KeyCode.C;
+    private KeyCode fireKey = KeyCode.Space;
+    private KeyCode meleeKey = KeyCode.X;
+    private KeyCode sneakKey = KeyCode.LeftControl;
+    private KeyCode upKey = KeyCode.UpArrow;
+    private KeyCode downKey = KeyCode.DownArrow;
 
     // Player Input Variables
     private bool rightPressed;
@@ -136,6 +141,8 @@ public class PlayerController : MonoBehaviour
     private bool fireReleased;
     private bool fireHolding;
     private bool sneakHolding;
+    private bool upHolding;
+    private bool downHolding;
 
     // State Variables
     private bool isJumping;
@@ -160,6 +167,9 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer skillShotSprite;
     private float lastAttack;
     private float currHoldTime;
+    private float angleRaw;
+    private float angleAdjusted;
+
 
     // Private Jump Variables
     private float jumpDurTimer;
@@ -247,6 +257,8 @@ public class PlayerController : MonoBehaviour
         meleePressed = Input.GetKeyDown(meleeKey);
         fireReleased = Input.GetKeyUp(fireKey);
         fireHolding = Input.GetKey(fireKey);
+        upHolding = Input.GetKey(upKey);
+        downHolding = Input.GetKey(downKey);
 
         Move();
         IsGrounded();
@@ -469,22 +481,32 @@ public class PlayerController : MonoBehaviour
         if (CanAttack() && numShurikens > 0 && !isDashing) {
             if (fireHolding && HoldTimeMet()) {
                 skillShotSprite.enabled = true;
-                // Get the shooting direction for shurikens.
-                Vector2 shootDir = (Vector2) (Camera.main.ScreenToWorldPoint(Input.mousePosition) - firePointTrans.position);
-                float angle = GetAngleFromVectorFloat(shootDir) - 90f;
-                skillShotTrans.rotation = Quaternion.Euler(0, 0, angle);
+                if (upHolding) {
+                    angleRaw += skillShotSpeed * Time.deltaTime;
+                } else if (downHolding) {
+                    angleRaw -= skillShotSpeed * Time.deltaTime;
+                }
+                angleRaw = Mathf.Clamp(angleRaw, -60f, 60f);
+                if (lastDir == 1) {
+                    angleAdjusted = angleRaw;
+                } else {
+                    angleAdjusted = 180f - angleRaw;
+                }
+                skillShotTrans.rotation = Quaternion.Euler(0, 0, angleAdjusted - 90f);
             } else if (fireHolding) {
                 currHoldTime += Time.deltaTime;
             }
 
             if (fireReleased && HoldTimeMet()) {
-                Vector2 shootDir = (Vector2) (Camera.main.ScreenToWorldPoint(Input.mousePosition) - firePointTrans.position);
+                Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
                 StartCoroutine(SpawnShuriken(shootDir));
                 currHoldTime = 0f;
+                angleRaw = 0f;
             } else if (fireReleased) {
                 Vector2 shootDir = new Vector2(lastDir, 0f);
                 StartCoroutine(SpawnShuriken(shootDir));
                 currHoldTime = 0f;
+                angleRaw = 0f;
             }
 
         } else if (meleePressed && CanAttack() && isGrounded) {
@@ -738,13 +760,10 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Misc Functions
-    public float GetAngleFromVectorFloat(Vector2 dir) {
+    public Vector2 GetVectorFromAngle(float angle) {
         // angle = 0 -> 360
-        dir = dir.normalized;
-        float n = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        if (n < 0) n += 360;
-
-        return n;
+        float angleRad = angle * (Mathf.PI/180f);
+        return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
     }
     #endregion
 

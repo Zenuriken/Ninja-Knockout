@@ -122,8 +122,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 124c797de2b9a43488a70016524eaef6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shurikenSpeed: 20
-  destroyDelay: 0.0001
   deflectedOnceColor:
     serializedVersion: 2
     key0: {r: 1, g: 0.7899933, b: 0.48490566, a: 1}
