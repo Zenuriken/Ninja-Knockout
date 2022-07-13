@@ -27,7 +27,7 @@ public class Shuriken : MonoBehaviour
     private float deflectedMultiplier = 0.5f;
     private int numDeflections = 0;
     private int deflectCounter;
-    private int throwDir;
+    private Vector2 throwDir;
     private bool isActive;
     #endregion
 
@@ -96,16 +96,16 @@ public class Shuriken : MonoBehaviour
     }
 
     // Sets the shuriken's velocity and direction.
-    public void SetShurikenVelocity(int dir) {
+    public void SetShurikenVelocity(Vector2 dir) {
         throwDir = dir;
-        if (throwDir == -1) {
+        if (throwDir.x < 0f) {
             shurikenSprite.flipX = true;
             sparks.transform.rotation = Quaternion.Euler(0, 0, -90);
         } else {
             shurikenSprite.flipX = false;
             sparks.transform.rotation = Quaternion.Euler(0, 0, 90);
         } 
-        rb.velocity = new Vector2(throwDir * shurikenSpeed * (1 + deflectedMultiplier * numDeflections), 0);
+        rb.velocity = throwDir * shurikenSpeed * (1 + deflectedMultiplier * numDeflections);
     }
 
     // Sends the shuriken in the other direction when deflected.

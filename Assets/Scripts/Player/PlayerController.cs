@@ -71,11 +71,11 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The attack rate.")]
     private float attackRate;
     [SerializeField]
-    [Tooltip("The speed a shuriken flies through the air.")]
-    private float shurikenSpeed;
-    [SerializeField]
     [Tooltip("The delay of spawning the shuriken.")]
     private float spawnDelay;
+    [SerializeField]
+    [Tooltip("The amount of time the player needs to hold the shoot button to aim a shuriken.")]
+    private float holdTime;
     [SerializeField]
     [Tooltip("The number of shurikens player spawns with.")]
     private int numShurikens;
@@ -119,11 +119,11 @@ public class PlayerController : MonoBehaviour
 
     #region Private Variables
     // Private Input Variables
-    private KeyCode jumpKey = KeyCode.Z;
-    private KeyCode dashKey = KeyCode.C;
-    private KeyCode fireKey = KeyCode.Space;
-    private KeyCode meleeKey = KeyCode.X;
-    private KeyCode sneakKey = KeyCode.DownArrow;
+    private KeyCode jumpKey = KeyCode.Space;
+    private KeyCode dashKey = KeyCode.LeftShift;
+    private KeyCode fireKey = KeyCode.Mouse1;
+    private KeyCode meleeKey = KeyCode.Mouse0;
+    private KeyCode sneakKey = KeyCode.S;
 
     // Player Input Variables
     private bool rightPressed;
@@ -133,7 +133,8 @@ public class PlayerController : MonoBehaviour
     private bool jumpReleased;
     private bool dashPressed;
     private bool meleePressed;
-    private bool firePressed;
+    private bool fireReleased;
+    private bool fireHolding;
     private bool sneakHolding;
 
     // State Variables
@@ -155,7 +156,10 @@ public class PlayerController : MonoBehaviour
 
     // Private shooting variables
     private Transform firePointTrans;
+    private Transform skillShotTrans;
+    private SpriteRenderer skillShotSprite;
     private float lastAttack;
+    private float currHoldTime;
 
     // Private Jump Variables
     private float jumpDurTimer;
@@ -206,6 +210,8 @@ public class PlayerController : MonoBehaviour
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
         meleeScript = this.transform.GetChild(1).GetComponent<Melee>();
         firePointTrans = this.transform.GetChild(0).transform;
+        skillShotTrans = firePointTrans.GetChild(0).transform;
+        skillShotSprite = skillShotTrans.GetComponent<SpriteRenderer>();
 
         point0 = this.transform.GetChild(1).GetChild(1).transform;
         point1 = this.transform.GetChild(1).GetChild(2).transform;
@@ -239,7 +245,9 @@ public class PlayerController : MonoBehaviour
         dashPressed = Input.GetKeyDown(dashKey);
         sneakHolding = Input.GetKey(sneakKey);
         meleePressed = Input.GetKeyDown(meleeKey);
-        firePressed = Input.GetKeyDown(fireKey);
+        fireReleased = Input.GetKeyUp(fireKey);
+        fireHolding = Input.GetKey(fireKey);
+
         Move();
         IsGrounded();
         IsAgainstWall();
@@ -458,9 +466,29 @@ public class PlayerController : MonoBehaviour
     #region Attack Functions
     // Main attack function.
     private void Attack() {
-        if (firePressed && CanAttack() && numShurikens > 0 && !isDashing) {
-            StartCoroutine("SpawnShuriken");
+        if (CanAttack() && numShurikens > 0 && !isDashing) {
+            if (fireHolding && HoldTimeMet()) {
+                skillShotSprite.enabled = true;
+                // Get the shooting direction for shurikens.
+                Vector2 shootDir = (Vector2) (Camera.main.ScreenToWorldPoint(Input.mousePosition) - firePointTrans.position);
+                float angle = GetAngleFromVectorFloat(shootDir) - 90f;
+                skillShotTrans.rotation = Quaternion.Euler(0, 0, angle);
+            } else if (fireHolding) {
+                currHoldTime += Time.deltaTime;
+            }
+
+            if (fireReleased && HoldTimeMet()) {
+                Vector2 shootDir = (Vector2) (Camera.main.ScreenToWorldPoint(Input.mousePosition) - firePointTrans.position);
+                StartCoroutine(SpawnShuriken(shootDir));
+                currHoldTime = 0f;
+            } else if (fireReleased) {
+                Vector2 shootDir = new Vector2(lastDir, 0f);
+                StartCoroutine(SpawnShuriken(shootDir));
+                currHoldTime = 0f;
+            }
+
         } else if (meleePressed && CanAttack() && isGrounded) {
+            skillShotSprite.enabled = false;
             if (isGrounded) {
                 CreateDust(0);
             }
@@ -468,6 +496,8 @@ public class PlayerController : MonoBehaviour
             meleeCounter += 1;
             StartCoroutine("MeleeTrail");
             Invoke("SetMeleeActiveFalse", 0.18f);
+        } else {
+            skillShotSprite.enabled = false;
         }
 
         if (meleeActive) {
@@ -528,6 +558,11 @@ public class PlayerController : MonoBehaviour
         return (lastAttack + attackRate <= Time.time) && !isStunned;
     }
 
+    // Returns whether the player held the shoot button long enough to aim.
+    private bool HoldTimeMet() {
+        return currHoldTime >= holdTime && !isStunned;
+    }
+
     // Makes the trail for the melee attack.
     IEnumerator MeleeTrail() {
         Vector3 newPos = new Vector3(0f, 0f, 0f);
@@ -575,11 +610,12 @@ public class PlayerController : MonoBehaviour
     }
 
     // Spawns the shuriken at the fire point of the player.
-    private IEnumerator SpawnShuriken() {
+    private IEnumerator SpawnShuriken(Vector2 shootDir) {
+        shootDir.Normalize();
         yield return new WaitForSeconds(spawnDelay);
         GameObject shuriken = Object.Instantiate(shurikenPrefab, firePointTrans.position, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
-        shurikenScript.SetShurikenVelocity(lastDir);
+        shurikenScript.SetShurikenVelocity(shootDir);
     }
     #endregion
 
@@ -616,10 +652,11 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("isAgainstWall", false);
         }
 
-        if (firePressed && CanAttack() && numShurikens > 0 && !isDashing) {
+        if (fireReleased && CanAttack() /*&& IsCharged()*/ && numShurikens > 0 && !isDashing) {
             isAttacking = true;
             playerAnim.SetBool("isThrowing", true);
             lastAttack = Time.time;
+            //currChargeTime = 0f;
             numShurikens -= 1;
             ScoreManager.singleton.UpdateShurikenNum(numShurikens);
             Invoke("SetIsThrowingFalse", 0.5f);
@@ -699,4 +736,16 @@ public class PlayerController : MonoBehaviour
         return isSneaking;
     }
     #endregion
+
+    #region Misc Functions
+    public float GetAngleFromVectorFloat(Vector2 dir) {
+        // angle = 0 -> 360
+        dir = dir.normalized;
+        float n = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        if (n < 0) n += 360;
+
+        return n;
+    }
+    #endregion
+
 }

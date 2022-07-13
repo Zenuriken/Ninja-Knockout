@@ -100,6 +100,7 @@ public class EnemyController : MonoBehaviour
     private AStar astarScript;
     private FieldOfView fov;
     private MeleeEnemy meleeEnemyScript;
+    private AlertedSight alertedSightScript;
 
     // Private variables
     private LayerMask allPlatformsLayerMask;
@@ -124,7 +125,9 @@ public class EnemyController : MonoBehaviour
     private bool isGrounded;
     private bool isIdling;
     private bool playerIsInMeleeRange;
+    private bool playerIsInThrowingRange;
     private bool isMeleeing;
+    private bool isThrowing;
     #endregion
 
     #region Initializaiton Functions
@@ -138,6 +141,7 @@ public class EnemyController : MonoBehaviour
         enemyAnim = this.GetComponent<Animator>();
         astarScript = this.GetComponent<AStar>();
         meleeEnemyScript = this.transform.GetChild(2).GetComponent<MeleeEnemy>();
+        alertedSightScript = this.transform.GetChild(0).GetComponent<AlertedSight>();
         firePointTrans = this.transform.GetChild(3).transform;
     }
 
@@ -334,19 +338,28 @@ public class EnemyController : MonoBehaviour
 
     #region Attack Functions
     private void Attack() {
-        playerIsInMeleeRange = meleeEnemyScript.GetPlayerContactStatus();
+        playerIsInMeleeRange = meleeEnemyScript.IsTouchingMeleeTrigger();
+        playerIsInThrowingRange = alertedSightScript.IsTouchingAlertedTrigger();
         if (playerIsInMeleeRange && isGrounded && CanAttack()) {
             isMeleeing = true;
             playerHealthScript.TakeDmg(dmg, this.transform.position);
-        // } else if (playerIsInThrowingRange && isGrounded && CanAttack()) {
-        //     isMeleeing = false;
-        // }
+        } else if (playerIsInThrowingRange && isGrounded && CanAttack()) {
+            isThrowing = true;
+            //StartCoroutine("Throw");
         }
     }
 
     private bool CanAttack() {
         return (lastAttack + attackRate <= Time.time) && !isStunned;
     }
+
+    // IEnumerator Throw() {
+    //     Vector2 dir = (Vector2) (playerScript.transform.position - firePointTrans.position);
+    //     dir.Normalize();
+    //     GameObject shuriken = Instantiate(shurikenPrefab, firePointTrans.position, Quaternion.identity);
+
+
+    // }
     #endregion
 
     #region Sprite Rendering Functions
@@ -419,6 +432,7 @@ public class EnemyController : MonoBehaviour
     private void SetIsMeleeingFalse() {
         enemyAnim.SetBool("isMeleeing", false);
         //isAttacking = false;
+        isMeleeing = false;
     }
     #endregion
 

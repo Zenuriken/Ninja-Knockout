@@ -52,7 +52,7 @@ public class MeleeEnemy : MonoBehaviour
     }
 
     // Returns whether the player is in contact with the enemy's melee collider.
-    public bool GetPlayerContactStatus() {
+    public bool IsTouchingMeleeTrigger() {
         return playerContact;
     }
     #endregion
