@@ -148,6 +148,7 @@ public class PlayerController : MonoBehaviour
     private bool isJumping;
     private bool isDashing;
     private bool isWallJumping;
+    private bool isWallClimbing;
     private bool isSneaking;
     private bool isAttacking;
     private bool isStunned;
@@ -165,6 +166,9 @@ public class PlayerController : MonoBehaviour
     private Transform firePointTrans;
     private Transform skillShotTrans;
     private SpriteRenderer skillShotSprite;
+    private Transform wallFirePointTrans;
+    private Transform wallSkillShotTrans;
+    private SpriteRenderer wallSkillShotSprite;
     private float lastAttack;
     private float currHoldTime;
     private float angleRaw;
@@ -198,6 +202,7 @@ public class PlayerController : MonoBehaviour
     private float gravity;
     private float speed;
     private int lastDir;
+    private int side;
 
     // Private Animator Private Variables
     private Animator playerAnim;
@@ -219,9 +224,14 @@ public class PlayerController : MonoBehaviour
         platformLayerMask = LayerMask.GetMask("Platform");
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
         meleeScript = this.transform.GetChild(1).GetComponent<Melee>();
+        
         firePointTrans = this.transform.GetChild(0).transform;
         skillShotTrans = firePointTrans.GetChild(0).transform;
         skillShotSprite = skillShotTrans.GetComponent<SpriteRenderer>();
+
+        wallFirePointTrans = this.transform.GetChild(5).transform;
+        wallSkillShotTrans = wallFirePointTrans.GetChild(0).transform;
+        wallSkillShotSprite = wallSkillShotTrans.GetComponent<SpriteRenderer>();
 
         point0 = this.transform.GetChild(1).GetChild(1).transform;
         point1 = this.transform.GetChild(1).GetChild(2).transform;
@@ -264,9 +274,15 @@ public class PlayerController : MonoBehaviour
         IsGrounded();
         IsAgainstWall();
         SetDirection();
-        Attack();
+        if (isWallClimbing) {
+            WallClimbAttack();
+        } else {
+            Attack();
+        }
         UpdateSprite();
         CoverPlayer();
+
+        //Debug.Log(isWallClimbing);
     }
     #endregion
 
@@ -337,13 +353,18 @@ public class PlayerController : MonoBehaviour
             if (!isDashing && isAgainstWall) {
                 playerRB.velocity = new Vector2(0f, -1f * wallFallSpeed);
                 if (!isGrounded) {
+                    isWallClimbing = true;
                     CreateDust(1);
+                } else {
+                    isWallClimbing = false;
                 }
                 // Setting Wall Jumping to true
                 if (jumpPressed && CanJump()) {
                     isWallJumping = true;
                     Invoke("SetWallJumpingFalse", wallJumpDur);
                 }
+            } else {
+                isWallClimbing = false;
             }
 
             // Wall Jumping
@@ -457,18 +478,22 @@ public class PlayerController : MonoBehaviour
 
     // Returns if the player is jumping against a wall.
     private void IsAgainstWall() {
+        int currSide = 0;
         RaycastHit2D raycastHit2D;
         // Check right
         if (lastDir == 1) {
            raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 0.6f), 0f, Vector2.right, 0.1f, platformLayerMask);
+           currSide = 1;
         // Check left
         } else {
             raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 0.6f), 0f, Vector2.left, 0.1f, platformLayerMask);
+            currSide = -1;
         }
         bool againstWall = raycastHit2D.collider != null;
         if (againstWall) {
             dashCounter = 1;
             jumpCounter = 1;
+            side = currSide;
         }
         isAgainstWall = againstWall;
         return;
@@ -478,9 +503,10 @@ public class PlayerController : MonoBehaviour
     #region Attack Functions
     // Main attack function.
     private void Attack() {
-        if (CanAttack() && numShurikens > 0 && !isDashing) {
+        if (CanAttack() && numShurikens > 0 && !isDashing && !isWallClimbing && !isWallJumping) {
             if (fireHolding && HoldTimeMet()) {
                 skillShotSprite.enabled = true;
+                wallSkillShotSprite.enabled = false;
                 if (upHolding) {
                     angleRaw += skillShotSpeed * Time.deltaTime;
                 } else if (downHolding) {
@@ -499,12 +525,12 @@ public class PlayerController : MonoBehaviour
 
             if (fireReleased && HoldTimeMet()) {
                 Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
-                StartCoroutine(SpawnShuriken(shootDir));
+                StartCoroutine(SpawnShuriken(shootDir, firePointTrans.position));
                 currHoldTime = 0f;
                 angleRaw = 0f;
             } else if (fireReleased) {
                 Vector2 shootDir = new Vector2(lastDir, 0f);
-                StartCoroutine(SpawnShuriken(shootDir));
+                StartCoroutine(SpawnShuriken(shootDir, firePointTrans.position));
                 currHoldTime = 0f;
                 angleRaw = 0f;
             }
@@ -570,6 +596,44 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Controls the Shuriken attack when wallClimbing
+    private void WallClimbAttack() {
+        if (CanAttack() && numShurikens > 0 && !isDashing) {
+            if (fireHolding && HoldTimeMet()) {
+                wallSkillShotSprite.enabled = true;
+                skillShotSprite.enabled = false;
+                if (upHolding) {
+                    angleRaw += skillShotSpeed * Time.deltaTime;
+                } else if (downHolding) {
+                    angleRaw -= skillShotSpeed * Time.deltaTime;
+                }
+                angleRaw = Mathf.Clamp(angleRaw, -60f, 60f);
+                if (lastDir == -1) {
+                    angleAdjusted = angleRaw;
+                } else {
+                    angleAdjusted = 180f - angleRaw;
+                }
+                wallSkillShotTrans.rotation = Quaternion.Euler(0, 0, angleAdjusted - 90f);
+            } else if (fireHolding) {
+                currHoldTime += Time.deltaTime;
+            }
+
+            if (fireReleased && HoldTimeMet()) {
+                Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
+                StartCoroutine(SpawnShuriken(shootDir, wallFirePointTrans.position));
+                currHoldTime = 0f;
+                angleRaw = 0f;
+            } else if (fireReleased) {
+                Vector2 shootDir = new Vector2(-lastDir, 0f);
+                StartCoroutine(SpawnShuriken(shootDir, wallFirePointTrans.position));
+                currHoldTime = 0f;
+                angleRaw = 0f;
+            }
+        } else {
+            wallSkillShotSprite.enabled = false;
+        }
+    }
+
     // Sets meleeActive to false to end enemy damaging.
     private void SetMeleeActiveFalse() {
         meleeActive = false;
@@ -632,10 +696,10 @@ public class PlayerController : MonoBehaviour
     }
 
     // Spawns the shuriken at the fire point of the player.
-    private IEnumerator SpawnShuriken(Vector2 shootDir) {
+    private IEnumerator SpawnShuriken(Vector2 shootDir, Vector3 pos) {
         shootDir.Normalize();
         yield return new WaitForSeconds(spawnDelay);
-        GameObject shuriken = Object.Instantiate(shurikenPrefab, firePointTrans.position, Quaternion.identity);
+        GameObject shuriken = Object.Instantiate(shurikenPrefab, pos, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
         shurikenScript.SetShurikenVelocity(shootDir);
     }
