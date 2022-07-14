@@ -104,6 +104,7 @@ public class EnemyController : MonoBehaviour
 
     // Private variables
     private LayerMask allPlatformsLayerMask;
+    private LayerMask playerAndPlatformLayerMask;
     private Vector2 adjustedPos;
     private int damageCounter;
     private int startingDir;
@@ -152,6 +153,7 @@ public class EnemyController : MonoBehaviour
         playerHealthScript = playerScript.gameObject.GetComponent<Health>();
         meleeScript = playerScript.transform.GetChild(1).GetComponent<Melee>();
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
+        playerAndPlatformLayerMask = LayerMask.GetMask("Player", "Platform", "OneWayPlatform");
 
         // Determines whether the enemy will begin patrolling left or right.
         float value = Random.Range(0, 1);
@@ -186,7 +188,6 @@ public class EnemyController : MonoBehaviour
             Move();
         }
         UpdateSprite();
-        Debug.Log("InMeleeRange: " + playerIsInMeleeRange);
     }
 
     #region Movement Functions
@@ -344,8 +345,11 @@ public class EnemyController : MonoBehaviour
             isMeleeing = true;
             playerHealthScript.TakeDmg(dmg, this.transform.position);
         } else if (playerIsInThrowingRange && isGrounded && CanAttack()) {
-            isThrowing = true;
-            //StartCoroutine("Throw");
+            Vector2 dir = (playerScript.transform.position - firePointTrans.position).normalized;
+            RaycastHit2D raycastHit2D = Physics2D.Raycast(this.transform.position, dir, 15f, playerAndPlatformLayerMask);
+            if (raycastHit2D && raycastHit2D.collider.name == "Player") {
+                StartCoroutine(Throw(dir));
+            }
         }
     }
 
@@ -353,13 +357,13 @@ public class EnemyController : MonoBehaviour
         return (lastAttack + attackRate <= Time.time) && !isStunned;
     }
 
-    // IEnumerator Throw() {
-    //     Vector2 dir = (Vector2) (playerScript.transform.position - firePointTrans.position);
-    //     dir.Normalize();
-    //     GameObject shuriken = Instantiate(shurikenPrefab, firePointTrans.position, Quaternion.identity);
-
-
-    // }
+    IEnumerator Throw(Vector2 dir) {
+        isThrowing = true;
+        yield return new WaitForSeconds(spawnDelay);
+        GameObject shuriken = Instantiate(shurikenPrefab, firePointTrans.position, Quaternion.identity);
+        ShurikenEnemy shurikenScript = shuriken.GetComponent<ShurikenEnemy>();
+        shurikenScript.SetShurikenVelocity(dir);
+    }
     #endregion
 
     #region Sprite Rendering Functions
@@ -401,17 +405,13 @@ public class EnemyController : MonoBehaviour
             enemyAnim.SetBool("hasDied", false);
         }
 
-        // if (firePressed && CanAttack() && numShurikens > 0 && !isDashing) {
-        //     isAttacking = true;
-        //     enemyAnim.SetBool("isThrowing", true);
-        //     lastAttack = Time.time;
-        //     numShurikens -= 1;
-        //     shurikenTxt.text = "Shurikens: " + numShurikens.ToString();
-        //     Invoke("SetIsThrowingFalse", 0.5f);
-        // }
+        if (isThrowing) {
+            enemyAnim.SetBool("isThrowing", true);
+            lastAttack = Time.time;
+            Invoke("SetIsThrowingFalse", 0.5f);
+        }
 
         if (isMeleeing) {
-           // isAttacking = true;
             enemyAnim.SetBool("isMeleeing", true);
             lastAttack = Time.time;
             Invoke("SetIsMeleeingFalse", 0.5f);
@@ -424,10 +424,10 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // private void SetIsThrowingFalse() {
-    //     playerAnim.SetBool("isThrowing", false);
-    //     isAttacking = false;
-    // }
+    private void SetIsThrowingFalse() {
+        enemyAnim.SetBool("isThrowing", false);
+        isThrowing = false;
+    }
 
     private void SetIsMeleeingFalse() {
         enemyAnim.SetBool("isMeleeing", false);

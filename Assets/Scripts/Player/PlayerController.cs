@@ -696,10 +696,10 @@ public class PlayerController : MonoBehaviour
     }
 
     // Spawns the shuriken at the fire point of the player.
-    private IEnumerator SpawnShuriken(Vector2 shootDir, Vector3 pos) {
+    private IEnumerator SpawnShuriken(Vector2 shootDir, Vector3 spawnPos) {
         shootDir.Normalize();
         yield return new WaitForSeconds(spawnDelay);
-        GameObject shuriken = Object.Instantiate(shurikenPrefab, pos, Quaternion.identity);
+        GameObject shuriken = Object.Instantiate(shurikenPrefab, spawnPos, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
         shurikenScript.SetShurikenVelocity(shootDir);
     }
