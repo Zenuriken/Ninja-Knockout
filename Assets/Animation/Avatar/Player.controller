@@ -109,7 +109,7 @@ AnimatorStateTransition:
     m_ConditionEvent: isStunned
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isDead
+    m_ConditionEvent: hasDied
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 5390050624645526721}
@@ -171,7 +171,7 @@ AnimatorStateTransition:
     m_ConditionEvent: isStunned
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isDead
+    m_ConditionEvent: hasDied
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -2174599475654493289}
@@ -276,7 +276,7 @@ AnimatorStateTransition:
     m_ConditionEvent: isStunned
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isDead
+    m_ConditionEvent: hasDied
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -1000987526582136069}
@@ -328,7 +328,7 @@ AnimatorStateTransition:
     m_ConditionEvent: isStunned
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isDead
+    m_ConditionEvent: hasDied
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -4016730691909734141}
@@ -487,7 +487,7 @@ AnimatorStateTransition:
     m_ConditionEvent: isStunned
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isDead
+    m_ConditionEvent: hasDied
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1284327248401794471}
@@ -559,7 +559,7 @@ AnimatorStateTransition:
     m_ConditionEvent: isStunned
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isDead
+    m_ConditionEvent: hasDied
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 7784311451658592971}
@@ -662,7 +662,7 @@ AnimatorStateTransition:
     m_ConditionEvent: isStunned
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isDead
+    m_ConditionEvent: hasDied
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -5857434435159266193}
@@ -756,7 +756,7 @@ AnimatorStateTransition:
     m_ConditionEvent: isStunned
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isDead
+    m_ConditionEvent: hasDied
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -564069445354753981}
@@ -781,7 +781,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: isDead
+    m_ConditionEvent: hasDied
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 5762131289514898167}
@@ -936,73 +936,73 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isJumping
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isGrounded
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isFalling
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isThrowing
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isDashing
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isMeleeing
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isWallJumping
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isSneaking
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isAgainstWall
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isStunned
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
-  - m_Name: isDead
+    m_Controller: {fileID: 0}
+  - m_Name: hasDied
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer
@@ -1282,7 +1282,7 @@ AnimatorStateTransition:
     m_ConditionEvent: isStunned
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isDead
+    m_ConditionEvent: hasDied
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 4611159930108346315}
@@ -1336,7 +1336,7 @@ AnimatorStateTransition:
     m_ConditionEvent: isStunned
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isDead
+    m_ConditionEvent: hasDied
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 3548084294815466878}
@@ -1468,7 +1468,7 @@ AnimatorStateTransition:
     m_ConditionEvent: isStunned
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isDead
+    m_ConditionEvent: hasDied
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 2527649924898438287}

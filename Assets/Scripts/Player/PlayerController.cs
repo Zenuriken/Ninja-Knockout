@@ -157,6 +157,7 @@ public class PlayerController : MonoBehaviour
     private bool isCovered;
     private bool isHiding;
     private bool isDamaged;
+    private bool hasDied;
 
     // Private Dash Variables
     private int dashCounter;
@@ -173,7 +174,6 @@ public class PlayerController : MonoBehaviour
     private float currHoldTime;
     private float angleRaw;
     private float angleAdjusted;
-
 
     // Private Jump Variables
     private float jumpDurTimer;
@@ -203,6 +203,7 @@ public class PlayerController : MonoBehaviour
     private float speed;
     private int lastDir;
     private int side;
+    private int alertedNum;
 
     // Private Animator Private Variables
     private Animator playerAnim;
@@ -257,42 +258,43 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Get Player Input
-        xInput = Input.GetAxisRaw("Horizontal");
-        jumpPressed = Input.GetKeyDown(jumpKey);
-        jumpHolding = Input.GetKey(jumpKey);
-        jumpReleased = Input.GetKeyUp(jumpKey);
-        dashPressed = Input.GetKeyDown(dashKey);
-        sneakHolding = Input.GetKey(sneakKey);
-        meleePressed = Input.GetKeyDown(meleeKey);
-        fireReleased = Input.GetKeyUp(fireKey);
-        fireHolding = Input.GetKey(fireKey);
-        upHolding = Input.GetKey(upKey);
-        downHolding = Input.GetKey(downKey);
+        Debug.Log("num: " + alertedNum);
+        
+        // Limits the velocity when falling
+        playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
 
-        Move();
-        IsGrounded();
-        IsAgainstWall();
-        SetDirection();
-        if (isWallClimbing) {
-            WallClimbAttack();
-        } else {
-            Attack();
+        if (!hasDied) {
+            // Get Player Input
+            xInput = Input.GetAxisRaw("Horizontal");
+            jumpPressed = Input.GetKeyDown(jumpKey);
+            jumpHolding = Input.GetKey(jumpKey);
+            jumpReleased = Input.GetKeyUp(jumpKey);
+            dashPressed = Input.GetKeyDown(dashKey);
+            sneakHolding = Input.GetKey(sneakKey);
+            meleePressed = Input.GetKeyDown(meleeKey);
+            fireReleased = Input.GetKeyUp(fireKey);
+            fireHolding = Input.GetKey(fireKey);
+            upHolding = Input.GetKey(upKey);
+            downHolding = Input.GetKey(downKey);
+
+            Move();
+            IsGrounded();
+            IsAgainstWall();
+            SetDirection();
+            if (isWallClimbing) {
+                WallClimbAttack();
+            } else {
+                Attack();
+            }
+            CoverPlayer();
         }
         UpdateSprite();
-        CoverPlayer();
-
-        //Debug.Log(isWallClimbing);
     }
     #endregion
 
     #region Movement Functions
     // Controls the player's movement.
     void Move() {
-
-        // Limits the velocity when falling
-        playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
-        
         if (!isStunned) {
             // Regular movement
             if (!isDashing && !isWallJumping && !isAttacking) {
@@ -778,6 +780,12 @@ public class PlayerController : MonoBehaviour
         } else {
             playerAnim.SetBool("isStunned", false);
         }
+
+        if (hasDied) {
+            playerAnim.SetBool("hasDied", true);
+        } else {
+            playerAnim.SetBool("hasDied", false);
+        }
     }
 
     private void SetIsThrowingFalse() {
@@ -791,7 +799,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private void CoverPlayer() {
-        if (isCovered && isSneaking) {
+        if (isCovered && isSneaking && alertedNum <= 0) {
             isHiding = true;
             playerSprite.color = new Color(1f, 1f, 1f, 0.5f);
         } else {
@@ -820,6 +828,14 @@ public class PlayerController : MonoBehaviour
 
     public bool GetSneakingStatus() {
         return isSneaking;
+    }
+
+    public void SetHasDied(bool state) {
+        hasDied = state;
+    }
+
+    public void IncreaseAlertedNumBy(int num) {
+        alertedNum += num;
     }
     #endregion
 

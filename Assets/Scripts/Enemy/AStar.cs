@@ -323,4 +323,35 @@ public class AStar : MonoBehaviour
         Vector3Int pos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
         return AdjustPos(pos);
     }
+
+    // Returns whether the enemy is currently stuck.
+    public bool IsStuck() {
+        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
+        if (IsWalkable(pos)) {
+            return false;
+        }
+        Vector3Int leftPos = new Vector3Int(pos.x - 1, pos.y, 0);
+        Vector3Int rightPos = new Vector3Int(pos.x + 1, pos.y, 0);
+        if (IsWalkable(leftPos) || IsWalkable(rightPos)) {
+            return true;
+        }
+        return false;
+    }
+
+    // Returns the direction the enemy should move when stuck.
+    public Vector2 GetMoveDir() {
+        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
+        Vector3Int leftPos = new Vector3Int(pos.x - 1, pos.y, 0);
+        Vector3Int rightPos = new Vector3Int(pos.x + 1, pos.y, 0);
+        if (IsWalkable(rightPos)) {
+            return new Vector2(1f, 0);
+        } else if (IsWalkable(leftPos)) {
+            return new Vector2(-1f, 0);
+        } else {
+            Debug.Log("No walkable platforms found. Enemy stuck.");
+            return Vector2.zero;
+        }
+    }
+
+
 }

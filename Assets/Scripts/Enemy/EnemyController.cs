@@ -27,6 +27,9 @@ public class EnemyController : MonoBehaviour
     [SerializeField]
     [Tooltip("Dust particle effect when on the ground.")]
     private ParticleSystem groundDust;
+    [SerializeField]
+    [Tooltip("Question mark effect when pursuing player.")]
+    private ParticleSystem questionMark;
     [Space(5)]
     #endregion
     
@@ -91,7 +94,7 @@ public class EnemyController : MonoBehaviour
     // Cached components
     private GameObject alertedObj;
     private Transform firePointTrans;
-    private SpriteRenderer alertedSprite;
+    //private SpriteRenderer alertedSprite;
     private SpriteRenderer enemySprite;
     private PolygonCollider2D alertedCol;
     private Animator enemyAnim;
@@ -120,7 +123,7 @@ public class EnemyController : MonoBehaviour
     private float rightPatrolEnd;
 
     // Condition Variables
-    private bool isAlerted;
+    public bool isAlerted;
     private bool hasDied;
     private bool isStunned;
     private bool isGrounded;
@@ -129,21 +132,23 @@ public class EnemyController : MonoBehaviour
     private bool playerIsInThrowingRange;
     private bool isMeleeing;
     private bool isThrowing;
+    private bool unreachable;
     #endregion
 
     #region Initializaiton Functions
     void Awake() {
         alertedObj = this.transform.GetChild(0).gameObject;
-        alertedSprite = alertedObj.GetComponent<SpriteRenderer>();
-        enemySprite = this.GetComponent<SpriteRenderer>();
+        //alertedSprite = alertedObj.GetComponent<SpriteRenderer>();
         alertedCol = alertedObj.GetComponent<PolygonCollider2D>();
+        alertedSightScript = this.transform.GetChild(0).GetComponent<AlertedSight>();
+
+        enemySprite = this.GetComponent<SpriteRenderer>();
         enemyCollider = this.GetComponent<BoxCollider2D>();
         enemyRB = this.GetComponent<Rigidbody2D>();
         enemyAnim = this.GetComponent<Animator>();
         astarScript = this.GetComponent<AStar>();
-        meleeEnemyScript = this.transform.GetChild(2).GetComponent<MeleeEnemy>();
-        alertedSightScript = this.transform.GetChild(0).GetComponent<AlertedSight>();
-        firePointTrans = this.transform.GetChild(3).transform;
+        meleeEnemyScript = this.transform.GetChild(1).GetComponent<MeleeEnemy>();
+        firePointTrans = this.transform.GetChild(2).transform;
     }
 
     // Start is called before the first frame update
@@ -173,6 +178,8 @@ public class EnemyController : MonoBehaviour
         rightPatrolEnd = adjustedPos.x + maxNodeDist;
         InvokeRepeating("UpdatePursuePath", 0f, 0.5f);
 
+        alertedObj.SetActive(false);
+
     }
     #endregion
 
@@ -181,11 +188,13 @@ public class EnemyController : MonoBehaviour
             fov.SetOrigin(transform.position);
             IsGrounded();
             adjustedPos = astarScript.GetAdjustedPosition();
-            if (!isStunned) {
+            if (!isStunned && !isMeleeing && !isThrowing) {
                 SetDirection();
+                if (isAlerted) {
+                    Attack();
+                }
+                Move();
             }
-            Attack();
-            Move();
         }
         UpdateSprite();
     }
@@ -200,6 +209,12 @@ public class EnemyController : MonoBehaviour
             Patrol();
         } else if (!isStunned && !isMeleeing) {
             Pursue();
+        }
+
+        // Handles the case in which the enemy gets stuck on an edge.
+        if (isAlerted && astarScript.IsStuck() && Mathf.Abs(enemyRB.velocity.x) < 0.5 && Mathf.Abs(enemyRB.velocity.y) < 0.5) {
+            Vector2 moveDir = astarScript.GetMoveDir();
+            enemyRB.velocity = new Vector2(moveDir.x * pursueSpeed, 0f);
         }
     }
 
@@ -274,11 +289,19 @@ public class EnemyController : MonoBehaviour
         if (newPath != null) {
             pursuePath = newPath;
             currPathIndex = 0;
+            unreachable = false;
+        } else {
+            unreachable = true;
         }
+        //Debug.Log(unreachable);
     }
 
     void CreateDust() {
         groundDust.Play();
+    }
+
+    void CreateQuestionMark() {
+        questionMark.Play();
     }
     #endregion
 
@@ -303,17 +326,22 @@ public class EnemyController : MonoBehaviour
     IEnumerator Death() {
         hasDied = true;
         if (!isAlerted) {
-            ScoreManager.singleton.IncreaseScore(enemyPoints * 2);
+            ScoreManager.singleton.IncreaseScoreBy(enemyPoints * 2);
         } else {
-            ScoreManager.singleton.IncreaseScore(enemyPoints);
+            ScoreManager.singleton.IncreaseScoreBy(enemyPoints);
         }
-        alertedSprite.color = new Color(1f, 0f, 0f, 0f);
+        alertedObj.SetActive(false);
+        if (playerIsInThrowingRange && isAlerted) {
+            playerScript.IncreaseAlertedNumBy(-1);
+        }
+        //alertedSprite.color = new Color(1f, 0f, 0f, 0f);
         Destroy(fov.gameObject);
         //enemyRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
         //enemyCollider.isTrigger = true;
 
         // 7 = Player Layer, 9 = Enemy Layer
         Physics2D.IgnoreLayerCollision(7, 9, true);
+        Physics2D.IgnoreLayerCollision(0, 9, true);
         yield return new WaitForSeconds(destroyDelay);
         meleeScript.RemoveEnemyFromList(enemyCollider);
         Destroy(this.gameObject);
@@ -344,10 +372,10 @@ public class EnemyController : MonoBehaviour
         if (playerIsInMeleeRange && isGrounded && CanAttack()) {
             isMeleeing = true;
             playerHealthScript.TakeDmg(dmg, this.transform.position);
-        } else if (playerIsInThrowingRange && isGrounded && CanAttack()) {
+        } else if (playerIsInThrowingRange && isGrounded && CanAttack() && unreachable) {
             Vector2 dir = (playerScript.transform.position - firePointTrans.position).normalized;
             RaycastHit2D raycastHit2D = Physics2D.Raycast(this.transform.position, dir, 15f, playerAndPlatformLayerMask);
-            if (raycastHit2D && raycastHit2D.collider.name == "Player") {
+            if (raycastHit2D && raycastHit2D.collider.name == "Player" ){//&& IsWithinVectorBounds(dir)) {
                 StartCoroutine(Throw(dir));
             }
         }
@@ -359,10 +387,25 @@ public class EnemyController : MonoBehaviour
 
     IEnumerator Throw(Vector2 dir) {
         isThrowing = true;
+        if (dir.x >= 0) {
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        } else {
+            transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        }
         yield return new WaitForSeconds(spawnDelay);
         GameObject shuriken = Instantiate(shurikenPrefab, firePointTrans.position, Quaternion.identity);
         ShurikenEnemy shurikenScript = shuriken.GetComponent<ShurikenEnemy>();
         shurikenScript.SetShurikenVelocity(dir);
+    }
+
+    private bool IsWithinVectorBounds(Vector2 dir) {
+        float dot;
+        if (dir.x >= 0) {
+            dot = Vector2.Dot(dir, Vector2.right);
+        } else {
+            dot = Vector2.Dot(dir, Vector2.left);
+        }
+        return dot >= 0.5f; // 0.5 is the dot product value for 60 degrees
     }
     #endregion
 
@@ -466,7 +509,8 @@ public class EnemyController : MonoBehaviour
     public void SetAlertStatus(bool status) {
         isAlerted = status;
         if (isAlerted) {
-            alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
+            //alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
+            alertedObj.SetActive(true);
         }
     }
 
@@ -478,6 +522,7 @@ public class EnemyController : MonoBehaviour
             StartCoroutine("Death");
         } else {
             isAlerted = true;
+            alertedObj.SetActive(true);
         }
     }
     #endregion

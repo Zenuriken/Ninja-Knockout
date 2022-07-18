@@ -15,12 +15,11 @@ public class ShurikenEnemy : MonoBehaviour
     private Rigidbody2D rb;
     private CircleCollider2D col;
     private TrailRenderer trailRen;
-    private GameObject player;
-    private PlayerController playerScript;
     private Melee meleeScript;
     private SpriteRenderer shurikenSprite;
     private ParticleSystem sparks;
-    private Animator anim; 
+    private Animator anim;
+    private Health playerHealthScript;
 
     private float shurikenSpeed = 20;
     private float destroyDelay = 0.0001f;
@@ -43,9 +42,8 @@ public class ShurikenEnemy : MonoBehaviour
     }
 
     private void Start() {
-        player = GameObject.Find("Player");
-        playerScript = player.GetComponent<PlayerController>();
-        meleeScript = player.transform.GetChild(1).GetComponent<Melee>();
+        playerHealthScript = GameObject.Find("Player").GetComponent<Health>();
+        //meleeScript = player.transform.GetChild(1).GetComponent<Melee>();
 
         isActive = true;
     }
@@ -55,15 +53,10 @@ public class ShurikenEnemy : MonoBehaviour
     // When the shuriken hits an enemy
     private void OnTriggerEnter2D(Collider2D other) {
         if (isActive) {
-            if (other.gameObject.tag == "Enemy") {
-            EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
-            if (!enemyScript.IsAlerted()) {
-                enemyScript.TakeDmg(5);
-            } else {
-                enemyScript.TakeDmg(1);
-            }
+            if (other.gameObject.tag == "Player") {
+                playerHealthScript.TakeDmg(1, this.transform.position);
         }
-            if (other.gameObject.tag == "Enemy") {
+            if (other.gameObject.tag == "Player") {
                 StartCoroutine(Contact(true));
             } else if (other.gameObject.tag == "Platform") {
                 StartCoroutine(Contact(false));

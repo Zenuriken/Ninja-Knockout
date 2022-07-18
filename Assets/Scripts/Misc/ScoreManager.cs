@@ -29,7 +29,7 @@ public class ScoreManager : MonoBehaviour
         scoreText = GameObject.Find("Score").GetComponent<TMP_Text>();
     }
     
-    public void IncreaseScore(int amount) {
+    public void IncreaseScoreBy(int amount) {
         score += amount;
         scoreText.text = "Score: " + score;
     }

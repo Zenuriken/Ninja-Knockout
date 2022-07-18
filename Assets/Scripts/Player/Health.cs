@@ -11,6 +11,7 @@ public class Health : MonoBehaviour
     public float stunDuration;
     public float stunForce;
     public float stunnedGravity;
+    public float destroyDelay;
 
     // Private variables
     private int currHealth;
@@ -18,6 +19,7 @@ public class Health : MonoBehaviour
     private BoxCollider2D playerCollider;
     private SpriteRenderer playerSprite;
     private Rigidbody2D playerRB;
+    private bool hasDied;
     private float gravity;
     public bool isBuffering;
 
@@ -31,24 +33,11 @@ public class Health : MonoBehaviour
     }
 
     private void OnCollisionStay2D(Collision2D other) {
-        if (other.gameObject.tag == "Enemy" && !isBuffering) {
+        if (other.gameObject.tag == "Enemy" && !isBuffering && !hasDied) {
             EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
             if (!enemyScript.HasDied()) {
-                currHealth -= 1;
-                ScoreManager.singleton.UpdateHealth(currHealth);
-                if (currHealth <= 0) {
-                    Destroy(this.gameObject);
-                }
                 enemyScript.SetAlertStatus(true);
-                
-                // Knocks player back at a 60 degree angle.
-                Vector2 dir = new Vector2(1f / 2f, Mathf.Sqrt(3) / 2f);
-                float collisionDir = this.gameObject.transform.position.x - other.gameObject.transform.position.x;
-                if (collisionDir < 0) {
-                    dir.x *= -1;
-                }
-                StartCoroutine(Stunned(dir));
-                StartCoroutine("DamageBuffer");
+                TakeDmg(1, enemyScript.transform.position);
             }
         }
     }
@@ -69,6 +58,7 @@ public class Health : MonoBehaviour
         isBuffering = true;
         // 7 = Player Layer, 9 = Enemy Layer
         Physics2D.IgnoreLayerCollision(7, 9, true);
+        Physics2D.IgnoreLayerCollision(0, 9, true);
         for (float alpha = 1f; alpha >= 0.75f; alpha -= 0.05f) {
             playerSprite.color = new Color(1f, 1f, 1f, alpha);
             yield return new WaitForSeconds(0.01f);
@@ -91,19 +81,40 @@ public class Health : MonoBehaviour
         }
         isBuffering = false;
         Physics2D.IgnoreLayerCollision(7, 9, false);
+        Physics2D.IgnoreLayerCollision(0, 9, false);
+    }
+
+    // Controls the player's death animation.
+    IEnumerator Death() {
+        hasDied = true;
+        // 7 = Player Layer, 9 = Enemy Layer
+        Physics2D.IgnoreLayerCollision(7, 9, true);
+        Physics2D.IgnoreLayerCollision(0, 9, true);
+        playerRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+        playerScript.SetHasDied(true);
+        yield return new WaitForSeconds(destroyDelay);
+        playerSprite.color = new Color(1f, 1f, 1f, 0f);
     }
 
     // Decreases the player's current health by x amount.
     public void TakeDmg(int x, Vector3 enemyPos) {
         if (!isBuffering) {
             currHealth -= x;
-            Vector2 dir = new Vector2(1f / 2f, Mathf.Sqrt(3) / 2f);
-            float collisionDir = this.gameObject.transform.position.x - enemyPos.x;
-            if (collisionDir < 0) {
-                dir.x *= -1;
+            ScoreManager.singleton.UpdateHealth(currHealth);
+            if (currHealth <= 0) {
+                StartCoroutine("Death");
+                return;
             }
-            StartCoroutine(Stunned(dir));
-            StartCoroutine("DamageBuffer");
+
+            if (!hasDied) {
+                Vector2 dir = new Vector2(1f / 2f, Mathf.Sqrt(3) / 2f);
+                float collisionDir = this.gameObject.transform.position.x - enemyPos.x;
+                if (collisionDir < 0) {
+                    dir.x *= -1;
+                }
+                StartCoroutine(Stunned(dir));
+                StartCoroutine("DamageBuffer");
+            }
         }
     }
 }
