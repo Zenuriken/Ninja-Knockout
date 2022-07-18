@@ -174,6 +174,7 @@ public class PlayerController : MonoBehaviour
     private float currHoldTime;
     private float angleRaw;
     private float angleAdjusted;
+    private int lastAttackDir;
 
     // Private Jump Variables
     private float jumpDurTimer;
@@ -251,6 +252,8 @@ public class PlayerController : MonoBehaviour
         dashTrail.emitting = false;
         doubleJumpTrail.emitting = false;
         //meleeTrail.emitting = false;
+
+        ScoreManager.singleton.UpdateShurikenNum(numShurikens);
     }
     #endregion
 
@@ -544,6 +547,7 @@ public class PlayerController : MonoBehaviour
             }
             meleeActive = true;
             meleeCounter += 1;
+            lastAttackDir = lastDir;
             StartCoroutine("MeleeTrail");
             Invoke("SetMeleeActiveFalse", 0.18f);
         } else {
@@ -700,6 +704,11 @@ public class PlayerController : MonoBehaviour
     // Spawns the shuriken at the fire point of the player.
     private IEnumerator SpawnShuriken(Vector2 shootDir, Vector3 spawnPos) {
         shootDir.Normalize();
+        if (shootDir.x >= 0f) {
+            lastAttackDir = 1;
+        } else {
+            lastAttackDir = -1;
+        }
         yield return new WaitForSeconds(spawnDelay);
         GameObject shuriken = Object.Instantiate(shurikenPrefab, spawnPos, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
@@ -814,6 +823,10 @@ public class PlayerController : MonoBehaviour
         return lastDir;
     }
 
+    public int GetPlayerAttackDir() {
+        return lastAttackDir;
+    }
+
     public void SetStunned(bool state) {
         isStunned = state;
     }
@@ -822,11 +835,11 @@ public class PlayerController : MonoBehaviour
         isCovered = status;
     }
 
-    public bool GetHidingStatus() {
+    public bool IsHiding() {
         return isHiding;
     }
 
-    public bool GetSneakingStatus() {
+    public bool IsSneaking() {
         return isSneaking;
     }
 

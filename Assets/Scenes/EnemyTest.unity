@@ -4466,7 +4466,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 363391692, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
       propertyPath: maxHealth
-      value: 1
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 363391692, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
       propertyPath: destroyDelay
@@ -4641,12 +4641,12 @@ PrefabInstance:
     - target: {fileID: 6371837797275581661, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.66
+      value: 8.01
       objectReference: {fileID: 0}
     - target: {fileID: 6371837797275581661, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.63
+      value: 6.73
       objectReference: {fileID: 0}
     - target: {fileID: 6371837797275581661, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}

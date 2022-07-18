@@ -184,6 +184,9 @@ public class EnemyController : MonoBehaviour
     #endregion
 
     private void Update() {
+        // Clamps the enemie's vertical velocity to 25
+        enemyRB.velocity = new Vector2(enemyRB.velocity.x, Mathf.Clamp(enemyRB.velocity.y, -25, 25));
+
         if (!hasDied) {
             fov.SetOrigin(transform.position);
             IsGrounded();
@@ -202,9 +205,6 @@ public class EnemyController : MonoBehaviour
     #region Movement Functions
     // Controls the enemy's movments.
     private void Move() {
-        // Clamps the enemie's vertical velocity to 25
-        enemyRB.velocity = new Vector2(enemyRB.velocity.x, Mathf.Clamp(enemyRB.velocity.y, -25, 25));
-
         if (!isAlerted) {
             Patrol();
         } else if (!isStunned && !isMeleeing) {
@@ -517,7 +517,7 @@ public class EnemyController : MonoBehaviour
     // Reduces the enemy's health by dmg.
     public void TakeDmg(int dmg) {
         enemyHealth -= dmg;
-        StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerDir(), 0f)));
+        StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerAttackDir(), 0f)));
         if (enemyHealth <= 0) {
             StartCoroutine("Death");
         } else {

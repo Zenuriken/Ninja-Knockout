@@ -69,7 +69,7 @@ public class CameraController : MonoBehaviour
         Vector3 pos = this.transform.position;
         Vector3 targetPos = player.transform.position;
         playerDir = playerScript.GetPlayerDir();
-        SetSmoothTime(playerScript.GetSneakingStatus());
+        SetSmoothTime(playerScript.IsSneaking());
         float xOffset = cam.orthographicSize * 2 * xProportion;
         if (playerDir == 1) {
             targetPos = new Vector3(targetPos.x + xOffset, targetPos.y, targetPos.z);

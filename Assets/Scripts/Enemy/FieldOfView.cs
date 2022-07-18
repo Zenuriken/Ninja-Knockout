@@ -85,7 +85,7 @@ public class FieldOfView : MonoBehaviour
             if ((startingAngle == 15f && playerAngle <= startingAngle + 360f && playerAngle >= endingAngle) ||
                 (startingAngle == 200f && playerAngle <= startingAngle && playerAngle >= endingAngle)) {
                 RaycastHit2D playerRaycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(playerAngle), viewDistance, playerAndPlatformLayerMask);
-                if (playerRaycastHit2D.collider != null && playerRaycastHit2D.collider.name == "Player" && !playerScript.GetHidingStatus()) {
+                if (playerRaycastHit2D.collider != null && playerRaycastHit2D.collider.name == "Player" && !playerScript.IsHiding()) {
                     enemyScript.SetAlertStatus(true);
                 }
             }

@@ -30,6 +30,7 @@ public class Health : MonoBehaviour
         playerCollider = this.GetComponent<BoxCollider2D>();
         playerRB = this.GetComponent<Rigidbody2D>();
         gravity = playerRB.gravityScale;
+        ScoreManager.singleton.UpdateHealth(currHealth);
     }
 
     private void OnCollisionStay2D(Collision2D other) {
