@@ -12,7 +12,6 @@ public class AlertedSight : MonoBehaviour
         playerScript = GameObject.Find("Player").GetComponent<PlayerController>();
     }
 
-
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.tag == "Player" && !playerScript.IsHiding()) {
             playerIsInThrowingRange = true;

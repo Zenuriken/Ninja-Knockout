@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 8747422646029415666}
   - component: {fileID: -3981287193616733559}
   - component: {fileID: -3107024557950177731}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Shuriken
   m_TagString: Projectile
   m_Icon: {fileID: 0}
@@ -334,7 +334,7 @@ GameObject:
   - component: {fileID: 4474562331782862363}
   - component: {fileID: 7495903652758108009}
   - component: {fileID: 5000846588776904643}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Sparks
   m_TagString: Untagged
   m_Icon: {fileID: 0}

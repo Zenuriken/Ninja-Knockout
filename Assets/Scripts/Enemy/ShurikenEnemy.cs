@@ -68,7 +68,7 @@ public class ShurikenEnemy : MonoBehaviour
     IEnumerator Contact(bool hitEnemy) {
         isActive = false;
         anim.enabled = false;
-        meleeScript.RemoveProjFromList(col);
+        //meleeScript.RemoveProjFromList(col);
         rb.velocity = new Vector2(0f, 0f);
 
         if (hitEnemy) {

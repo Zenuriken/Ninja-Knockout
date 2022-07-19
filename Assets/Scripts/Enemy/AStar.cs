@@ -29,6 +29,9 @@ public class AStar : MonoBehaviour
     private Transform start;
 
     private LayerMask allPlatformsLayerMask;
+    private PlayerController playerScript;
+    private Vector3 spawnPos;
+    private bool isReturningToPatrolPos;
 
     public class Node {
         private Vector3Int pos;
@@ -69,6 +72,11 @@ public class AStar : MonoBehaviour
 
     private void Awake() {
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
+    }
+
+    private void Start() {
+        playerScript = GameObject.Find("Player").GetComponent<PlayerController>();
+        spawnPos = start.position;
     }
 
     // private void Start() {
@@ -223,8 +231,15 @@ public class AStar : MonoBehaviour
     // In this way the enemy only goes to the player's last known location.
     // Calculates the path. If it exists, returns a list of node positions to follow.
     public List<Vector2> CalculatePath() {
+        if (playerScript.IsHiding() && !isReturningToPatrolPos) {
+            return null;
+        }
+
         Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
         Vector3Int goalPos = platformTilemap.WorldToCell(new Vector2(target.position.x, target.position.y - 1f));
+        if (isReturningToPatrolPos) {
+            goalPos = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y - 1f));
+        }
 
         if (IsWalkable(startPos) && IsWalkable(goalPos)) {
             List<Vector3Int> reached = new List<Vector3Int>();
@@ -351,6 +366,10 @@ public class AStar : MonoBehaviour
             Debug.Log("No walkable platforms found. Enemy stuck.");
             return Vector2.zero;
         }
+    }
+
+    public void SetReturnToPatrolPos(bool state) {
+        isReturningToPatrolPos = state;
     }
 
 

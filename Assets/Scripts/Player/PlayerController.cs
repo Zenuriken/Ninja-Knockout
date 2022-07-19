@@ -158,6 +158,7 @@ public class PlayerController : MonoBehaviour
     private bool isHiding;
     private bool isDamaged;
     private bool hasDied;
+    private bool isBuffering;
 
     // Private Dash Variables
     private int dashCounter;
@@ -261,7 +262,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("num: " + alertedNum);
+        //Debug.Log("num: " + alertedNum);
         
         // Limits the velocity when falling
         playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
@@ -811,9 +812,13 @@ public class PlayerController : MonoBehaviour
         if (isCovered && isSneaking && alertedNum <= 0) {
             isHiding = true;
             playerSprite.color = new Color(1f, 1f, 1f, 0.5f);
-        } else {
+            Physics2D.IgnoreLayerCollision(7, 9, true);
+            Physics2D.IgnoreLayerCollision(0, 9, true);
+        } else if (!isBuffering) {
             playerSprite.color = new Color(1f, 1f, 1f, 1f);
             isHiding = false;
+            Physics2D.IgnoreLayerCollision(7, 9, false);
+            Physics2D.IgnoreLayerCollision(0, 9, false);
         }
     }
     #endregion
@@ -849,6 +854,10 @@ public class PlayerController : MonoBehaviour
 
     public void IncreaseAlertedNumBy(int num) {
         alertedNum += num;
+    }
+
+    public void SetPlayerBuffer(bool state) {
+        isBuffering = state;
     }
     #endregion
 

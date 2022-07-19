@@ -187,6 +187,9 @@ public class EnemyController : MonoBehaviour
         // Clamps the enemie's vertical velocity to 25
         enemyRB.velocity = new Vector2(enemyRB.velocity.x, Mathf.Clamp(enemyRB.velocity.y, -25, 25));
 
+        // float temp = alertedSightScript.LastTouchTime();
+        // Debug.Log("Temp: " + Mathf.Round(temp * 10) / 10 + ",  Time.time: " + Mathf.Round(Time.time * 10) / 10);
+
         if (!hasDied) {
             fov.SetOrigin(transform.position);
             IsGrounded();
@@ -292,8 +295,17 @@ public class EnemyController : MonoBehaviour
             unreachable = false;
         } else {
             unreachable = true;
+            if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f) {
+                CreateQuestionMark();
+                Invoke("ReturnToPatrol", 5f);
+            }
         }
         //Debug.Log(unreachable);
+    }
+
+    private void ReturnToPatrol() {
+        SetAlertStatus(false);
+        astarScript.SetReturnToPatrolPos(true);
     }
 
     void CreateDust() {
@@ -336,12 +348,9 @@ public class EnemyController : MonoBehaviour
         }
         //alertedSprite.color = new Color(1f, 0f, 0f, 0f);
         Destroy(fov.gameObject);
-        //enemyRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+        enemyRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
         //enemyCollider.isTrigger = true;
 
-        // 7 = Player Layer, 9 = Enemy Layer
-        Physics2D.IgnoreLayerCollision(7, 9, true);
-        Physics2D.IgnoreLayerCollision(0, 9, true);
         yield return new WaitForSeconds(destroyDelay);
         meleeScript.RemoveEnemyFromList(enemyCollider);
         Destroy(this.gameObject);
@@ -511,6 +520,8 @@ public class EnemyController : MonoBehaviour
         if (isAlerted) {
             //alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
             alertedObj.SetActive(true);
+        } else {
+            alertedObj.SetActive(false);
         }
     }
 

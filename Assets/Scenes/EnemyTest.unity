@@ -123,6 +123,12 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!198 &284738793 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 1118731532, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+    type: 3}
+  m_PrefabInstance: {fileID: 6371837798783865671}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &698486147 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
@@ -4620,6 +4626,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 381119507, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: questionMark
+      value: 
+      objectReference: {fileID: 284738793}
     - target: {fileID: 679184198, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: target
       value: 
@@ -4686,6 +4696,11 @@ PrefabInstance:
     - target: {fileID: 6371837797275581661, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6371837797875019193, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+        type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6740031919415749302, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,

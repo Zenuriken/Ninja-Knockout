@@ -7,6 +7,7 @@ public class MeleeEnemy : MonoBehaviour
     #region Private Variables
     private bool playerContact;
     private List<Collider2D> projectileColliders;
+    private PlayerController playerScript;
     #endregion
 
     #region Initialization Functions
@@ -14,13 +15,14 @@ public class MeleeEnemy : MonoBehaviour
     void Start()
     {
         projectileColliders = new List<Collider2D>();
+        playerScript = GameObject.Find("Player").GetComponent<PlayerController>();
     }
     #endregion
 
     #region Collision Functions
     // When the melee attack hits an enemy or projectile
     private void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.tag == "Player") {
+        if (other.gameObject.tag == "Player" && !playerScript.IsHiding()) {
             playerContact = true;
         } else if (other.gameObject.tag == "Projectile") {
             if (!projectileColliders.Contains(other)) {

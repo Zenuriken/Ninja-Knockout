@@ -57,6 +57,7 @@ public class Health : MonoBehaviour
     // Controls the invincibility and blinking animation when getting damaged.
     private IEnumerator DamageBuffer() {
         isBuffering = true;
+        playerScript.SetPlayerBuffer(true);
         // 7 = Player Layer, 9 = Enemy Layer
         Physics2D.IgnoreLayerCollision(7, 9, true);
         Physics2D.IgnoreLayerCollision(0, 9, true);
@@ -81,6 +82,7 @@ public class Health : MonoBehaviour
             yield return new WaitForSeconds(0.01f);
         }
         isBuffering = false;
+        playerScript.SetPlayerBuffer(false);
         Physics2D.IgnoreLayerCollision(7, 9, false);
         Physics2D.IgnoreLayerCollision(0, 9, false);
     }
