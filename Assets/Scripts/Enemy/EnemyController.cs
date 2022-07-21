@@ -23,7 +23,10 @@ public class EnemyController : MonoBehaviour
     private float jumpVelY;
     [SerializeField]
     [Tooltip("The horizontal airborne velocity of the enemy when pursuing.")]
-    private float airborneVelX;
+    private float pursueAirborneVelX;
+    [SerializeField]
+    [Tooltip("The horizontal airborne velocity of the enemy when patrolling.")]
+    private float patrolAirborneVelX;
     [SerializeField]
     [Tooltip("Dust particle effect when on the ground.")]
     private ParticleSystem groundDust;
@@ -133,6 +136,7 @@ public class EnemyController : MonoBehaviour
     private bool isMeleeing;
     private bool isThrowing;
     private bool unreachable;
+    private bool isReturningToPatrolPos;
     #endregion
 
     #region Initializaiton Functions
@@ -187,13 +191,11 @@ public class EnemyController : MonoBehaviour
         // Clamps the enemie's vertical velocity to 25
         enemyRB.velocity = new Vector2(enemyRB.velocity.x, Mathf.Clamp(enemyRB.velocity.y, -25, 25));
 
-        // float temp = alertedSightScript.LastTouchTime();
-        // Debug.Log("Temp: " + Mathf.Round(temp * 10) / 10 + ",  Time.time: " + Mathf.Round(Time.time * 10) / 10);
-
         if (!hasDied) {
             fov.SetOrigin(transform.position);
             IsGrounded();
             adjustedPos = astarScript.GetAdjustedPosition();
+
             if (!isStunned && !isMeleeing && !isThrowing) {
                 SetDirection();
                 if (isAlerted) {
@@ -208,10 +210,16 @@ public class EnemyController : MonoBehaviour
     #region Movement Functions
     // Controls the enemy's movments.
     private void Move() {
-        if (!isAlerted) {
+        if (!isAlerted && !isReturningToPatrolPos) {
             Patrol();
-        } else if (!isStunned && !isMeleeing) {
-            Pursue();
+        } else if (!isAlerted && isReturningToPatrolPos && !isStunned && !isMeleeing) {
+            if (astarScript.IsAtSpawnPos()) {
+                isReturningToPatrolPos = false;
+            } else {
+                Pursue(patrolSpeed);
+            }
+        } else if (isAlerted && !isStunned && !isMeleeing ) {
+            Pursue(pursueSpeed);
         }
 
         // Handles the case in which the enemy gets stuck on an edge.
@@ -247,7 +255,7 @@ public class EnemyController : MonoBehaviour
     }
 
     // The enemy's pursuing state.
-    private void Pursue() {
+    private void Pursue(float speed) {
         if (pursuePath == null || currPathIndex >= pursuePath.Count) {
             return;
         }
@@ -255,16 +263,24 @@ public class EnemyController : MonoBehaviour
         Vector2 dir = (nextPos - adjustedPos).normalized;
         // Move/Drop right
         if (dir.x > 0 && dir.y <= 0) {
-            enemyRB.velocity = new Vector2(pursueSpeed, enemyRB.velocity.y);
+            enemyRB.velocity = new Vector2(speed, enemyRB.velocity.y);
         // Move/Drop left
         } else if (dir.x < 0 && dir.y <= 0) {
-            enemyRB.velocity = new Vector2(-pursueSpeed, enemyRB.velocity.y);
+            enemyRB.velocity = new Vector2(-speed, enemyRB.velocity.y);
         // Jump right
         } else if (dir.x > 0 && dir.y > 0) {
-            enemyRB.velocity = new Vector2(airborneVelX, jumpVelY);
+            if (speed == patrolSpeed) {
+                enemyRB.velocity = new Vector2(patrolAirborneVelX, jumpVelY);
+            } else {
+                enemyRB.velocity = new Vector2(pursueAirborneVelX, jumpVelY);
+            }
         // Jump left
         } else if (dir.x < 0 && dir.y > 0) {
-            enemyRB.velocity = new Vector2(-airborneVelX, jumpVelY);
+            if (speed == patrolSpeed) {
+                enemyRB.velocity = new Vector2(-patrolAirborneVelX, jumpVelY);
+            } else {
+                enemyRB.velocity = new Vector2(-pursueAirborneVelX, jumpVelY);
+            }
         }
         // Create dust when running on the ground.
         if (Mathf.Abs(enemyRB.velocity.x) > 0f && isGrounded) {
@@ -274,9 +290,17 @@ public class EnemyController : MonoBehaviour
         // Set horizontal velocity when falling.
         if (enemyRB.velocity.y < -0.05) {
             if (enemyRB.velocity.x < -0.05) {
-                enemyRB.velocity = new Vector2(-airborneVelX, enemyRB.velocity.y);
+                if (speed == patrolSpeed) {
+                    enemyRB.velocity = new Vector2(-patrolAirborneVelX, enemyRB.velocity.y);
+                } else {
+                    enemyRB.velocity = new Vector2(-pursueAirborneVelX, enemyRB.velocity.y);
+                }
             } else if (enemyRB.velocity.x > 0.05) {
-                enemyRB.velocity = new Vector2(airborneVelX, enemyRB.velocity.y);
+                if (speed == patrolSpeed) {
+                    enemyRB.velocity = new Vector2(patrolAirborneVelX, enemyRB.velocity.y);
+                } else {
+                    enemyRB.velocity = new Vector2(pursueAirborneVelX, enemyRB.velocity.y);
+                }
             }
         }
 
@@ -295,16 +319,25 @@ public class EnemyController : MonoBehaviour
             unreachable = false;
         } else {
             unreachable = true;
-            if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f) {
+            if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
                 CreateQuestionMark();
+                StartCoroutine("ReturnToPatrols");
                 Invoke("ReturnToPatrol", 5f);
             }
         }
         //Debug.Log(unreachable);
     }
 
+    IEnumerator ReturnToPatrols() {
+        yield return new WaitForSeconds(5f);
+        if (!isAlerted) {
+
+        }
+    }
+
     private void ReturnToPatrol() {
         SetAlertStatus(false);
+        isReturningToPatrolPos = true;
         astarScript.SetReturnToPatrolPos(true);
     }
 
@@ -316,14 +349,6 @@ public class EnemyController : MonoBehaviour
         questionMark.Play();
     }
     #endregion
-
-    // Controls whether or not an enemy is alerted to the player's presence.
-    // private void OnTriggerEnter2D(Collider2D other) {
-    //     if (other.gameObject.tag == "Player" && other.IsTouching(unalertedCol) && !playerScript.GetHidingStatus() && !hasDied) {
-    //         isAlerted = true;
-    //         alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
-    //     }
-    // }
 
     // Knocks the enemy back when getting damaged.
     IEnumerator KnockBack(Vector2 playerDir) {
@@ -346,10 +371,8 @@ public class EnemyController : MonoBehaviour
         if (playerIsInThrowingRange && isAlerted) {
             playerScript.IncreaseAlertedNumBy(-1);
         }
-        //alertedSprite.color = new Color(1f, 0f, 0f, 0f);
         Destroy(fov.gameObject);
-        enemyRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
-        //enemyCollider.isTrigger = true;
+        this.gameObject.layer = 12; // Set the gameObject to layer 12
 
         yield return new WaitForSeconds(destroyDelay);
         meleeScript.RemoveEnemyFromList(enemyCollider);
@@ -520,6 +543,8 @@ public class EnemyController : MonoBehaviour
         if (isAlerted) {
             //alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
             alertedObj.SetActive(true);
+            isReturningToPatrolPos = false;
+            astarScript.SetReturnToPatrolPos(false);
         } else {
             alertedObj.SetActive(false);
         }

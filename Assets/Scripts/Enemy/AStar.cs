@@ -237,6 +237,7 @@ public class AStar : MonoBehaviour
 
         Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
         Vector3Int goalPos = platformTilemap.WorldToCell(new Vector2(target.position.x, target.position.y - 1f));
+
         if (isReturningToPatrolPos) {
             goalPos = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y - 1f));
         }
@@ -370,6 +371,16 @@ public class AStar : MonoBehaviour
 
     public void SetReturnToPatrolPos(bool state) {
         isReturningToPatrolPos = state;
+    }
+
+    public bool IsAtSpawnPos() {
+        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
+        Vector3Int spawnPosition  = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y - 1f));
+        if (pos == spawnPosition) {
+            isReturningToPatrolPos = false;
+            return true;
+        }
+        return false;
     }
 
 
