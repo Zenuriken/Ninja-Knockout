@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -192,9 +192,13 @@ public class EnemyController : MonoBehaviour
         enemyRB.velocity = new Vector2(enemyRB.velocity.x, Mathf.Clamp(enemyRB.velocity.y, -25, 25));
 
         if (!hasDied) {
+            // Initializing states
             fov.SetOrigin(transform.position);
             IsGrounded();
             adjustedPos = astarScript.GetAdjustedPosition();
+
+            SetBooleans();
+
 
             if (!isStunned && !isMeleeing && !isThrowing) {
                 SetDirection();
@@ -207,18 +211,27 @@ public class EnemyController : MonoBehaviour
         UpdateSprite();
     }
 
+    private void SetBooleans() {
+        if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
+                CreateQuestionMark();
+                if (!isReturningToPatrolPos) {
+                    StartCoroutine("ReturnToPatrols");
+                }
+            }
+    }
+
     #region Movement Functions
     // Controls the enemy's movments.
     private void Move() {
         if (!isAlerted && !isReturningToPatrolPos) {
             Patrol();
-        } else if (!isAlerted && isReturningToPatrolPos && !isStunned && !isMeleeing) {
+        } else if (!isAlerted && isReturningToPatrolPos) {
             if (astarScript.IsAtSpawnPos()) {
                 isReturningToPatrolPos = false;
             } else {
                 Pursue(patrolSpeed);
             }
-        } else if (isAlerted && !isStunned && !isMeleeing ) {
+        } else if (isAlerted) {
             Pursue(pursueSpeed);
         }
 
@@ -319,12 +332,6 @@ public class EnemyController : MonoBehaviour
             unreachable = false;
         } else {
             unreachable = true;
-            if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
-                CreateQuestionMark();
-                if (!isReturningToPatrolPos) {
-                    StartCoroutine("ReturnToPatrols");
-                }
-            }
         }
         //Debug.Log(unreachable);
     }
@@ -332,9 +339,14 @@ public class EnemyController : MonoBehaviour
     IEnumerator ReturnToPatrols() {
         isReturningToPatrolPos = true;
         yield return new WaitForSeconds(5f);
-        SetAlertStatus(false);
-        isReturningToPatrolPos = true;
-        astarScript.SetReturnToPatrolPos(true);
+        if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
+            SetAlertStatus(false);
+            isReturningToPatrolPos = true;
+            astarScript.SetReturnToPatrolPos(true);
+        }
+        // SetAlertStatus(false);
+        // isReturningToPatrolPos = true;
+        // astarScript.SetReturnToPatrolPos(true);
     }
 
     void CreateDust() {
