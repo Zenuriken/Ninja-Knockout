@@ -321,21 +321,17 @@ public class EnemyController : MonoBehaviour
             unreachable = true;
             if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
                 CreateQuestionMark();
-                StartCoroutine("ReturnToPatrols");
-                Invoke("ReturnToPatrol", 5f);
+                if (!isReturningToPatrolPos) {
+                    StartCoroutine("ReturnToPatrols");
+                }
             }
         }
         //Debug.Log(unreachable);
     }
 
     IEnumerator ReturnToPatrols() {
+        isReturningToPatrolPos = true;
         yield return new WaitForSeconds(5f);
-        if (!isAlerted) {
-
-        }
-    }
-
-    private void ReturnToPatrol() {
         SetAlertStatus(false);
         isReturningToPatrolPos = true;
         astarScript.SetReturnToPatrolPos(true);
@@ -557,8 +553,7 @@ public class EnemyController : MonoBehaviour
         if (enemyHealth <= 0) {
             StartCoroutine("Death");
         } else {
-            isAlerted = true;
-            alertedObj.SetActive(true);
+            SetAlertStatus(true);
         }
     }
     #endregion
