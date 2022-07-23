@@ -197,27 +197,16 @@ public class EnemyController : MonoBehaviour
             IsGrounded();
             adjustedPos = astarScript.GetAdjustedPosition();
 
-            SetBooleans();
-
-
+            // Executing Actions
             if (!isStunned && !isMeleeing && !isThrowing) {
                 SetDirection();
-                if (isAlerted) {
+                if (isAlerted && !playerScript.IsHiding()) {
                     Attack();
                 }
                 Move();
             }
         }
         UpdateSprite();
-    }
-
-    private void SetBooleans() {
-        if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
-                CreateQuestionMark();
-                if (!isReturningToPatrolPos) {
-                    StartCoroutine("ReturnToPatrols");
-                }
-            }
     }
 
     #region Movement Functions
@@ -332,6 +321,13 @@ public class EnemyController : MonoBehaviour
             unreachable = false;
         } else {
             unreachable = true;
+            if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
+                CreateQuestionMark();
+                if (!isReturningToPatrolPos) {
+                    StartCoroutine("ReturnToPatrols");
+                }
+            }
+
         }
         //Debug.Log(unreachable);
     }
@@ -341,12 +337,8 @@ public class EnemyController : MonoBehaviour
         yield return new WaitForSeconds(5f);
         if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
             SetAlertStatus(false);
-            isReturningToPatrolPos = true;
             astarScript.SetReturnToPatrolPos(true);
         }
-        // SetAlertStatus(false);
-        // isReturningToPatrolPos = true;
-        // astarScript.SetReturnToPatrolPos(true);
     }
 
     void CreateDust() {

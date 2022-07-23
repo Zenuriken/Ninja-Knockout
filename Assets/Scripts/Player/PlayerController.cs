@@ -290,7 +290,8 @@ public class PlayerController : MonoBehaviour
             } else {
                 Attack();
             }
-            CoverPlayer();
+            HidePlayer();
+            Debug.Log("Hiding status: " + isHiding);
         }
         UpdateSprite();
     }
@@ -808,13 +809,13 @@ public class PlayerController : MonoBehaviour
         isAttacking = false;
     }
 
-    private void CoverPlayer() {
+    private void HidePlayer() {
         if (isCovered && isSneaking && alertedNum <= 0) {
             isHiding = true;
             playerSprite.color = new Color(1f, 1f, 1f, 0.5f);
             Physics2D.IgnoreLayerCollision(7, 9, true);
             Physics2D.IgnoreLayerCollision(0, 9, true);
-        } else if (!isBuffering) {
+        } else if (!isBuffering && isHiding && (!isCovered || !isSneaking)) {
             playerSprite.color = new Color(1f, 1f, 1f, 1f);
             isHiding = false;
             Physics2D.IgnoreLayerCollision(7, 9, false);

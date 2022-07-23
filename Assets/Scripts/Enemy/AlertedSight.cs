@@ -13,7 +13,7 @@ public class AlertedSight : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.tag == "Player" && !playerScript.IsHiding()) {
+        if (other.gameObject.tag == "Player") {
             playerIsInThrowingRange = true;
             playerScript.IncreaseAlertedNumBy(1);
         }

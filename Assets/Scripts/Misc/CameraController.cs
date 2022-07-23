@@ -84,6 +84,7 @@ public class CameraController : MonoBehaviour
         
         if ((targetPos.x > pos.x + cam.orthographicSize * xThreshold && pos.x < rightXLimit - cameraHalfWidth)
             || (targetPos.x < pos.x - cam.orthographicSize * xThreshold && pos.x > leftXLimit + cameraHalfWidth)) {
+                Debug.Log("Moving cam");
                 pos.x = Mathf.SmoothDamp(pos.x, targetPos.x, ref xVelocity, currSmoothTime);
         }
         this.transform.position = pos;

@@ -231,6 +231,7 @@ public class AStar : MonoBehaviour
     // In this way the enemy only goes to the player's last known location.
     // Calculates the path. If it exists, returns a list of node positions to follow.
     public List<Vector2> CalculatePath() {
+        // Don't calculate the path to the player if the player is currently hiding.
         if (playerScript.IsHiding() && !isReturningToPatrolPos) {
             return null;
         }
