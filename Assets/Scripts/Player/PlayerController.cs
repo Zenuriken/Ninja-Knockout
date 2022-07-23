@@ -291,7 +291,7 @@ public class PlayerController : MonoBehaviour
                 Attack();
             }
             HidePlayer();
-            Debug.Log("Hiding status: " + isHiding);
+            //Debug.Log("Hiding status: " + isHiding);
         }
         UpdateSprite();
     }

@@ -285,7 +285,7 @@ public class EnemyController : MonoBehaviour
             }
         }
         // Create dust when running on the ground.
-        if (Mathf.Abs(enemyRB.velocity.x) > 0f && isGrounded) {
+        if (Mathf.Abs(enemyRB.velocity.x) > 0f && isGrounded && speed == pursueSpeed) {
             CreateDust();
         }
 
@@ -333,6 +333,7 @@ public class EnemyController : MonoBehaviour
     }
 
     IEnumerator ReturnToPatrols() {
+        Debug.Log("Returning!");
         isReturningToPatrolPos = true;
         yield return new WaitForSeconds(5f);
         if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
