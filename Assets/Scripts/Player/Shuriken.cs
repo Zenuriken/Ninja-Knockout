@@ -20,7 +20,8 @@ public class Shuriken : MonoBehaviour
     private Melee meleeScript;
     private SpriteRenderer shurikenSprite;
     private ParticleSystem sparks;
-    private Animator anim; 
+    private Animator anim;
+    private SoundManager sounds;
 
     private float shurikenSpeed = 20;
     private float destroyDelay = 0.0001f;
@@ -40,6 +41,7 @@ public class Shuriken : MonoBehaviour
         sparks = this.transform.GetChild(0).GetComponent<ParticleSystem>();
         shurikenSprite = this.GetComponent<SpriteRenderer>();
         anim = this.GetComponent<Animator>();
+        sounds = this.transform.GetChild(1).GetComponent<SoundManager>();
     }
 
     private void Start() {
@@ -78,9 +80,16 @@ public class Shuriken : MonoBehaviour
         meleeScript.RemoveProjFromList(col);
         rb.velocity = new Vector2(0f, 0f);
 
+        //SoundManager.singleton.StopShuriken(hitEnemy);
+        sounds.Stop("Shuriken");
         if (hitEnemy) {
-            yield return new WaitForSeconds(destroyDelay);
+            sounds.Play("ShurikenBodyHit");
+            this.gameObject.layer = 12;
+            shurikenSprite.enabled = false;
+            trailRen.enabled = false;
+            yield return new WaitForSeconds(1f);
         } else {
+            sounds.Play("ShurikenGroundHit");
             CreateSparks();
             yield return new WaitForSeconds(1f);
         }
@@ -106,6 +115,8 @@ public class Shuriken : MonoBehaviour
             sparks.transform.rotation = Quaternion.Euler(0, 0, 90);
         } 
         rb.velocity = throwDir * shurikenSpeed * (1 + deflectedMultiplier * numDeflections);
+        //SoundManager.singleton.PlayShuriken();
+        sounds.Play("Shuriken");
     }
 
     // Sends the shuriken in the other direction when deflected.

@@ -4,22 +4,59 @@ using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
-    public static SoundManager singleton;
-    public List<AudioSource> audioSources;
+    private Dictionary<string, AudioSource> audioSources;
 
     private void Awake() {
-        if (singleton != null && singleton != this) { 
-            Destroy(this); 
-        } 
-        else { 
-            singleton = this;
-            
+        audioSources = new Dictionary<string, AudioSource>();
+        foreach (Transform child in this.transform) {
+            audioSources[child.name] = child.GetComponent<AudioSource>();
         }
+ 
     }
 
-    private void Start() {
-        
+    public void Play(string name) {
+        AudioSource source = audioSources[name];
+        source.Play();
     }
+
+    public void Stop(string name) {
+        AudioSource source = audioSources[name];
+        source.Stop();
+    }
+    // private void Awake() {
+    //     if (singleton != null && singleton != this) { 
+    //         Destroy(this); 
+    //     } 
+    //     else { 
+    //         singleton = this;
+
+    //     }
+    // }
+
+    // public void PlayShuriken() {
+    //     AudioSource shurikenAudio = audioSources[0];
+    //     shurikenAudio.Play();
+    // }
+
+    // public void StopShuriken(bool hitEnemy) {
+    //     AudioSource shurikenAudio = audioSources[0];
+    //     shurikenAudio.Stop();
+    //     AudioSource contact;
+    //     if (hitEnemy) {
+    //         contact = audioSources[1];
+    //     } else {
+    //         contact = audioSources[2];
+    //     }
+    //     contact.Play();
+    // }
+
+    // public void PlayWallClimb() {
+
+    // }
+
+    // public void StopWallClimb() {
+
+    // }
     
     
 }
