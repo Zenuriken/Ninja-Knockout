@@ -159,6 +159,7 @@ public class PlayerController : MonoBehaviour
     private bool isDamaged;
     private bool hasDied;
     private bool isBuffering;
+    private bool isPlayingWallClimbingNoise;
 
     // Private Dash Variables
     private int dashCounter;
@@ -199,6 +200,7 @@ public class PlayerController : MonoBehaviour
     private LayerMask allPlatformsLayerMask;
     private TrailRenderer dashTrail;
     private TrailRenderer doubleJumpTrail;
+    private SoundManager sounds;
 
     private float xInput;
     private float gravity;
@@ -222,6 +224,7 @@ public class PlayerController : MonoBehaviour
         boxCollider2D = GetComponent<Collider2D>();
         playerAnim = GetComponent<Animator>();
         playerSprite = GetComponent<SpriteRenderer>();
+        sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
         dashTrail = this.transform.GetChild(2).GetChild(1).GetComponent<TrailRenderer>();
         doubleJumpTrail = this.transform.GetChild(2).GetChild(2).GetComponent<TrailRenderer>();
         platformLayerMask = LayerMask.GetMask("Platform");
@@ -361,17 +364,28 @@ public class PlayerController : MonoBehaviour
                 playerRB.velocity = new Vector2(0f, -1f * wallFallSpeed);
                 if (!isGrounded) {
                     isWallClimbing = true;
+                    if (!isPlayingWallClimbingNoise) {
+                        sounds.Play("WallClimbing");
+                        isPlayingWallClimbingNoise = true;
+                    }
                     CreateDust(1);
+
                 } else {
                     isWallClimbing = false;
+                    sounds.Stop("WallClimbing");
+                    isPlayingWallClimbingNoise = false;
                 }
                 // Setting Wall Jumping to true
                 if (jumpPressed && CanJump()) {
                     isWallJumping = true;
+                    sounds.Stop("WallClimbing");
+                    isPlayingWallClimbingNoise = false;
                     Invoke("SetWallJumpingFalse", wallJumpDur);
                 }
             } else {
                 isWallClimbing = false;
+                sounds.Stop("WallClimbing");
+                isPlayingWallClimbingNoise = false;
             }
 
             // Wall Jumping
@@ -421,9 +435,11 @@ public class PlayerController : MonoBehaviour
             dashTrail.emitting = true;
             dashTrail.time = 0.25f;
             playerRB.AddForce(new Vector2(dashForce * lastDir, 0f), ForceMode2D.Impulse);
+            sounds.Play("Dashing");
             yield return new WaitForSeconds(dashDur);
             playerRB.gravityScale = gravity;
             isDashing = false;
+            sounds.Stop("Dashing");
             StartCoroutine(ReduceTrail(dashTrail, false));
         }
     }
@@ -479,6 +495,7 @@ public class PlayerController : MonoBehaviour
         isGrounded = onGround;
         if (groundStatus == false && isGrounded == true) {
             CreateDust(0);
+            sounds.Play("Landing");
         }
         return;
     }
@@ -765,6 +782,7 @@ public class PlayerController : MonoBehaviour
             isAttacking = true;
             playerAnim.SetBool("isMeleeing", true);
             lastAttack = Time.time;
+            sounds.Play("Meleeing");
             Invoke("SetIsMeleeingFalse", 0.5f);
         }
 
