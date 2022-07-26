@@ -31,6 +31,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     [Tooltip("The delay between jumps.")]
     private float jumpDelay;
+    [SerializeField]
+    [Tooltip("The distance the player must falling to create landing sound effect.")]
+    private float fallSoundDist;
     [Space(5)]
     #endregion
 
@@ -185,6 +188,10 @@ public class PlayerController : MonoBehaviour
     private float jumpDurTimer;
     private float jumpCounter;
     private float lastJump;
+
+    private Vector2 lastJumpPos;
+    private float lastYVel;
+    //private float currFallTime;
 
     // Melee private variables
     private Melee meleeScript;
@@ -403,6 +410,11 @@ public class PlayerController : MonoBehaviour
                 playerRB.velocity = new Vector2(-lastDir * moveSpeed, jumpVel);
                 lastJump = Time.time;
             }
+
+            if (lastYVel > 0.05f && this.playerRB.velocity.y < -0.05f) {
+                lastJumpPos = this.transform.position;
+            }
+            lastYVel = this.playerRB.velocity.y;
         }
     }
 
@@ -495,7 +507,7 @@ public class PlayerController : MonoBehaviour
     #region State Functions
     // Determines if the player is standing on ground.
     private void IsGrounded() {
-        bool groundStatus = isGrounded;
+        bool lastGroundStatus = isGrounded;
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(0.6f, boxCollider2D.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
         bool onGround = raycastHit2D.collider != null;
         if (onGround) {
@@ -503,9 +515,13 @@ public class PlayerController : MonoBehaviour
             dashCounter = 1;
         }
         isGrounded = onGround;
-        if (groundStatus == false && isGrounded == true) {
+        // If the player has landed on the grounded.
+        if (lastGroundStatus == false && isGrounded == true && FallDistanceMet(this.transform.position)) {
             CreateDust(0);
             sounds.Play("Landing");
+            //currFallTime = 0f;
+        } else if (isGrounded) {
+            //currFallTime = 0f;
         }
         return;
     }
@@ -688,6 +704,12 @@ public class PlayerController : MonoBehaviour
         return currWallClimbTime >= wallClimbSoundTime && !isStunned;
     }
 
+    private bool FallDistanceMet(Vector2 pos) {
+        float dist = Mathf.Sqrt(Mathf.Pow(lastJumpPos.x - pos.x, 2) + Mathf.Pow(lastJumpPos.y - pos.y, 2));
+        Debug.Log("Distance: " + dist);
+        return Mathf.Sqrt(Mathf.Pow(lastJumpPos.x - pos.x, 2) + Mathf.Pow(lastJumpPos.y - pos.y, 2)) >= fallSoundDist && !isStunned;
+    }
+
     // Makes the trail for the melee attack.
     IEnumerator MeleeTrail() {
         Vector3 newPos = new Vector3(0f, 0f, 0f);
@@ -766,6 +788,7 @@ public class PlayerController : MonoBehaviour
         
         if (playerRB.velocity.y < -0.001) {
             playerAnim.SetBool("isFalling", true);
+            //currFallTime += Time.deltaTime;
         } else {
             playerAnim.SetBool("isFalling", false);
         }

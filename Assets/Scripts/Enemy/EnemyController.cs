@@ -171,7 +171,6 @@ public class EnemyController : MonoBehaviour
         } else {
             startingDir = 1;
         }
-        Debug.Log("starting dir: " + value);
 
         GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj);
         fov = lineOfSight.GetComponent<FieldOfView>();
