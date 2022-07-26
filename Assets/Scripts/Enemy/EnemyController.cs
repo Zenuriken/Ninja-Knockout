@@ -107,6 +107,7 @@ public class EnemyController : MonoBehaviour
     private FieldOfView fov;
     private MeleeEnemy meleeEnemyScript;
     private AlertedSight alertedSightScript;
+    private SoundManager sounds;
 
     // Private variables
     private LayerMask allPlatformsLayerMask;
@@ -116,6 +117,8 @@ public class EnemyController : MonoBehaviour
     private int startingDir;
     private float lastIdle;
     private float lastAttack;
+    private string gruntSound;
+    private string deathSound;
 
     // Pathfinding Variables
     private List<Vector2> pursuePath;
@@ -145,6 +148,7 @@ public class EnemyController : MonoBehaviour
         //alertedSprite = alertedObj.GetComponent<SpriteRenderer>();
         alertedCol = alertedObj.GetComponent<PolygonCollider2D>();
         alertedSightScript = this.transform.GetChild(0).GetComponent<AlertedSight>();
+        sounds = this.transform.GetChild(5).GetComponent<SoundManager>();
 
         enemySprite = this.GetComponent<SpriteRenderer>();
         enemyCollider = this.GetComponent<BoxCollider2D>();
@@ -170,6 +174,14 @@ public class EnemyController : MonoBehaviour
             startingDir = -1;
         } else {
             startingDir = 1;
+        }
+        value = Random.Range(0, 100);
+        if (value < 50) {
+            gruntSound = "MaleGrunt";
+            deathSound = "MaleDeath";
+        } else {
+            gruntSound = "FemaleGrunt";
+            deathSound = "FemaleDeath";
         }
 
         GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj);
@@ -321,7 +333,7 @@ public class EnemyController : MonoBehaviour
             unreachable = false;
         } else {
             unreachable = true;
-            if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
+            if (!hasDied && playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
                 CreateQuestionMark();
                 if (!isReturningToPatrolPos) {
                     StartCoroutine("ReturnToPatrols");
@@ -333,7 +345,7 @@ public class EnemyController : MonoBehaviour
     }
 
     IEnumerator ReturnToPatrols() {
-        Debug.Log("Returning!");
+        //Debug.Log("Returning!");
         isReturningToPatrolPos = true;
         yield return new WaitForSeconds(5f);
         if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
@@ -556,8 +568,10 @@ public class EnemyController : MonoBehaviour
         enemyHealth -= dmg;
         StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerAttackDir(), 0f)));
         if (enemyHealth <= 0) {
+            sounds.Play(deathSound);
             StartCoroutine("Death");
         } else {
+            sounds.Play(gruntSound);
             SetAlertStatus(true);
         }
     }

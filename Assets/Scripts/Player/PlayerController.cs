@@ -166,6 +166,8 @@ public class PlayerController : MonoBehaviour
     private bool hasDied;
     private bool isBuffering;
     private bool isPlayingWallClimbingNoise;
+    private bool isPlayingEnteringBushesNoise;
+    private bool isPlayingLeavingBushesNoise;
 
     // Private Dash Variables
     private int dashCounter;
@@ -870,11 +872,24 @@ public class PlayerController : MonoBehaviour
             playerSprite.color = new Color(1f, 1f, 1f, 0.5f);
             Physics2D.IgnoreLayerCollision(7, 9, true);
             Physics2D.IgnoreLayerCollision(0, 9, true);
+            if (!isPlayingEnteringBushesNoise) {
+                sounds.Stop("LeavingBushes");
+                sounds.Play("EnteringBushes");
+                isPlayingEnteringBushesNoise = true;
+                isPlayingLeavingBushesNoise = false;
+            }
         } else if (!isBuffering && isHiding && (!isCovered || !isSneaking)) {
             playerSprite.color = new Color(1f, 1f, 1f, 1f);
             isHiding = false;
             Physics2D.IgnoreLayerCollision(7, 9, false);
             Physics2D.IgnoreLayerCollision(0, 9, false);
+            //sounds.Play("LeavingBushes");
+            if (!isPlayingLeavingBushesNoise) {
+                sounds.Stop("EnteringBushes");
+                sounds.Play("LeavingBushes");
+                isPlayingLeavingBushesNoise = true;
+                isPlayingEnteringBushesNoise = false;
+            }
         }
     }
     #endregion

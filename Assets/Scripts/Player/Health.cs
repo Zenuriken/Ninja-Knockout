@@ -19,6 +19,7 @@ public class Health : MonoBehaviour
     private BoxCollider2D playerCollider;
     private SpriteRenderer playerSprite;
     private Rigidbody2D playerRB;
+    private SoundManager sounds;
     private bool hasDied;
     private float gravity;
     public bool isBuffering;
@@ -31,6 +32,7 @@ public class Health : MonoBehaviour
         playerRB = this.GetComponent<Rigidbody2D>();
         gravity = playerRB.gravityScale;
         ScoreManager.singleton.UpdateHealth(currHealth);
+        sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
     }
 
     private void OnCollisionStay2D(Collision2D other) {
@@ -115,6 +117,7 @@ public class Health : MonoBehaviour
                 if (collisionDir < 0) {
                     dir.x *= -1;
                 }
+                sounds.Play("Grunt");
                 StartCoroutine(Stunned(dir));
                 StartCoroutine("DamageBuffer");
             }
