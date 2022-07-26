@@ -45,6 +45,15 @@ public class EnemyController : MonoBehaviour
     [Tooltip("The delay before the enemy is destroyed")]
     private float destroyDelay;
     [SerializeField]
+    [Tooltip("The delay before the body splat sound effect is played after death")]
+    private float bodySplatDelay;
+    [SerializeField]
+    [Tooltip("The delay before the enemy's body starts to fade away.")]
+    private float fadeAwayDelay;
+    [SerializeField]
+    [Tooltip("The speed in which the enemy's body fades away.")]
+    private float fadeAwaySpeed;
+    [SerializeField]
     [Tooltip("The amount this enemy's death will increse your score.")]
     private int enemyPoints;
     [Space(5)]
@@ -140,6 +149,8 @@ public class EnemyController : MonoBehaviour
     private bool isThrowing;
     private bool unreachable;
     private bool isReturningToPatrolPos;
+    private bool playedBodySplat;
+    private bool bodySplatDelayPast;
     #endregion
 
     #region Initializaiton Functions
@@ -200,10 +211,10 @@ public class EnemyController : MonoBehaviour
     #endregion
 
     private void Update() {
-        // Clamps the enemie's vertical velocity to 25
-        enemyRB.velocity = new Vector2(enemyRB.velocity.x, Mathf.Clamp(enemyRB.velocity.y, -25, 25));
-
         if (!hasDied) {
+            // Clamps the enemie's vertical velocity to 25
+            enemyRB.velocity = new Vector2(enemyRB.velocity.x, Mathf.Clamp(enemyRB.velocity.y, -25, 25));
+
             // Initializing states
             fov.SetOrigin(transform.position);
             IsGrounded();
@@ -219,13 +230,17 @@ public class EnemyController : MonoBehaviour
             }
         }
         UpdateSprite();
+        if (hasDied && !playedBodySplat && isGrounded && bodySplatDelayPast) {
+            sounds.Play("BodySplat");
+            playedBodySplat = true;
+        }
     }
 
     #region Movement Functions
     // Controls the enemy's movments.
     private void Move() {
         if (!isAlerted && !isReturningToPatrolPos) {
-            Patrol();
+            //Patrol();
         } else if (!isAlerted && isReturningToPatrolPos) {
             if (astarScript.IsAtSpawnPos()) {
                 isReturningToPatrolPos = false;
@@ -237,7 +252,7 @@ public class EnemyController : MonoBehaviour
         }
 
         // Handles the case in which the enemy gets stuck on an edge.
-        if (isAlerted && astarScript.IsStuck() && Mathf.Abs(enemyRB.velocity.x) < 0.5 && Mathf.Abs(enemyRB.velocity.y) < 0.5) {
+        if (isAlerted && astarScript.IsStuck() && Mathf.Abs(enemyRB.velocity.x) < 0.05 && Mathf.Abs(enemyRB.velocity.y) < 0.05) {
             Vector2 moveDir = astarScript.GetMoveDir();
             enemyRB.velocity = new Vector2(moveDir.x * pursueSpeed, 0f);
         }
@@ -297,19 +312,19 @@ public class EnemyController : MonoBehaviour
             }
         }
         // Create dust when running on the ground.
-        if (Mathf.Abs(enemyRB.velocity.x) > 0f && isGrounded && speed == pursueSpeed) {
+        if (Mathf.Abs(enemyRB.velocity.x) > 0.05f && isGrounded && speed == pursueSpeed) {
             CreateDust();
         }
 
         // Set horizontal velocity when falling.
-        if (enemyRB.velocity.y < -0.05) {
-            if (enemyRB.velocity.x < -0.05) {
+        if (enemyRB.velocity.y < -0.05f) {
+            if (enemyRB.velocity.x < -0.05f) {
                 if (speed == patrolSpeed) {
                     enemyRB.velocity = new Vector2(-patrolAirborneVelX, enemyRB.velocity.y);
                 } else {
                     enemyRB.velocity = new Vector2(-pursueAirborneVelX, enemyRB.velocity.y);
                 }
-            } else if (enemyRB.velocity.x > 0.05) {
+            } else if (enemyRB.velocity.x > 0.05f) {
                 if (speed == patrolSpeed) {
                     enemyRB.velocity = new Vector2(patrolAirborneVelX, enemyRB.velocity.y);
                 } else {
@@ -386,10 +401,30 @@ public class EnemyController : MonoBehaviour
         }
         Destroy(fov.gameObject);
         this.gameObject.layer = 12; // Set the gameObject to layer 12
-
+        Invoke("BodySplat", bodySplatDelay);
+        StartCoroutine("FadeAway");
         yield return new WaitForSeconds(destroyDelay);
         meleeScript.RemoveEnemyFromList(enemyCollider);
         Destroy(this.gameObject);
+    }
+
+    // Fades away the body of the enemy upon death.
+    IEnumerator FadeAway() {
+        yield return new WaitForSeconds(fadeAwayDelay);
+        for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * fadeAwaySpeed) {
+            enemySprite.color = new Color(1f, 1f, 1f, alpha);
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    private void BodySplat() {
+        if (isGrounded && Mathf.Abs(enemyRB.velocity.x) < 0.05f && Mathf.Abs(enemyRB.velocity.y) < 0.05f) {
+            sounds.Play("BodySplat");
+            playedBodySplat = true;
+        } else {
+            bodySplatDelayPast = true;
+            playedBodySplat = false;
+        }
     }
 
     // Sets whether the enemy is grounded.
