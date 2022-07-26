@@ -59,6 +59,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     [Tooltip("The speed player glides down a wall.")]
     private float wallFallSpeed;
+    [SerializeField]
+    [Tooltip("The amount of time to wallClimb before sound starts playing.")]
+    private float wallClimbSoundTime;
     [Space(5)]
     #endregion
 
@@ -192,6 +195,9 @@ public class PlayerController : MonoBehaviour
     private Transform point0;
     private Transform point1;
     private Transform point2;
+
+    // Private WallClimbing Variables
+    private float currWallClimbTime;
 
     // General private variables
     private Rigidbody2D playerRB;
@@ -364,7 +370,8 @@ public class PlayerController : MonoBehaviour
                 playerRB.velocity = new Vector2(0f, -1f * wallFallSpeed);
                 if (!isGrounded) {
                     isWallClimbing = true;
-                    if (!isPlayingWallClimbingNoise) {
+                    currWallClimbTime += Time.deltaTime;
+                    if (!isPlayingWallClimbingNoise && WallClimbTimeMet()) {
                         sounds.Play("WallClimbing");
                         isPlayingWallClimbingNoise = true;
                     }
@@ -373,18 +380,21 @@ public class PlayerController : MonoBehaviour
                 } else {
                     isWallClimbing = false;
                     sounds.Stop("WallClimbing");
+                    currWallClimbTime = 0f;
                     isPlayingWallClimbingNoise = false;
                 }
                 // Setting Wall Jumping to true
                 if (jumpPressed && CanJump()) {
                     isWallJumping = true;
                     sounds.Stop("WallClimbing");
+                    currWallClimbTime = 0f;
                     isPlayingWallClimbingNoise = false;
                     Invoke("SetWallJumpingFalse", wallJumpDur);
                 }
             } else {
                 isWallClimbing = false;
                 sounds.Stop("WallClimbing");
+                currWallClimbTime = 0f;
                 isPlayingWallClimbingNoise = false;
             }
 
@@ -439,7 +449,7 @@ public class PlayerController : MonoBehaviour
             yield return new WaitForSeconds(dashDur);
             playerRB.gravityScale = gravity;
             isDashing = false;
-            sounds.Stop("Dashing");
+            //sounds.Stop("Dashing");
             StartCoroutine(ReduceTrail(dashTrail, false));
         }
     }
@@ -451,7 +461,7 @@ public class PlayerController : MonoBehaviour
             yield return new WaitForSeconds(trailDur);
         }
         trail.emitting = false;
-
+        sounds.Stop("Dashing");
         if (destroy) {
             Destroy(trail.gameObject);
         }
@@ -672,6 +682,10 @@ public class PlayerController : MonoBehaviour
     // Returns whether the player held the shoot button long enough to aim.
     private bool HoldTimeMet() {
         return currHoldTime >= holdTime && !isStunned;
+    }
+
+    private bool WallClimbTimeMet() {
+        return currWallClimbTime >= wallClimbSoundTime && !isStunned;
     }
 
     // Makes the trail for the melee attack.

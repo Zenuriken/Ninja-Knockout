@@ -165,12 +165,13 @@ public class EnemyController : MonoBehaviour
         playerAndPlatformLayerMask = LayerMask.GetMask("Player", "Platform", "OneWayPlatform");
 
         // Determines whether the enemy will begin patrolling left or right.
-        float value = Random.Range(0, 1);
-        if (value < 0.5) {
+        float value = Random.Range(0, 100);
+        if (value < 50) {
             startingDir = -1;
         } else {
             startingDir = 1;
         }
+        Debug.Log("starting dir: " + value);
 
         GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj);
         fov = lineOfSight.GetComponent<FieldOfView>();

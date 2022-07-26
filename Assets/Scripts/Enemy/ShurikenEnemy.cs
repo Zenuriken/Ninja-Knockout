@@ -20,6 +20,7 @@ public class ShurikenEnemy : MonoBehaviour
     private ParticleSystem sparks;
     private Animator anim;
     private Health playerHealthScript;
+    private SoundManager sounds;
 
     private float shurikenSpeed = 20;
     private float destroyDelay = 0.0001f;
@@ -39,6 +40,7 @@ public class ShurikenEnemy : MonoBehaviour
         sparks = this.transform.GetChild(0).GetComponent<ParticleSystem>();
         shurikenSprite = this.GetComponent<SpriteRenderer>();
         anim = this.GetComponent<Animator>();
+        sounds = this.transform.GetChild(1).GetComponent<SoundManager>();
     }
 
     private void Start() {
@@ -71,13 +73,18 @@ public class ShurikenEnemy : MonoBehaviour
         //meleeScript.RemoveProjFromList(col);
         rb.velocity = new Vector2(0f, 0f);
 
+        sounds.Stop("Shuriken");
         if (hitEnemy) {
-            yield return new WaitForSeconds(destroyDelay);
+            sounds.Play("ShurikenBodyHit");
+            this.gameObject.layer = 12;
+            shurikenSprite.enabled = false;
+            trailRen.enabled = false;
+            yield return new WaitForSeconds(1f);
         } else {
+            sounds.Play("ShurikenGroundHit");
             CreateSparks();
             yield return new WaitForSeconds(1f);
         }
-    
         Destroy(this.gameObject);
     }
     #endregion
@@ -99,6 +106,7 @@ public class ShurikenEnemy : MonoBehaviour
             sparks.transform.rotation = Quaternion.Euler(0, 0, 90);
         } 
         rb.velocity = throwDir * shurikenSpeed * (1 + deflectedMultiplier * numDeflections);
+        sounds.Play("Shuriken");
     }
 
     // Sends the shuriken in the other direction when deflected.
