@@ -28,11 +28,17 @@ public class EnemyController : MonoBehaviour
     [Tooltip("The horizontal airborne velocity of the enemy when patrolling.")]
     private float patrolAirborneVelX;
     [SerializeField]
+    [Tooltip("The delay before the enemy is alerted to the player's presence.")]
+    private float alertedDelay;
+    [SerializeField]
     [Tooltip("Dust particle effect when on the ground.")]
     private ParticleSystem groundDust;
     [SerializeField]
     [Tooltip("Question mark effect when pursuing player.")]
     private ParticleSystem questionMark;
+    [SerializeField]
+    [Tooltip("Exclamation mark effect when alerted by the player.")]
+    private ParticleSystem exclamationMark;
     [Space(5)]
     #endregion
     
@@ -159,7 +165,7 @@ public class EnemyController : MonoBehaviour
         //alertedSprite = alertedObj.GetComponent<SpriteRenderer>();
         alertedCol = alertedObj.GetComponent<PolygonCollider2D>();
         alertedSightScript = this.transform.GetChild(0).GetComponent<AlertedSight>();
-        sounds = this.transform.GetChild(5).GetComponent<SoundManager>();
+        sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
 
         enemySprite = this.GetComponent<SpriteRenderer>();
         enemyCollider = this.GetComponent<BoxCollider2D>();
@@ -367,6 +373,16 @@ public class EnemyController : MonoBehaviour
             SetAlertStatus(false);
             astarScript.SetReturnToPatrolPos(true);
         }
+    }
+
+    IEnumerator PlayerDetected() {
+        exclamationMark.Play();
+        sounds.Play("Alerted");
+        yield return new WaitForSeconds(alertedDelay);
+        isAlerted = true;
+        alertedObj.SetActive(true);
+        isReturningToPatrolPos = false;
+        astarScript.SetReturnToPatrolPos(false);
     }
 
     void CreateDust() {
@@ -587,13 +603,10 @@ public class EnemyController : MonoBehaviour
 
     // Sets the alert status of the enemy
     public void SetAlertStatus(bool status) {
-        isAlerted = status;
-        if (isAlerted) {
-            //alertedSprite.color = new Color(1f, 0f, 0f, 0.18f);
-            alertedObj.SetActive(true);
-            isReturningToPatrolPos = false;
-            astarScript.SetReturnToPatrolPos(false);
+        if (status) {
+            StartCoroutine("PlayerDetected");
         } else {
+            isAlerted = status;
             alertedObj.SetActive(false);
         }
     }

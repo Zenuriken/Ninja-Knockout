@@ -100,3 +100,4 @@ MonoBehaviour:
   fov: 30
   rayCount: 50
   viewDistance: 15
+  collisionDur: 0.5

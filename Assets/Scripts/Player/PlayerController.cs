@@ -708,7 +708,7 @@ public class PlayerController : MonoBehaviour
 
     private bool FallDistanceMet(Vector2 pos) {
         float dist = Mathf.Sqrt(Mathf.Pow(lastJumpPos.x - pos.x, 2) + Mathf.Pow(lastJumpPos.y - pos.y, 2));
-        Debug.Log("Distance: " + dist);
+        //Debug.Log("Distance: " + dist);
         return Mathf.Sqrt(Mathf.Pow(lastJumpPos.x - pos.x, 2) + Mathf.Pow(lastJumpPos.y - pos.y, 2)) >= fallSoundDist && !isStunned;
     }
 

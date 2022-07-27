@@ -6,7 +6,6 @@ public class AlertedSight : MonoBehaviour
 {
     private PlayerController playerScript;
     private bool playerIsInThrowingRange;
-    private float lastCollisionTime;
     
     private void Start() {
         playerScript = GameObject.Find("Player").GetComponent<PlayerController>();
