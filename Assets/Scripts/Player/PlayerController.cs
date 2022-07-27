@@ -338,6 +338,7 @@ public class PlayerController : MonoBehaviour
                 lastJump = Time.time;
 
                 if (!isGrounded) {
+                    sounds.Play("Dashing");
                     doubleJumpTrail.emitting = true;
                     doubleJumpTrail.time = 0.25f;
                     StartCoroutine(ReduceTrail(doubleJumpTrail, false));
