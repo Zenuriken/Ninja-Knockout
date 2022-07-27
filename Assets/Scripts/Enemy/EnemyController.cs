@@ -157,6 +157,7 @@ public class EnemyController : MonoBehaviour
     private bool isReturningToPatrolPos;
     private bool playedBodySplat;
     private bool bodySplatDelayPast;
+    private bool isDetectingPlayer;
     #endregion
 
     #region Initializaiton Functions
@@ -376,6 +377,7 @@ public class EnemyController : MonoBehaviour
     }
 
     IEnumerator PlayerDetected() {
+        isDetectingPlayer = true;
         exclamationMark.Play();
         sounds.Play("Alerted");
         yield return new WaitForSeconds(alertedDelay);
@@ -383,6 +385,7 @@ public class EnemyController : MonoBehaviour
         alertedObj.SetActive(true);
         isReturningToPatrolPos = false;
         astarScript.SetReturnToPatrolPos(false);
+        isDetectingPlayer = false;
     }
 
     void CreateDust() {
@@ -603,9 +606,9 @@ public class EnemyController : MonoBehaviour
 
     // Sets the alert status of the enemy
     public void SetAlertStatus(bool status) {
-        if (status) {
+        if (status && !isAlerted && !isDetectingPlayer) {
             StartCoroutine("PlayerDetected");
-        } else {
+        } else if (!status) {
             isAlerted = status;
             alertedObj.SetActive(false);
         }

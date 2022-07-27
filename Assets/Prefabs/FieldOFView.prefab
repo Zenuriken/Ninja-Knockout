@@ -100,4 +100,5 @@ MonoBehaviour:
   fov: 30
   rayCount: 50
   viewDistance: 15
-  collisionDur: 0.5
+  detectedMat: {fileID: 2100000, guid: e606c4dc6ea59094e9505f3328ce7dc0, type: 2}
+  undetectedMat: {fileID: 2100000, guid: 8631b8443f6688a4e9723ca1d374f1e3, type: 2}

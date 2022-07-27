@@ -18,6 +18,9 @@ public class FieldOfView : MonoBehaviour
     public float fov;
     public int rayCount;
     public float viewDistance;
+    public Material detectedMat;
+    public Material undetectedMat;
+    private MeshRenderer meshRenderer;
     
     // Start is called before the first frame update
     void Start()
@@ -26,6 +29,7 @@ public class FieldOfView : MonoBehaviour
         playerAndPlatformLayerMask = LayerMask.GetMask("Player", "Platform", "OneWayPlatform");
         mesh = new Mesh();
         this.GetComponent<MeshFilter>().mesh = mesh;
+        meshRenderer = this.GetComponent<MeshRenderer>();
         playerTrans = GameObject.Find("Player").transform;
         playerScript = playerTrans.GetComponent<PlayerController>();
     }
@@ -86,11 +90,13 @@ public class FieldOfView : MonoBehaviour
                 (startingAngle == 200f && playerAngle <= startingAngle && playerAngle >= endingAngle)) {
                 RaycastHit2D playerRaycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(playerAngle), viewDistance, playerAndPlatformLayerMask);
                 if (playerRaycastHit2D.collider != null && playerRaycastHit2D.collider.name == "Player" && !playerScript.IsHiding()) {
+                    meshRenderer.material = detectedMat;
                     enemyScript.SetAlertStatus(true); 
                 }
             }
         } else {
             mesh.Clear();
+            meshRenderer.material = undetectedMat;
         }
     }
 
