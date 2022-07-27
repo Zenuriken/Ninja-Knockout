@@ -168,6 +168,7 @@ public class PlayerController : MonoBehaviour
     private bool isPlayingWallClimbingNoise;
     private bool isPlayingEnteringBushesNoise;
     private bool isPlayingLeavingBushesNoise;
+    private bool isPlayingWallJumpingNoise;
 
     // Private Dash Variables
     private int dashCounter;
@@ -223,6 +224,9 @@ public class PlayerController : MonoBehaviour
     private int lastDir;
     private int side;
     private int alertedNum;
+
+    private int jumpingCounter;
+    private int wallJumpCounter;
 
     // Private Animator Private Variables
     private Animator playerAnim;
@@ -338,10 +342,13 @@ public class PlayerController : MonoBehaviour
                 lastJump = Time.time;
 
                 if (!isGrounded) {
-                    sounds.Play("Dashing");
+                    sounds.Play("DoubleJumping");
                     doubleJumpTrail.emitting = true;
                     doubleJumpTrail.time = 0.25f;
                     StartCoroutine(ReduceTrail(doubleJumpTrail, false));
+                } else {
+                    sounds.Play("Jumping");
+                    jumpingCounter += 1;
                 }
             }
 
@@ -412,6 +419,13 @@ public class PlayerController : MonoBehaviour
             if (isWallJumping) {
                 playerRB.velocity = new Vector2(-lastDir * moveSpeed, jumpVel);
                 lastJump = Time.time;
+                if (!isPlayingWallJumpingNoise) {
+                    sounds.Play("WallJumping");
+                    isPlayingWallJumpingNoise = true;
+                    wallJumpCounter += 1;
+                }
+            } else {
+                isPlayingWallJumpingNoise = false;
             }
 
             if (lastYVel > 0.05f && this.playerRB.velocity.y < -0.05f) {
@@ -464,7 +478,6 @@ public class PlayerController : MonoBehaviour
             yield return new WaitForSeconds(dashDur);
             playerRB.gravityScale = gravity;
             isDashing = false;
-            //sounds.Stop("Dashing");
             StartCoroutine(ReduceTrail(dashTrail, false));
         }
     }
@@ -476,7 +489,6 @@ public class PlayerController : MonoBehaviour
             yield return new WaitForSeconds(trailDur);
         }
         trail.emitting = false;
-        sounds.Stop("Dashing");
         if (destroy) {
             Destroy(trail.gameObject);
         }

@@ -158,6 +158,7 @@ public class EnemyController : MonoBehaviour
     private bool playedBodySplat;
     private bool bodySplatDelayPast;
     private bool isDetectingPlayer;
+    private bool isPlayingMeleeNoise;
     #endregion
 
     #region Initializaiton Functions
@@ -556,6 +557,10 @@ public class EnemyController : MonoBehaviour
         if (isMeleeing) {
             enemyAnim.SetBool("isMeleeing", true);
             lastAttack = Time.time;
+            if (!isPlayingMeleeNoise) {
+                sounds.Play("Meleeing");
+                isPlayingMeleeNoise = true;
+            }
             Invoke("SetIsMeleeingFalse", 0.5f);
         }
 
@@ -575,6 +580,7 @@ public class EnemyController : MonoBehaviour
         enemyAnim.SetBool("isMeleeing", false);
         //isAttacking = false;
         isMeleeing = false;
+        isPlayingMeleeNoise = false;
     }
     #endregion
 
