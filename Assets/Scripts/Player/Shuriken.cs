@@ -61,6 +61,7 @@ public class Shuriken : MonoBehaviour
             EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
             if (!enemyScript.IsAlerted()) {
                 enemyScript.TakeDmg(5);
+                sounds.Play("ShurikenStealthKill");
             } else {
                 enemyScript.TakeDmg(1);
             }
@@ -83,7 +84,6 @@ public class Shuriken : MonoBehaviour
         //SoundManager.singleton.StopShuriken(hitEnemy);
         sounds.Stop("Shuriken");
         if (hitEnemy) {
-            sounds.Play("ShurikenBodyHit");
             this.gameObject.layer = 12;
             shurikenSprite.enabled = false;
             trailRen.enabled = false;
