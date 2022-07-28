@@ -204,9 +204,9 @@ public class PlayerController : MonoBehaviour
     private float meleeSpeed;
     private static int meleeCounter;
     private bool hitPlatform;
-    private Transform point0;
-    private Transform point1;
-    private Transform point2;
+    // private Transform point0;
+    // private Transform point1;
+    // private Transform point2;
 
     // Private WallClimbing Variables
     private float currWallClimbTime;
@@ -262,9 +262,9 @@ public class PlayerController : MonoBehaviour
         wallSkillShotTrans = wallFirePointTrans.GetChild(0).transform;
         wallSkillShotSprite = wallSkillShotTrans.GetComponent<SpriteRenderer>();
 
-        point0 = this.transform.GetChild(1).GetChild(1).transform;
-        point1 = this.transform.GetChild(1).GetChild(2).transform;
-        point2 = this.transform.GetChild(1).GetChild(3).transform;
+        // point0 = this.transform.GetChild(1).GetChild(1).transform;
+        // point1 = this.transform.GetChild(1).GetChild(2).transform;
+        // point2 = this.transform.GetChild(1).GetChild(3).transform;
     }
 
     // Start is called before the first frame update
@@ -631,19 +631,17 @@ public class PlayerController : MonoBehaviour
         
         if (meleePressed && CanAttack() && isGrounded && !isDashing && !isWallClimbing && !isWallJumping) {
             skillShotSprite.enabled = false;
-            Debug.Log("meele active2");
             if (isGrounded) {
                 CreateDust(0);
             }
             meleeActive = true;
             meleeCounter += 1;
             lastAttackDir = lastDir;
-            StartCoroutine("MeleeTrail");
+            //StartCoroutine("MeleeTrail");
             Invoke("SetMeleeActiveFalse", 0.18f);
         }
 
         if (meleeActive) {
-            Debug.Log("meele active1");
             bool contact = false;
             bool sparks = false;
             List<Collider2D> enemyColliders = meleeScript.GetEnemyColliders();
@@ -739,14 +737,14 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(SpawnShuriken(shootDir, wallFirePointTrans.position));
                 currHoldTime = 0f;
                 angleRaw = 0f;
+                wallSkillShotSprite.enabled = false;
             } else if (fireReleased) {
                 Vector2 shootDir = new Vector2(-lastDir, 0f);
                 StartCoroutine(SpawnShuriken(shootDir, wallFirePointTrans.position));
                 currHoldTime = 0f;
                 angleRaw = 0f;
+                wallSkillShotSprite.enabled = false;
             }
-        } else {
-            wallSkillShotSprite.enabled = false;
         }
     }
 
@@ -776,42 +774,42 @@ public class PlayerController : MonoBehaviour
     }
 
     // Makes the trail for the melee attack.
-    IEnumerator MeleeTrail() {
-        Vector3 newPos = new Vector3(0f, 0f, 0f);
-        Vector3 p0 = point0.position;
-        Vector3 p1 = point1.position;
-        Vector3 p2 = point2.position;
+    // IEnumerator MeleeTrail() {
+    //     Vector3 newPos = new Vector3(0f, 0f, 0f);
+    //     Vector3 p0 = point0.position;
+    //     Vector3 p1 = point1.position;
+    //     Vector3 p2 = point2.position;
 
-        //GameObject meleeBall = GameObject.Instantiate(meleeBallPrefab, meleePointRectTrans, false);
-        GameObject meleeBall = GameObject.Instantiate(meleeBallPrefab, p0, Quaternion.identity);
-        TrailRenderer meleeTrail = meleeBall.GetComponent<TrailRenderer>();
-        //Rigidbody2D meleeBallRB = meleeBall.GetCOmponent<Rigidbody2D>();
-        meleeTrail.emitting = true;
-        meleeTrail.time = meleeTrailTime;
+    //     //GameObject meleeBall = GameObject.Instantiate(meleeBallPrefab, meleePointRectTrans, false);
+    //     GameObject meleeBall = GameObject.Instantiate(meleeBallPrefab, p0, Quaternion.identity);
+    //     TrailRenderer meleeTrail = meleeBall.GetComponent<TrailRenderer>();
+    //     //Rigidbody2D meleeBallRB = meleeBall.GetCOmponent<Rigidbody2D>();
+    //     meleeTrail.emitting = true;
+    //     meleeTrail.time = meleeTrailTime;
 
-        float lastTValue = 0f;
-        // Uses Bezier Curves to interpolate the ball's position along three points.
-        for (float t = 0; t <= 1.0f; t += Time.deltaTime * meleeBallSpeed) {
-            lastTValue = t;
-            if (hitPlatform) {
-                meleeTrail.emitting = false;
-                Destroy(meleeBall);
-                yield break;
-            }
-            newPos = Mathf.Pow(1 - t, 2) * p0 + 2 * (1 - t) * t * p1 + Mathf.Pow(t, 2) * p2;
-            meleeBall.transform.position = newPos;
-            yield return new WaitForEndOfFrame();
-        }
+    //     float lastTValue = 0f;
+    //     // Uses Bezier Curves to interpolate the ball's position along three points.
+    //     for (float t = 0; t <= 1.0f; t += Time.deltaTime * meleeBallSpeed) {
+    //         lastTValue = t;
+    //         if (hitPlatform) {
+    //             meleeTrail.emitting = false;
+    //             Destroy(meleeBall);
+    //             yield break;
+    //         }
+    //         newPos = Mathf.Pow(1 - t, 2) * p0 + 2 * (1 - t) * t * p1 + Mathf.Pow(t, 2) * p2;
+    //         meleeBall.transform.position = newPos;
+    //         yield return new WaitForEndOfFrame();
+    //     }
 
-        // Sets the last position of the melee ball if it did not reach the full swing.
-        if (lastTValue < 1.0f) {
-            meleeBall.transform.position = p2;
-            yield return new WaitForEndOfFrame();
-        }
+    //     // Sets the last position of the melee ball if it did not reach the full swing.
+    //     if (lastTValue < 1.0f) {
+    //         meleeBall.transform.position = p2;
+    //         yield return new WaitForEndOfFrame();
+    //     }
 
-        //meleeBall.transform.parent = null;
-        StartCoroutine(ReduceTrail(meleeTrail, true));
-    }
+    //     //meleeBall.transform.parent = null;
+    //     StartCoroutine(ReduceTrail(meleeTrail, true));
+    // }
 
     // Knocks the player back when attacking an enemy or platform.
     IEnumerator KnockBack(Vector2 dir) {
