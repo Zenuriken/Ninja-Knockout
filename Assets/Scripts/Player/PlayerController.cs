@@ -307,17 +307,16 @@ public class PlayerController : MonoBehaviour
             upHolding = Input.GetKey(upKey);
             downHolding = Input.GetKey(downKey);
 
-            Move();
             IsGrounded();
             IsAgainstWall();
             SetDirection();
+            Move();
             if (isWallClimbing) {
                 WallClimbAttack();
             } else {
                 Attack();
             }
             HidePlayer();
-            //Debug.Log("Hiding status: " + isHiding);
         }
         UpdateSprite();
     }
@@ -372,7 +371,7 @@ public class PlayerController : MonoBehaviour
             }
 
             // Tapping the dash button.
-            if (dashPressed && !isDashing && !isJumping && !isWallJumping && (dashCounter > 0 || isGrounded) && CanDash()) {
+            if (dashPressed && !isDashing && !isJumping && !isWallJumping && !isAttacking && (dashCounter > 0 || isGrounded) && CanDash()) {
                 lastDash = Time.time;
                 StartCoroutine("Dash");
             }
@@ -619,15 +618,20 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(SpawnShuriken(shootDir, firePointTrans.position));
                 currHoldTime = 0f;
                 angleRaw = 0f;
+                skillShotSprite.enabled = false;
             } else if (fireReleased) {
                 Vector2 shootDir = new Vector2(lastDir, 0f);
                 StartCoroutine(SpawnShuriken(shootDir, firePointTrans.position));
                 currHoldTime = 0f;
                 angleRaw = 0f;
+                skillShotSprite.enabled = false;
             }
 
-        } else if (meleePressed && CanAttack() && isGrounded) {
+        }
+        
+        if (meleePressed && CanAttack() && isGrounded && !isDashing && !isWallClimbing && !isWallJumping) {
             skillShotSprite.enabled = false;
+            Debug.Log("meele active2");
             if (isGrounded) {
                 CreateDust(0);
             }
@@ -636,11 +640,10 @@ public class PlayerController : MonoBehaviour
             lastAttackDir = lastDir;
             StartCoroutine("MeleeTrail");
             Invoke("SetMeleeActiveFalse", 0.18f);
-        } else {
-            skillShotSprite.enabled = false;
         }
 
         if (meleeActive) {
+            Debug.Log("meele active1");
             bool contact = false;
             bool sparks = false;
             List<Collider2D> enemyColliders = meleeScript.GetEnemyColliders();
@@ -679,7 +682,7 @@ public class PlayerController : MonoBehaviour
 
             if (contact) {
                 Vector2 dir = new Vector2(-lastDir, 0f);
-                //StartCoroutine(KnockBack(dir));
+                StartCoroutine(KnockBack(dir));
             }
 
             if (sparks) {
@@ -867,7 +870,7 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("isAgainstWall", false);
         }
 
-        if (fireReleased && CanAttack() /*&& IsCharged()*/ && numShurikens > 0 && !isDashing) {
+        if (fireReleased && CanAttack() && numShurikens > 0 && !isDashing && !isWallClimbing && !isWallJumping) {
             isAttacking = true;
             playerAnim.SetBool("isThrowing", true);
             lastAttack = Time.time;
@@ -877,7 +880,7 @@ public class PlayerController : MonoBehaviour
             Invoke("SetIsThrowingFalse", 0.5f);
         }
 
-        if (meleePressed && CanAttack() && isGrounded) {
+        if (meleePressed && CanAttack() && isGrounded && !isDashing && !isWallClimbing && !isWallJumping) {
             isAttacking = true;
             playerAnim.SetBool("isMeleeing", true);
             lastAttack = Time.time;
