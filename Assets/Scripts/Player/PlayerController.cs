@@ -682,7 +682,7 @@ public class PlayerController : MonoBehaviour
 
             if (contact) {
                 Vector2 dir = new Vector2(-lastDir, 0f);
-                StartCoroutine(KnockBack(dir));
+                //StartCoroutine(KnockBack(dir));
             }
 
             if (sparks) {
