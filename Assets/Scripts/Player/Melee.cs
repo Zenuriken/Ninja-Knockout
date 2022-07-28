@@ -27,6 +27,7 @@ public class Melee : MonoBehaviour
             if (!enemyColliders.Contains(other)) {
                 enemyColliders.Add(other);
                 EnemyController enemyScript = other.GetComponent<EnemyController>();
+                enemyScript.SetIsInPlayerMeleeRange(true);
                 enemyScript.SetHighLight(true);
             }
         } else if (other.gameObject.tag == "Projectile") {
@@ -44,6 +45,7 @@ public class Melee : MonoBehaviour
         if (other.gameObject.tag == "Enemy") {
             enemyColliders.Remove(other);
             EnemyController enemyScript = other.GetComponent<EnemyController>();
+            enemyScript.SetIsInPlayerMeleeRange(false);
             enemyScript.SetHighLight(false);
         } else if (other.gameObject.tag == "Projectile") {
             projectileColliders.Remove(other);
@@ -58,6 +60,7 @@ public class Melee : MonoBehaviour
     public void RemoveEnemyFromList(Collider2D enemyCollider) {
         enemyColliders.Remove(enemyCollider);
         EnemyController enemyScript = enemyCollider.GetComponent<EnemyController>();
+        enemyScript.SetIsInPlayerMeleeRange(false);
         enemyScript.SetHighLight(false);
     }
 

@@ -161,6 +161,7 @@ public class EnemyController : MonoBehaviour
     private bool bodySplatDelayPast;
     private bool isDetectingPlayer;
     private bool isPlayingMeleeNoise;
+    private bool isInPlayerMeleeRange;
     #endregion
 
     #region Initializaiton Functions
@@ -419,6 +420,7 @@ public class EnemyController : MonoBehaviour
             ScoreManager.singleton.IncreaseScoreBy(enemyPoints);
         }
         alertedObj.SetActive(false);
+        SetHighLight(false);
         if (playerIsInThrowingRange && isAlerted) {
             playerScript.IncreaseAlertedNumBy(-1);
         }
@@ -638,7 +640,14 @@ public class EnemyController : MonoBehaviour
 
     // Sets the HighLight of the enemy
     public void SetHighLight(bool state) {
-        highLight.SetActive(state);
+        if (state || !isInPlayerMeleeRange) {
+            highLight.SetActive(state);
+        }
+    }
+
+    // Sets whether the enemy is within player melee range.
+    public void SetIsInPlayerMeleeRange(bool state) {
+        isInPlayerMeleeRange = state;
     }
     #endregion
 }

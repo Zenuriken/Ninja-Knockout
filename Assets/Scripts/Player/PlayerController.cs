@@ -187,6 +187,8 @@ public class PlayerController : MonoBehaviour
     private float angleAdjusted;
     private int lastAttackDir;
 
+    private EnemyController lastEnemyContact;
+
     // Private Jump Variables
     private float jumpDurTimer;
     private float jumpCounter;
@@ -214,6 +216,7 @@ public class PlayerController : MonoBehaviour
     private Collider2D boxCollider2D;
     private LayerMask platformLayerMask;
     private LayerMask allPlatformsLayerMask;
+    private LayerMask enemyAndPlatformLayerMask;
     private TrailRenderer dashTrail;
     private TrailRenderer doubleJumpTrail;
     private SoundManager sounds;
@@ -248,6 +251,7 @@ public class PlayerController : MonoBehaviour
         doubleJumpTrail = this.transform.GetChild(2).GetChild(2).GetComponent<TrailRenderer>();
         platformLayerMask = LayerMask.GetMask("Platform");
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
+        enemyAndPlatformLayerMask = LayerMask.GetMask("Enemy", "Platform", "OneWayPlatform");
         meleeScript = this.transform.GetChild(1).GetComponent<Melee>();
         
         firePointTrans = this.transform.GetChild(0).transform;
@@ -584,6 +588,28 @@ public class PlayerController : MonoBehaviour
                     angleAdjusted = 180f - angleRaw;
                 }
                 skillShotTrans.rotation = Quaternion.Euler(0, 0, angleAdjusted - 90f);
+
+                Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
+                RaycastHit2D raycastHit2D = Physics2D.Raycast(firePointTrans.position, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask);
+                // If the raycast hits an enemy.
+                if (raycastHit2D.collider != null && raycastHit2D.collider.tag == "Enemy") {
+                    EnemyController enemyScript = raycastHit2D.collider.GetComponent<EnemyController>();
+                    // If the previous hit wasn't this enemy.
+                    if (enemyScript != lastEnemyContact) {
+                        // If the last hit was an enemy and that enemy hasn't died, set it to false.
+                        if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
+                            lastEnemyContact.SetHighLight(false);
+                        }
+                        lastEnemyContact = enemyScript;
+                    }
+                    if (!enemyScript.HasDied()) {
+                        enemyScript.SetHighLight(true);
+                    }
+                // If the raycast was null, and the last raycast hit an enmy and that enemy hasn't died.
+                } else if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
+                        lastEnemyContact.SetHighLight(false);
+                }
+
             } else if (fireHolding) {
                 currHoldTime += Time.deltaTime;
             }
@@ -680,6 +706,27 @@ public class PlayerController : MonoBehaviour
                     angleAdjusted = 180f - angleRaw;
                 }
                 wallSkillShotTrans.rotation = Quaternion.Euler(0, 0, angleAdjusted - 90f);
+
+                Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
+                RaycastHit2D raycastHit2D = Physics2D.Raycast(wallSkillShotTrans.position, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask);
+                // If the raycast hits an enemy.
+                if (raycastHit2D.collider != null && raycastHit2D.collider.tag == "Enemy") {
+                    EnemyController enemyScript = raycastHit2D.collider.GetComponent<EnemyController>();
+                    // If the previous hit wasn't this enemy.
+                    if (enemyScript != lastEnemyContact) {
+                        // If the last hit was an enemy and that enemy hasn't died, set it to false.
+                        if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
+                            lastEnemyContact.SetHighLight(false);
+                        }
+                        lastEnemyContact = enemyScript;
+                    }
+                    if (!enemyScript.HasDied()) {
+                        enemyScript.SetHighLight(true);
+                    }
+                // If the raycast was null, and the last raycast hit an enmy and that enemy hasn't died.
+                } else if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
+                        lastEnemyContact.SetHighLight(false);
+                }
             } else if (fireHolding) {
                 currHoldTime += Time.deltaTime;
             }
