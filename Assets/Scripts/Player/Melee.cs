@@ -26,6 +26,8 @@ public class Melee : MonoBehaviour
         if (other.gameObject.tag == "Enemy") {
             if (!enemyColliders.Contains(other)) {
                 enemyColliders.Add(other);
+                EnemyController enemyScript = other.GetComponent<EnemyController>();
+                enemyScript.SetHighLight(true);
             }
         } else if (other.gameObject.tag == "Projectile") {
             if (!projectileColliders.Contains(other)) {
@@ -41,6 +43,8 @@ public class Melee : MonoBehaviour
     private void OnTriggerExit2D(Collider2D other) {
         if (other.gameObject.tag == "Enemy") {
             enemyColliders.Remove(other);
+            EnemyController enemyScript = other.GetComponent<EnemyController>();
+            enemyScript.SetHighLight(false);
         } else if (other.gameObject.tag == "Projectile") {
             projectileColliders.Remove(other);
         } else if (other.gameObject.tag == "Platform") {
@@ -53,6 +57,8 @@ public class Melee : MonoBehaviour
     // Removes an enemy from the list of enemy colliders upon death
     public void RemoveEnemyFromList(Collider2D enemyCollider) {
         enemyColliders.Remove(enemyCollider);
+        EnemyController enemyScript = enemyCollider.GetComponent<EnemyController>();
+        enemyScript.SetHighLight(false);
     }
 
     // Removes an enemy from the list of projectile colliders upon destruction

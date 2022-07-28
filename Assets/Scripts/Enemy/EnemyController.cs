@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class EnemyController : MonoBehaviour
 {
@@ -123,6 +124,7 @@ public class EnemyController : MonoBehaviour
     private MeleeEnemy meleeEnemyScript;
     private AlertedSight alertedSightScript;
     private SoundManager sounds;
+    private GameObject highLight;
 
     // Private variables
     private LayerMask allPlatformsLayerMask;
@@ -176,6 +178,7 @@ public class EnemyController : MonoBehaviour
         astarScript = this.GetComponent<AStar>();
         meleeEnemyScript = this.transform.GetChild(1).GetComponent<MeleeEnemy>();
         firePointTrans = this.transform.GetChild(2).transform;
+        highLight = this.transform.GetChild(7).gameObject;
     }
 
     // Start is called before the first frame update
@@ -631,6 +634,11 @@ public class EnemyController : MonoBehaviour
             sounds.Play(gruntSound);
             SetAlertStatus(true);
         }
+    }
+
+    // Sets the HighLight of the enemy
+    public void SetHighLight(bool state) {
+        highLight.SetActive(state);
     }
     #endregion
 }
