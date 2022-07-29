@@ -90,7 +90,6 @@ public class FieldOfView : MonoBehaviour
                 (startingAngle == 200f && playerAngle <= startingAngle && playerAngle >= endingAngle)) {
                 RaycastHit2D playerRaycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(playerAngle), viewDistance, playerAndPlatformLayerMask);
                 if (playerRaycastHit2D.collider != null && playerRaycastHit2D.collider.name == "Player" && !playerScript.IsHiding()) {
-                    meshRenderer.material = detectedMat;
                     enemyScript.SetAlertStatus(true); 
                 }
             }
@@ -129,5 +128,9 @@ public class FieldOfView : MonoBehaviour
 
     public void InitializeEnemyScript(EnemyController enemy) {
         this.enemyScript = enemy; 
+    }
+
+    public void SetMeshRendererToAlertMat() {
+        meshRenderer.material = detectedMat;
     }
 }

@@ -233,7 +233,7 @@ public class EnemyController : MonoBehaviour
             adjustedPos = astarScript.GetAdjustedPosition();
 
             // Executing Actions
-            if (!isStunned && !isMeleeing && !isThrowing) {
+            if (!isStunned && !isMeleeing && !isThrowing && !isDetectingPlayer) {
                 SetDirection();
                 if (isAlerted && !playerScript.IsHiding()) {
                     Attack();
@@ -252,7 +252,7 @@ public class EnemyController : MonoBehaviour
     // Controls the enemy's movments.
     private void Move() {
         if (!isAlerted && !isReturningToPatrolPos) {
-            //Patrol();
+            Patrol();
         } else if (!isAlerted && isReturningToPatrolPos) {
             if (astarScript.IsAtSpawnPos()) {
                 isReturningToPatrolPos = false;
@@ -266,17 +266,17 @@ public class EnemyController : MonoBehaviour
         // Handles the case in which the enemy gets stuck on an edge.
         if (isAlerted && astarScript.IsStuck() && Mathf.Abs(enemyRB.velocity.x) < 0.05 && Mathf.Abs(enemyRB.velocity.y) < 0.05) {
             Vector2 moveDir = astarScript.GetMoveDir();
-            enemyRB.velocity = new Vector2(moveDir.x * pursueSpeed, 0f);
+            enemyRB.velocity = new Vector2(moveDir.x * pursueSpeed, enemyRB.velocity.y);
         }
     }
 
     // The enemy's patrolling state
     private void Patrol() {
         if (patrolPath == null) {
-            enemyRB.velocity = new Vector2(0f, 0f);
+            enemyRB.velocity = new Vector2(0f, enemyRB.velocity.y);
         } else if ((adjustedPos.x < patrolPath[1].x && startingDir == 1) || 
                    (adjustedPos.x > patrolPath[0].x && startingDir == -1)) {
-            enemyRB.velocity = new Vector2(startingDir * patrolSpeed, 0f);
+            enemyRB.velocity = new Vector2(startingDir * patrolSpeed, enemyRB.velocity.y);
         } else if (CanIdle()) {
             StartCoroutine("Idle");
         }
@@ -381,8 +381,11 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    // Play's alerted sound and also turns line of sight to red.
     IEnumerator PlayerDetected() {
         isDetectingPlayer = true;
+        fov.SetMeshRendererToAlertMat();
+        FacePlayer();
         exclamationMark.Play();
         sounds.Play("Alerted");
         yield return new WaitForSeconds(alertedDelay);
@@ -465,6 +468,19 @@ public class EnemyController : MonoBehaviour
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             fov.SetStartingAngle(15f);
         } else if (enemyRB.velocity.x < -0.05f) {
+            transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            fov.SetStartingAngle(200f);
+        }
+    }
+
+    // Sets the direction of the enemy to the player when alerted.
+    private void FacePlayer() {
+        float xDir = playerScript.transform.position.x - this.transform.position.x;
+        Debug.Log(xDir);
+        if (xDir >= 0) {
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            fov.SetStartingAngle(15f);
+        } else {
             transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             fov.SetStartingAngle(200f);
         }
@@ -617,6 +633,7 @@ public class EnemyController : MonoBehaviour
 
     // Sets the alert status of the enemy
     public void SetAlertStatus(bool status) {
+        // If we are setting the enemy to alerted and we're not already alerted and playing our detecting coroutine.
         if (status && !isAlerted && !isDetectingPlayer) {
             StartCoroutine("PlayerDetected");
         } else if (!status) {

@@ -169,6 +169,7 @@ public class PlayerController : MonoBehaviour
     private bool isPlayingEnteringBushesNoise;
     private bool isPlayingLeavingBushesNoise;
     private bool isPlayingWallJumpingNoise;
+    private bool isPlayingStealthMeleeKill;
 
     // Private Dash Variables
     private int dashCounter;
@@ -672,6 +673,10 @@ public class PlayerController : MonoBehaviour
                         enemy.TakeDmg(1);
                     } else {
                         enemy.TakeDmg(5);
+                        if (!isPlayingStealthMeleeKill) {
+                            sounds.Play("StealthMeleeKill");
+                            isPlayingStealthMeleeKill = true;
+                        }
                     }
                     enemy.SetDamagedCounter(meleeCounter);
                 }
@@ -946,6 +951,7 @@ public class PlayerController : MonoBehaviour
     private void SetIsMeleeingFalse() {
         playerAnim.SetBool("isMeleeing", false);
         isAttacking = false;
+        isPlayingStealthMeleeKill = false;
     }
 
     private void HidePlayer() {
