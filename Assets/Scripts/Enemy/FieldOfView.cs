@@ -21,6 +21,10 @@ public class FieldOfView : MonoBehaviour
     public Material detectedMat;
     public Material undetectedMat;
     private MeshRenderer meshRenderer;
+
+    [SerializeField]
+    [Tooltip("The gradient of the FOV.")]
+    private Gradient gradient;
     
     // Start is called before the first frame update
     void Start()
@@ -78,7 +82,20 @@ public class FieldOfView : MonoBehaviour
             mesh.vertices = vertices;
             mesh.uv = uv;
             mesh.triangles = triangles;
-            mesh.bounds = new Bounds(origin, Vector3. one * 1000f);
+            mesh.bounds = new Bounds(origin, Vector3.one * 1000f);
+
+            var colors = new Color[uv.Length];
+     
+            // Instead if vertex.y we use uv.x
+            //colors[0] = gradient.colorKeys[0].color;
+            for (var i = 0; i < uv.Length; i++) {
+                float distance = GetDistance((Vector2) mesh.vertices[i], (Vector2) mesh.vertices[0]);
+                float proportion = distance / viewDistance;
+                colors[i] = gradient.Evaluate(proportion);
+            }
+            mesh.colors = colors;            
+
+
 
             Vector3 dirOfPlayer = playerTrans.position - origin;
             float endingAngle = startingAngle - fov;
@@ -98,6 +115,12 @@ public class FieldOfView : MonoBehaviour
             meshRenderer.material = undetectedMat;
         }
     }
+
+
+    private float GetDistance(Vector2 p0, Vector2 p1) {
+        return Mathf.Sqrt(Mathf.Pow(p0.x - p1.x, 2f) + Mathf.Pow(p0.y - p1.y, 2f));
+    }
+
 
     public Vector3 GetVectorFromAngle(float angle) {
         // angle = 0 -> 360

@@ -1018,6 +1018,10 @@ public class PlayerController : MonoBehaviour
     public void SetPlayerBuffer(bool state) {
         isBuffering = state;
     }
+
+    // public bool IsFreeOfAction() {
+    //     return (!isAgainstWall || isGrounded) && !isDashing && !isJumping && !isStunned;
+    // }
     #endregion
 
     #region Misc Functions

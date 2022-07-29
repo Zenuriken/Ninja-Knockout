@@ -8,6 +8,8 @@ public class Melee : MonoBehaviour
     private List<Collider2D> enemyColliders;
     private List<Collider2D> projectileColliders;
     private List<Collider2D> platformColliders;
+
+    //private PlayerController playerScript;
     #endregion
 
     #region Initialization Functions
@@ -17,6 +19,7 @@ public class Melee : MonoBehaviour
         enemyColliders = new List<Collider2D>();
         projectileColliders = new List<Collider2D>();
         platformColliders = new List<Collider2D>();
+        //playerScript = this.transform.parent.GetComponent<PlayerController>();
     }
     #endregion
 
@@ -24,7 +27,7 @@ public class Melee : MonoBehaviour
     // When the melee attack hits an enemy or projectile
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.tag == "Enemy") {
-            if (!enemyColliders.Contains(other)) {
+            if (!enemyColliders.Contains(other) /*&& playerScript.IsFreeOfAction()*/) {
                 enemyColliders.Add(other);
                 EnemyController enemyScript = other.GetComponent<EnemyController>();
                 enemyScript.SetIsInPlayerMeleeRange(true);
@@ -43,6 +46,9 @@ public class Melee : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other) {
         if (other.gameObject.tag == "Enemy") {
+            // if (enemyColliders.Contains(other)) {
+            //     enemyColliders.Remove(other);
+            // }
             enemyColliders.Remove(other);
             EnemyController enemyScript = other.GetComponent<EnemyController>();
             enemyScript.SetIsInPlayerMeleeRange(false);

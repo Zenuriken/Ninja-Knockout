@@ -628,7 +628,7 @@ public class EnemyController : MonoBehaviour
 
     // Returns if enemy is in alerted state.
     public bool IsAlerted() {
-        return isAlerted;
+        return isAlerted || isDetectingPlayer;
     }
 
     // Sets the alert status of the enemy
