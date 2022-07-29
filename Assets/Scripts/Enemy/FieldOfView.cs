@@ -101,8 +101,6 @@ public class FieldOfView : MonoBehaviour
             }
             mesh.colors = colors;            
 
-            Debug.Log("Draw Mesh: " + Time.time);
-
             Vector3 dirOfPlayer = playerTrans.position - origin;
             float endingAngle = startingAngle - fov;
             if (endingAngle < 0) {

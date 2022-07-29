@@ -229,9 +229,6 @@ public class PlayerController : MonoBehaviour
     private int side;
     private int alertedNum;
 
-    private int jumpingCounter;
-    private int wallJumpCounter;
-
     public float radiusF;
 
     // Private Animator Private Variables
@@ -309,7 +306,6 @@ public class PlayerController : MonoBehaviour
             fireHolding = Input.GetKey(fireKey);
             upHolding = Input.GetKey(upKey);
             downHolding = Input.GetKey(downKey);
-
             IsGrounded();
             IsAgainstWall();
             SetDirection();
@@ -354,7 +350,6 @@ public class PlayerController : MonoBehaviour
                     StartCoroutine(ReduceTrail(doubleJumpTrail, false));
                 } else {
                     sounds.Play("Jumping");
-                    jumpingCounter += 1;
                 }
             }
 
@@ -428,7 +423,6 @@ public class PlayerController : MonoBehaviour
                 if (!isPlayingWallJumpingNoise) {
                     sounds.Play("WallJumping");
                     isPlayingWallJumpingNoise = true;
-                    wallJumpCounter += 1;
                 }
             } else {
                 isPlayingWallJumpingNoise = false;
@@ -439,6 +433,8 @@ public class PlayerController : MonoBehaviour
             }
             lastYVel = this.playerRB.velocity.y;
         }
+
+        //Debug.Log("Jump counter: " + jumpCounter);
     }
 
     // Sets the variable: lastDir based on the xInput of the player.
@@ -530,12 +526,11 @@ public class PlayerController : MonoBehaviour
     private void IsGrounded() {
         bool lastGroundStatus = isGrounded;
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(0.6f, boxCollider2D.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
-        bool onGround = raycastHit2D.collider != null;
-        if (onGround) {
-            jumpCounter = 1;
+        isGrounded = raycastHit2D.collider != null;
+        if (lastGroundStatus == false && isGrounded == true) {
+            jumpCounter = 2;
             dashCounter = 1;
         }
-        isGrounded = onGround;
         // If the player has landed on the grounded.
         if (lastGroundStatus == false && isGrounded == true && FallDistanceMet(this.transform.position)) {
             CreateDust(0);
@@ -794,6 +789,9 @@ public class PlayerController : MonoBehaviour
     }
 
     private bool FallDistanceMet(Vector2 pos) {
+        if (lastJumpPos == Vector2.zero) {
+            return false;
+        }
         float dist = Mathf.Sqrt(Mathf.Pow(lastJumpPos.x - pos.x, 2) + Mathf.Pow(lastJumpPos.y - pos.y, 2));
         //Debug.Log("Distance: " + dist);
         return Mathf.Sqrt(Mathf.Pow(lastJumpPos.x - pos.x, 2) + Mathf.Pow(lastJumpPos.y - pos.y, 2)) >= fallSoundDist && !isStunned;
@@ -955,7 +953,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private void HidePlayer() {
-        if (isCovered && isSneaking && alertedNum <= 0) {
+        if (isCovered && isSneaking && alertedNum <= 0 && !isAttacking) {
             isHiding = true;
             playerSprite.color = new Color(1f, 1f, 1f, 0.5f);
             Physics2D.IgnoreLayerCollision(7, 9, true);
@@ -966,7 +964,7 @@ public class PlayerController : MonoBehaviour
                 isPlayingEnteringBushesNoise = true;
                 isPlayingLeavingBushesNoise = false;
             }
-        } else if (!isBuffering && isHiding && (!isCovered || !isSneaking)) {
+        } else if (!isBuffering && isHiding && (!isCovered || !isSneaking || isAttacking)) {
             playerSprite.color = new Color(1f, 1f, 1f, 1f);
             isHiding = false;
             Physics2D.IgnoreLayerCollision(7, 9, false);
