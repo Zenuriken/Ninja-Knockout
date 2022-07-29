@@ -59,7 +59,7 @@ public class Shuriken : MonoBehaviour
         if (isActive) {
             if (other.gameObject.tag == "Enemy") {
             EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
-            if (!enemyScript.IsAlerted()) {
+            if (!enemyScript.IsAlerted() && !enemyScript.IsDetectingPlayer()) {
                 enemyScript.TakeDmg(5);
                 sounds.Play("ShurikenStealthKill");
             } else {

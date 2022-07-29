@@ -384,7 +384,7 @@ public class EnemyController : MonoBehaviour
     // Play's alerted sound and also turns line of sight to red.
     IEnumerator PlayerDetected() {
         isDetectingPlayer = true;
-        fov.SetMeshRendererToAlertMat();
+        fov.SetMeshRendererToAlertGrad();
         FacePlayer();
         exclamationMark.Play();
         sounds.Play("Alerted");
@@ -476,7 +476,6 @@ public class EnemyController : MonoBehaviour
     // Sets the direction of the enemy to the player when alerted.
     private void FacePlayer() {
         float xDir = playerScript.transform.position.x - this.transform.position.x;
-        Debug.Log(xDir);
         if (xDir >= 0) {
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             fov.SetStartingAngle(15f);
@@ -628,7 +627,12 @@ public class EnemyController : MonoBehaviour
 
     // Returns if enemy is in alerted state.
     public bool IsAlerted() {
-        return isAlerted || isDetectingPlayer;
+        return isAlerted;
+    }
+
+    // Returns if enemy is currently detecting the player.
+    public bool IsDetectingPlayer() {
+        return isDetectingPlayer;
     }
 
     // Sets the alert status of the enemy

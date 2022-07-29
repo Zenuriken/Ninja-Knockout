@@ -18,13 +18,18 @@ public class FieldOfView : MonoBehaviour
     public float fov;
     public int rayCount;
     public float viewDistance;
-    public Material detectedMat;
-    public Material undetectedMat;
+    // public Material detectedMat;
+    // public Material undetectedMat;
     private MeshRenderer meshRenderer;
 
     [SerializeField]
-    [Tooltip("The gradient of the FOV.")]
-    private Gradient gradient;
+    [Tooltip("The undetected gradient of the FOV.")]
+    private Gradient undetectedGradient;
+    [SerializeField]
+    [Tooltip("The player detected gradient of the FOV.")]
+    private Gradient detectedGradient;
+
+    private Gradient curGradient;
     
     // Start is called before the first frame update
     void Start()
@@ -36,6 +41,7 @@ public class FieldOfView : MonoBehaviour
         meshRenderer = this.GetComponent<MeshRenderer>();
         playerTrans = GameObject.Find("Player").transform;
         playerScript = playerTrans.GetComponent<PlayerController>();
+        curGradient = undetectedGradient;
     }
 
     // Update is called once per frame
@@ -91,11 +97,11 @@ public class FieldOfView : MonoBehaviour
             for (var i = 0; i < uv.Length; i++) {
                 float distance = GetDistance((Vector2) mesh.vertices[i], (Vector2) mesh.vertices[0]);
                 float proportion = distance / viewDistance;
-                colors[i] = gradient.Evaluate(proportion);
+                colors[i] = curGradient.Evaluate(proportion);
             }
             mesh.colors = colors;            
 
-
+            Debug.Log("Draw Mesh: " + Time.time);
 
             Vector3 dirOfPlayer = playerTrans.position - origin;
             float endingAngle = startingAngle - fov;
@@ -107,12 +113,12 @@ public class FieldOfView : MonoBehaviour
                 (startingAngle == 200f && playerAngle <= startingAngle && playerAngle >= endingAngle)) {
                 RaycastHit2D playerRaycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(playerAngle), viewDistance, playerAndPlatformLayerMask);
                 if (playerRaycastHit2D.collider != null && playerRaycastHit2D.collider.name == "Player" && !playerScript.IsHiding()) {
-                    enemyScript.SetAlertStatus(true); 
+                    enemyScript.SetAlertStatus(true);
                 }
             }
         } else {
             mesh.Clear();
-            meshRenderer.material = undetectedMat;
+            curGradient = undetectedGradient;
         }
     }
 
@@ -153,7 +159,8 @@ public class FieldOfView : MonoBehaviour
         this.enemyScript = enemy; 
     }
 
-    public void SetMeshRendererToAlertMat() {
-        meshRenderer.material = detectedMat;
+    public void SetMeshRendererToAlertGrad() {
+        Debug.Log("Set curGradient: " + Time.time);
+        curGradient = detectedGradient;
     }
 }
