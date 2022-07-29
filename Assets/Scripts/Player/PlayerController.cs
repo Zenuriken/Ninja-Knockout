@@ -231,6 +231,8 @@ public class PlayerController : MonoBehaviour
     private int jumpingCounter;
     private int wallJumpCounter;
 
+    public float radiusF;
+
     // Private Animator Private Variables
     private Animator playerAnim;
     private SpriteRenderer playerSprite;
@@ -568,6 +570,17 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
+    // private Vector3 pos;
+    // private bool skillShotting;
+
+    // private void OnDrawGizmos() {
+    //     if (skillShotting) {
+    //         Gizmos.color = Color.cyan;
+    //         Gizmos.DrawWireSphere(pos, radiusF);
+    //     }
+    // }
+
+
     #region Attack Functions
     // Main attack function.
     private void Attack() {
@@ -589,8 +602,16 @@ public class PlayerController : MonoBehaviour
                 skillShotTrans.rotation = Quaternion.Euler(0, 0, angleAdjusted - 90f);
 
                 Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
-                RaycastHit2D raycastHit2D = Physics2D.Raycast(firePointTrans.position, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask);
+                RaycastHit2D raycastHit2D = Physics2D.CircleCast(firePointTrans.position, radiusF, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask, 0f, 0f);
+                //Debug.DrawRay(firePointTrans.position, GetVectorFromAngle(angleAdjusted) * 50f, Color.red);
+                //RaycastHit2D raycastHit2D = Physics2D.Raycast(firePointTrans.position, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask);
                 // If the raycast hits an enemy.
+                // if (raycastHit2D.collider != null) {
+                //     skillShotting = true;
+                //     pos = raycastHit2D.point;
+                // } else {
+                //     skillShotting = false;
+                // }
                 if (raycastHit2D.collider != null && raycastHit2D.collider.tag == "Enemy") {
                     EnemyController enemyScript = raycastHit2D.collider.GetComponent<EnemyController>();
                     // If the previous hit wasn't this enemy.
@@ -608,7 +629,6 @@ public class PlayerController : MonoBehaviour
                 } else if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
                         lastEnemyContact.SetHighLight(false);
                 }
-
             } else if (fireHolding) {
                 currHoldTime += Time.deltaTime;
             }
@@ -711,6 +731,7 @@ public class PlayerController : MonoBehaviour
                 Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
                 RaycastHit2D raycastHit2D = Physics2D.Raycast(wallSkillShotTrans.position, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask);
                 // If the raycast hits an enemy.
+
                 if (raycastHit2D.collider != null && raycastHit2D.collider.tag == "Enemy") {
                     EnemyController enemyScript = raycastHit2D.collider.GetComponent<EnemyController>();
                     // If the previous hit wasn't this enemy.
