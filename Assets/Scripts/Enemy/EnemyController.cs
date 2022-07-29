@@ -115,7 +115,7 @@ public class EnemyController : MonoBehaviour
     private Transform firePointTrans;
     //private SpriteRenderer alertedSprite;
     private SpriteRenderer enemySprite;
-    private PolygonCollider2D alertedCol;
+    private SpriteRenderer alertedSightSprite;
     private Animator enemyAnim;
     private BoxCollider2D enemyCollider;
     private Rigidbody2D enemyRB;
@@ -168,7 +168,7 @@ public class EnemyController : MonoBehaviour
     void Awake() {
         alertedObj = this.transform.GetChild(0).gameObject;
         //alertedSprite = alertedObj.GetComponent<SpriteRenderer>();
-        alertedCol = alertedObj.GetComponent<PolygonCollider2D>();
+        alertedSightSprite = alertedObj.GetComponent<SpriteRenderer>();
         alertedSightScript = this.transform.GetChild(0).GetComponent<AlertedSight>();
         sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
 
@@ -215,9 +215,10 @@ public class EnemyController : MonoBehaviour
         patrolPath = astarScript.CalculatePatrolPath(maxNodeDist);
         leftPatrolEnd = adjustedPos.x - maxNodeDist;
         rightPatrolEnd = adjustedPos.x + maxNodeDist;
-        InvokeRepeating("UpdatePursuePath", 0f, 0.5f);
+        InvokeRepeating("UpdatePursuePath", 0f, 0.1f);
 
         alertedObj.SetActive(false);
+        alertedSightSprite.enabled = false;
 
     }
     #endregion
@@ -378,6 +379,8 @@ public class EnemyController : MonoBehaviour
         if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
             SetAlertStatus(false);
             astarScript.SetReturnToPatrolPos(true);
+        } else {
+            isReturningToPatrolPos = false;
         }
     }
 
@@ -388,11 +391,16 @@ public class EnemyController : MonoBehaviour
         FacePlayer();
         exclamationMark.Play();
         sounds.Play("Alerted");
+        isReturningToPatrolPos = false;
+        alertedObj.SetActive(true);
+        astarScript.SetReturnToPatrolPos(false);
+        UpdatePursuePath();
         yield return new WaitForSeconds(alertedDelay);
         isAlerted = true;
-        alertedObj.SetActive(true);
-        isReturningToPatrolPos = false;
-        astarScript.SetReturnToPatrolPos(false);
+        alertedSightSprite.enabled = true;
+        //isReturningToPatrolPos = false;
+        //astarScript.SetReturnToPatrolPos(false);
+        //UpdatePursuePath();
         isDetectingPlayer = false;
     }
 
@@ -643,6 +651,7 @@ public class EnemyController : MonoBehaviour
         } else if (!status) {
             isAlerted = status;
             alertedObj.SetActive(false);
+            alertedSightSprite.enabled = false;
         }
     }
 
