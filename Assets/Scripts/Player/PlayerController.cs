@@ -1017,6 +1017,11 @@ public class PlayerController : MonoBehaviour
         isBuffering = state;
     }
 
+    public void IncreaseShurikenNumBy(int num) {
+        numShurikens += num;
+        ScoreManager.singleton.UpdateShurikenNum(numShurikens);
+    }
+
     // public bool IsFreeOfAction() {
     //     return (!isAgainstWall || isGrounded) && !isDashing && !isJumping && !isStunned;
     // }

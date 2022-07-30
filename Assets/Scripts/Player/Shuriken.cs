@@ -10,6 +10,12 @@ public class Shuriken : MonoBehaviour
     [SerializeField]
     [Tooltip("The color of the shuriken's trail after being deflected more than once.")]
     private Gradient deflectedTwiceColor;
+    [SerializeField]
+    [Tooltip("The delay before shuriken begins to fade.")]
+    private float fadeAwayDelay;
+    [SerializeField]
+    [Tooltip("The speed in which shuriken fades away.")]
+    private float fadeAwaySpeed;
 
     #region Private Variables
     private Rigidbody2D rb;
@@ -81,20 +87,26 @@ public class Shuriken : MonoBehaviour
         meleeScript.RemoveProjFromList(col);
         rb.velocity = new Vector2(0f, 0f);
 
-        //SoundManager.singleton.StopShuriken(hitEnemy);
         sounds.Stop("Shuriken");
         if (hitEnemy) {
             this.gameObject.layer = 12;
             shurikenSprite.enabled = false;
             trailRen.enabled = false;
             yield return new WaitForSeconds(1f);
+            Destroy(this.gameObject);
         } else {
             sounds.Play("ShurikenGroundHit");
             CreateSparks();
-            yield return new WaitForSeconds(1f);
+            StartCoroutine("FadeAway");
         }
-    
-        Destroy(this.gameObject);
+    }
+
+    IEnumerator FadeAway() {
+        yield return new WaitForSeconds(fadeAwayDelay);
+        for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * fadeAwaySpeed) {
+            shurikenSprite.color = new Color(1f, 1f, 1f, alpha);
+            yield return new WaitForEndOfFrame();
+        }
     }
     #endregion
 

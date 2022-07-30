@@ -101,6 +101,9 @@ public class EnemyController : MonoBehaviour
     [SerializeField]
     [Tooltip("The shuriken prefab.")]
     private GameObject shurikenPrefab;
+    [SerializeField]
+    [Tooltip("The shuriken drop prefab.")]
+    private GameObject shurikenDropPrefab;
     [Space(5)]
     #endregion
     
@@ -439,6 +442,12 @@ public class EnemyController : MonoBehaviour
         this.gameObject.layer = 12; // Set the gameObject to layer 12
         Invoke("BodySplat", bodySplatDelay);
         StartCoroutine("FadeAway");
+
+        float value = Random.Range(0, 100);
+        if (value < 100) {
+            GameObject shurikenDrop = Instantiate(shurikenDropPrefab, this.transform.position, Quaternion.identity);
+        }
+
         yield return new WaitForSeconds(destroyDelay);
         meleeScript.RemoveEnemyFromList(enemyCollider);
         Destroy(this.gameObject);
