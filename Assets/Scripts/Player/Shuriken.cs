@@ -33,9 +33,12 @@ public class Shuriken : MonoBehaviour
     private float destroyDelay = 0.0001f;
     private float deflectedMultiplier = 0.5f;
     private int numDeflections = 0;
+    private float noContactDestroyTime = 5f;
+    private float currflightTime;
     private int deflectCounter;
     private Vector2 throwDir;
     private bool isActive;
+    private bool hasContact;
     #endregion
 
     #region Initialization Functions
@@ -56,6 +59,17 @@ public class Shuriken : MonoBehaviour
         meleeScript = player.transform.GetChild(1).GetComponent<Melee>();
 
         isActive = true;
+    }
+
+    private void Update() {
+        if(!hasContact) {
+            currflightTime += Time.deltaTime;
+        }
+
+        if (currflightTime >= noContactDestroyTime) {
+            meleeScript.RemoveProjFromList(col);
+            Destroy(this.gameObject);
+        }
     }
     #endregion
 
@@ -84,6 +98,7 @@ public class Shuriken : MonoBehaviour
     IEnumerator Contact(bool hitEnemy) {
         isActive = false;
         anim.enabled = false;
+        hasContact = true;
         meleeScript.RemoveProjFromList(col);
         rb.velocity = new Vector2(0f, 0f);
 

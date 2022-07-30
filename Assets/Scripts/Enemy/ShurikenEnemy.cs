@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 
 public class ShurikenEnemy : MonoBehaviour
 {
@@ -26,9 +27,12 @@ public class ShurikenEnemy : MonoBehaviour
     private float destroyDelay = 0.0001f;
     private float deflectedMultiplier = 0.5f;
     private int numDeflections = 0;
+    private float currflightTime;
+    private float noContactDestroyTime = 5f;
     private int deflectCounter;
     private Vector2 throwDir;
     private bool isActive;
+    private bool hasContact;
     #endregion
 
     #region Initialization Functions
@@ -51,6 +55,17 @@ public class ShurikenEnemy : MonoBehaviour
     }
     #endregion
 
+    private void Update() {
+        if(!hasContact) {
+            currflightTime += Time.deltaTime;
+        }
+
+        if (currflightTime >= noContactDestroyTime) {
+            meleeScript.RemoveProjFromList(col);
+            Destroy(this.gameObject);
+        }
+    }
+
     #region Collision Functions
     // When the shuriken hits an enemy
     private void OnTriggerEnter2D(Collider2D other) {
@@ -70,6 +85,7 @@ public class ShurikenEnemy : MonoBehaviour
     IEnumerator Contact(bool hitEnemy) {
         isActive = false;
         anim.enabled = false;
+        hasContact = true;
         //meleeScript.RemoveProjFromList(col);
         rb.velocity = new Vector2(0f, 0f);
 

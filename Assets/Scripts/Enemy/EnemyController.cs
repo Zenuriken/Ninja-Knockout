@@ -444,7 +444,7 @@ public class EnemyController : MonoBehaviour
         StartCoroutine("FadeAway");
 
         float value = Random.Range(0, 100);
-        if (value < 100) {
+        if (value < 40) {
             GameObject shurikenDrop = Instantiate(shurikenDropPrefab, this.transform.position, Quaternion.identity);
         }
 

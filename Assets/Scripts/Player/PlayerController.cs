@@ -86,8 +86,8 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The speed in which the skillshot arrow moves.")]
     private float skillShotSpeed;
     [SerializeField]
-    [Tooltip("The number of shurikens player spawns with.")]
-    private int numShurikens;
+    [Tooltip("The max number of shurikens player can hold.")]
+    private int maxShurikens;
     [SerializeField]
     [Tooltip("The knock back force when clashing with a platform or enemy.")]
     private float knockBackForce;
@@ -187,6 +187,7 @@ public class PlayerController : MonoBehaviour
     private float angleRaw;
     private float angleAdjusted;
     private int lastAttackDir;
+    private int numShurikens;
 
     private EnemyController lastEnemyContact;
 
@@ -278,6 +279,7 @@ public class PlayerController : MonoBehaviour
         meleeCounter = 0;
         dashTrail.emitting = false;
         doubleJumpTrail.emitting = false;
+        numShurikens = maxShurikens;
         //meleeTrail.emitting = false;
 
         ScoreManager.singleton.UpdateShurikenNum(numShurikens);
@@ -1020,6 +1022,10 @@ public class PlayerController : MonoBehaviour
     public void IncreaseShurikenNumBy(int num) {
         numShurikens += num;
         ScoreManager.singleton.UpdateShurikenNum(numShurikens);
+    }
+
+    public bool CanPickUpShuriken() {
+        return numShurikens < maxShurikens;
     }
 
     // public bool IsFreeOfAction() {

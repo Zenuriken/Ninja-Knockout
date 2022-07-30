@@ -58,7 +58,7 @@ public class ShurikenDrop : MonoBehaviour
     }
 
     private void OnTriggerStay2D(Collider2D other) {
-        if (other.gameObject.tag == "Player" && canPick) {
+        if (other.gameObject.tag == "Player" && canPick && playerScript.CanPickUpShuriken()) {
             playerScript.IncreaseShurikenNumBy(1);
             pickUpSound.Play();
             canPick = false;
