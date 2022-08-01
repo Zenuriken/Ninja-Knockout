@@ -5634,7 +5634,7 @@ PrefabInstance:
     - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: maxShurikens
-      value: 210
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969652, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
@@ -5776,6 +5776,66 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: healthList.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: shurikenList.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: healthList.Array.data[0]
+      value: 
+      objectReference: {fileID: 2800000, guid: 1e24b75774577d749b682fb0a79cdce4, type: 3}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: healthList.Array.data[1]
+      value: 
+      objectReference: {fileID: 2800000, guid: 18617249d0711084ab41ff604b547785, type: 3}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: healthList.Array.data[2]
+      value: 
+      objectReference: {fileID: 2800000, guid: 8414157aabc42d34293dd82fbce6b480, type: 3}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: healthList.Array.data[3]
+      value: 
+      objectReference: {fileID: 2800000, guid: 5a9de32ab9ba6c847b6f15cc3fc5a32c, type: 3}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: healthList.Array.data[4]
+      value: 
+      objectReference: {fileID: 2800000, guid: a70799b99e5a48e469ec9df1893fbec2, type: 3}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: shurikenList.Array.data[0]
+      value: 
+      objectReference: {fileID: 2800000, guid: e434e54cd21aa8147bc5829826fea4b4, type: 3}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: shurikenList.Array.data[1]
+      value: 
+      objectReference: {fileID: 2800000, guid: c05e3c939cb3f2b46ace89fac254c636, type: 3}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: shurikenList.Array.data[2]
+      value: 
+      objectReference: {fileID: 2800000, guid: 347880d40e3ecf94b8505b88954a5edf, type: 3}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: shurikenList.Array.data[3]
+      value: 
+      objectReference: {fileID: 2800000, guid: 8ea5a5bc7a27ff84981fb5805c467bd6, type: 3}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: shurikenList.Array.data[4]
+      value: 
+      objectReference: {fileID: 2800000, guid: 8a1c64b46bf52ee468600d51989b04e6, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1c6e436d7503f3842bd4e74f05e055e1, type: 3}
 --- !u!1001 &6371837798783865671
