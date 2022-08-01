@@ -894,11 +894,10 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("isAgainstWall", false);
         }
 
-        if (fireReleased && CanAttack() && numShurikens > 0 && !isDashing && !isWallClimbing && !isWallJumping) {
+        if (fireReleased && CanAttack() && numShurikens > 0 && !isDashing && !isWallJumping) {
             isAttacking = true;
             playerAnim.SetBool("isThrowing", true);
             lastAttack = Time.time;
-            //currChargeTime = 0f;
             numShurikens -= 1;
             ScoreManager.singleton.UpdateShurikenNum(numShurikens);
             Invoke("SetIsThrowingFalse", 0.5f);

@@ -5139,7 +5139,7 @@ PrefabInstance:
     - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: maxShurikens
-      value: 5
+      value: 210
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969652, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
