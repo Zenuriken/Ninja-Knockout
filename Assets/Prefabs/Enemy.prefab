@@ -372,7 +372,7 @@ GameObject:
   m_Component:
   - component: {fileID: 594737426}
   - component: {fileID: 594737427}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: HighLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15796,7 +15796,8 @@ MonoBehaviour:
     type: 3}
   shurikenPrefab: {fileID: 7548271796289790293, guid: 5bd1ca7011a59e2419544ba835a64268,
     type: 3}
-  shurikenDropPrefab: {fileID: 0}
+  shurikenDropPrefab: {fileID: 301443893935112129, guid: aecd5a24796c6d3428dd784cfe9112ed,
+    type: 3}
   isAlerted: 0
 --- !u!95 &1977679683
 Animator:

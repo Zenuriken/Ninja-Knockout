@@ -205,7 +205,7 @@ public class PlayerController : MonoBehaviour
     private bool meleeActive;
     private float meleeSpeed;
     private static int meleeCounter;
-    private bool hitPlatform;
+    //private bool hitPlatform;
     // private Transform point0;
     // private Transform point1;
     // private Transform point2;
@@ -695,9 +695,9 @@ public class PlayerController : MonoBehaviour
             if (platformColliders.Count > 0) {
                 contact = true;
                 sparks = true;
-                hitPlatform = true;
+                //hitPlatform = true;
             } else {
-                hitPlatform = false;
+                //hitPlatform = false;
             }
 
             if (contact) {

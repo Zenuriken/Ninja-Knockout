@@ -16,7 +16,7 @@ public class ShurikenEnemy : MonoBehaviour
     private Rigidbody2D rb;
     private CircleCollider2D col;
     private TrailRenderer trailRen;
-    private Melee meleeScript;
+    //private Melee meleeScript;
     private SpriteRenderer shurikenSprite;
     private ParticleSystem sparks;
     private Animator anim;
@@ -24,7 +24,7 @@ public class ShurikenEnemy : MonoBehaviour
     private SoundManager sounds;
 
     private float shurikenSpeed = 20;
-    private float destroyDelay = 0.0001f;
+    //private float destroyDelay = 0.0001f;
     private float deflectedMultiplier = 0.5f;
     private int numDeflections = 0;
     private float currflightTime;
@@ -61,7 +61,7 @@ public class ShurikenEnemy : MonoBehaviour
         }
 
         if (currflightTime >= noContactDestroyTime) {
-            meleeScript.RemoveProjFromList(col);
+            //meleeScript.RemoveProjFromList(col);
             Destroy(this.gameObject);
         }
     }

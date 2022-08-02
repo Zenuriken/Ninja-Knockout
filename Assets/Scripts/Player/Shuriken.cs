@@ -30,7 +30,7 @@ public class Shuriken : MonoBehaviour
     private SoundManager sounds;
 
     private float shurikenSpeed = 20;
-    private float destroyDelay = 0.0001f;
+    //private float destroyDelay = 0.0001f;
     private float deflectedMultiplier = 0.5f;
     private int numDeflections = 0;
     private float noContactDestroyTime = 5f;

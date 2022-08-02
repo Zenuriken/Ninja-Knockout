@@ -16987,7 +16987,7 @@ MonoBehaviour:
   spawnDelay: 0.15
   holdTime: 0.25
   skillShotSpeed: 100
-  numShurikens: 100
+  maxShurikens: 5
   knockBackForce: 15
   knockBackDur: 0.5
   groundDust: {fileID: 1235888323}
@@ -17031,7 +17031,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d89b4cdbb37c15441ae5e678eb51bbe8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 5
   bufferDur: 10
   stunDuration: 0.5
   stunForce: 15

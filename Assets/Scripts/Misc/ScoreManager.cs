@@ -26,12 +26,9 @@ public class ScoreManager : MonoBehaviour
         } 
         else { 
             singleton = this;
+            curHealthSprite = GameObject.Find("LifeUI").GetComponent<RawImage>();
+            curShurikenSprite = GameObject.Find("ShurikenUI").GetComponent<RawImage>();
         }
-    }
-
-    private void Start() {
-        curHealthSprite = GameObject.Find("Life").GetComponent<RawImage>();
-        curShurikenSprite = GameObject.Find("Shurikens").GetComponent<RawImage>();
     }
     
     public void IncreaseScoreBy(int amount) {
@@ -40,7 +37,7 @@ public class ScoreManager : MonoBehaviour
 
     public void UpdateShurikenNum(int newNum) {
         shurikensRemaining = newNum;
-        if (shurikensRemaining == 0) {
+        if (shurikensRemaining <= 0) {
             curShurikenSprite.texture = null;
             curShurikenSprite.color = new Color(0f, 0f, 0f, 0f);
         } else {
@@ -50,7 +47,7 @@ public class ScoreManager : MonoBehaviour
 
     public void UpdateHealth(int newHealth) {
         health = newHealth;
-        if (health == 0) {
+        if (health <= 0) {
             curHealthSprite.texture = null;
             curHealthSprite.color = new Color(0f, 0f, 0f, 0f);
         } else {
