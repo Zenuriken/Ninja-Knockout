@@ -116,7 +116,6 @@ public class EnemyController : MonoBehaviour
     // Cached components
     private GameObject alertedObj;
     private Transform firePointTrans;
-    //private SpriteRenderer alertedSprite;
     private SpriteRenderer enemySprite;
     private SpriteRenderer alertedSightSprite;
     private Animator enemyAnim;
@@ -170,7 +169,6 @@ public class EnemyController : MonoBehaviour
     #region Initializaiton Functions
     void Awake() {
         alertedObj = this.transform.GetChild(0).gameObject;
-        //alertedSprite = alertedObj.GetComponent<SpriteRenderer>();
         alertedSightSprite = alertedObj.GetComponent<SpriteRenderer>();
         alertedSightScript = this.transform.GetChild(0).GetComponent<AlertedSight>();
         sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
@@ -372,11 +370,9 @@ public class EnemyController : MonoBehaviour
             }
 
         }
-        //Debug.Log(unreachable);
     }
 
     IEnumerator ReturnToPatrols() {
-        //Debug.Log("Returning!");
         isReturningToPatrolPos = true;
         yield return new WaitForSeconds(5f);
         if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
@@ -401,9 +397,6 @@ public class EnemyController : MonoBehaviour
         yield return new WaitForSeconds(alertedDelay);
         isAlerted = true;
         alertedSightSprite.enabled = true;
-        //isReturningToPatrolPos = false;
-        //astarScript.SetReturnToPatrolPos(false);
-        //UpdatePursuePath();
         isDetectingPlayer = false;
     }
 
@@ -615,7 +608,6 @@ public class EnemyController : MonoBehaviour
 
     private void SetIsMeleeingFalse() {
         enemyAnim.SetBool("isMeleeing", false);
-        //isAttacking = false;
         isMeleeing = false;
         isPlayingMeleeNoise = false;
     }
