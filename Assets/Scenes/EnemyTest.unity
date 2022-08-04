@@ -6655,6 +6655,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 698486147}
     - target: {fileID: 679184198, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: center.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 679184198, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: platformTilemap
       value: 
       objectReference: {fileID: 1280874059}

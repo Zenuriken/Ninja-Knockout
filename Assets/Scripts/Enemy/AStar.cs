@@ -28,11 +28,11 @@ public class AStar : MonoBehaviour
     [Tooltip("The starting position of the path.")]
     private Transform start;
 
-    private LayerMask allPlatformsLayerMask;
+    private LayerMask platformLayerMask;
     private PlayerController playerScript;
     private Vector3 spawnPos;
     private bool isReturningToPatrolPos;
-
+    
     public class Node {
         private Vector3Int pos;
         private Node parent;
@@ -71,7 +71,7 @@ public class AStar : MonoBehaviour
     }
 
     private void Awake() {
-        allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
+        platformLayerMask = LayerMask.GetMask("Platform");
     }
 
     // private void Start() {
@@ -96,8 +96,7 @@ public class AStar : MonoBehaviour
                 }
             }
         }
-
-        InvokeRepeating("CalculatePath", 0f, 0.5f);
+        //InvokeRepeating("CalculatePath", 0f, 0.5f);
     }
 
     // Returns whether the position is walkable.
@@ -109,75 +108,125 @@ public class AStar : MonoBehaviour
         return (isEmpty && hasPlatformUnder);
     }
 
-    // Returns whether the path is clear from p0 to p1 for jumping or dropping not including p0 and p1
-    private bool IsClear(Vector3Int p0, Vector3Int p1, bool isJump) {
+    // // Returns whether the path is clear from p0 to p1 for jumping or dropping not including p0 and p1
+    // private bool IsClear(Vector3Int p0, Vector3Int p1, bool isJump) {
 
-        // For jumping:
-        // [X][X][X][G]
-        // [X][ ][X][-]
-        // [X][ ][ ][ ]
-        // [X][ ][ ][ ]
-        // [X][ ][ ][ ]
-        // [S][ ][ ][ ]
+    //     // For jumping:
+    //     // [X][X][X][G]
+    //     // [X][ ][X][-]
+    //     // [X][ ][ ][ ]
+    //     // [X][ ][ ][ ]
+    //     // [X][ ][ ][ ]
+    //     // [S][ ][ ][ ]
 
-        // For dropping
-        // [S][X][ ][ ]
-        // [-][X][ ][ ]
-        // [ ][X][ ][ ]
-        // [ ][X][ ][ ]
-        // [ ][X][ ][ ]
-        // [ ][X][X][G]
+    //     // For dropping
+    //     // [S][X][ ][ ]
+    //     // [-][X][ ][ ]
+    //     // [ ][X][ ][ ]
+    //     // [ ][X][ ][ ]
+    //     // [ ][X][ ][ ]
+    //     // [ ][X][X][G]
 
-        if (isJump) {
-            bool clearUp = (!platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 1, 0)) && 
-                            !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 2, 0)) && 
-                            !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 3, 0)) &&
-                            !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 4, 0)) &&
-                            !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 5, 0)));
+    //     if (isJump) {
+    //         bool clearUp = (!platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 1, 0)) && 
+    //                         !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 2, 0)) && 
+    //                         !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 3, 0)) &&
+    //                         !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 4, 0)) &&
+    //                         !platformTilemap.HasTile(new Vector3Int(p0.x, p0.y + 5, 0)));
 
-            // Jumping right
-            if (p1.x > p0.x) {
-                bool clearRight = (!platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y + 5, 0)) &&
-                                   !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y + 5, 0)) &&
-                                   !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y + 4, 0)));
-                return (clearUp && clearRight);
-            }
+    //         // Jumping right
+    //         if (p1.x > p0.x) {
+    //             bool clearRight = (!platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y + 5, 0)) &&
+    //                                !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y + 5, 0)) &&
+    //                                !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y + 4, 0)));
+    //             return (clearUp && clearRight);
+    //         }
 
-            // Jumping left
-            else {
-                bool clearLeft = (!platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y + 5, 0)) &&
-                                  !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y + 5, 0)) &&
-                                  !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y + 4, 0)));
-                return (clearUp && clearLeft);
-            }
-        } else {
-            // Dropping right
-            if (p1.x > p0.x) {
-                bool clearDownRight = (!platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y, 0))     && 
-                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 1, 0)) && 
-                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 2, 0)) && 
-                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 3, 0)) &&
-                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 4, 0)) &&
-                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 5, 0)) &&
-                                       !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y - 5, 0)));
-                return clearDownRight;
-            }
+    //         // Jumping left
+    //         else {
+    //             bool clearLeft = (!platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y + 5, 0)) &&
+    //                               !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y + 5, 0)) &&
+    //                               !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y + 4, 0)));
+    //             return (clearUp && clearLeft);
+    //         }
+    //     } else {
+    //         // Dropping right
+    //         if (p1.x > p0.x) {
+    //             bool clearDownRight = (!platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y, 0))     && 
+    //                                    !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 1, 0)) && 
+    //                                    !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 2, 0)) && 
+    //                                    !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 3, 0)) &&
+    //                                    !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 4, 0)) &&
+    //                                    !platformTilemap.HasTile(new Vector3Int(p0.x + 1, p0.y - 5, 0)) &&
+    //                                    !platformTilemap.HasTile(new Vector3Int(p0.x + 2, p0.y - 5, 0)));
+    //             return clearDownRight;
+    //         }
 
-            // Dropping left
-            else {
-                bool clearDownLeft = (!platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y, 0))     && 
-                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 1, 0)) && 
-                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 2, 0)) && 
-                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 3, 0)) &&
-                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 4, 0)) &&
-                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 5, 0)) &&
-                                      !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y - 5, 0)));
-                return clearDownLeft;
-            }
-        }
-    }
+    //         // Dropping left
+    //         else {
+    //             bool clearDownLeft = (!platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y, 0))     && 
+    //                                   !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 1, 0)) && 
+    //                                   !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 2, 0)) && 
+    //                                   !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 3, 0)) &&
+    //                                   !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 4, 0)) &&
+    //                                   !platformTilemap.HasTile(new Vector3Int(p0.x - 1, p0.y - 5, 0)) &&
+    //                                   !platformTilemap.HasTile(new Vector3Int(p0.x - 2, p0.y - 5, 0)));
+    //             return clearDownLeft;
+    //         }
+    //     }
+    // }
 
     // Returns a list of walkable neighbor nodes to explore.
+    // public List<Node> GetNeighbors(Node n) {
+    //     List<Node> neighbors = new List<Node>();
+    //     Vector3Int pos = n.GetPos();
+    //     Vector3Int testPos = Vector3Int.zero;
+
+    //     // Check left
+    //     testPos = new Vector3Int(pos.x - 1, pos.y, 0);
+    //     if (IsWalkable(testPos)) {
+    //         Node newNode = new Node(testPos, n, 1f);
+    //         neighbors.Add(newNode);
+    //     }
+
+    //     // Check right
+    //     testPos = new Vector3Int(pos.x + 1, pos.y, 0);
+    //     if (IsWalkable(testPos)) {
+    //         Node newNode = new Node(testPos, n, 1f);
+    //         neighbors.Add(newNode);
+    //     }
+
+    //     // Check jump left
+    //     testPos = new Vector3Int(pos.x - 3, pos.y + 5, 0);
+    //     if (IsWalkable(testPos) && IsClear(pos, testPos, true)) {
+    //         Node newNode = new Node(testPos, n, 3f);
+    //         neighbors.Add(newNode);
+    //     }
+
+    //     // Check jump right
+    //     testPos = new Vector3Int(pos.x + 3, pos.y + 5, 0);
+    //     if (IsWalkable(testPos) && IsClear(pos, testPos, true)) {
+    //         Node newNode = new Node(testPos, n, 3f);
+    //         neighbors.Add(newNode);
+    //     }
+
+    //     // Check drop left
+    //     testPos = new Vector3Int(pos.x - 3, pos.y - 5, 0);
+    //     if (IsWalkable(testPos) && IsClear(pos, testPos, false)) {
+    //         Node newNode = new Node(testPos, n, 2f);
+    //         neighbors.Add(newNode);
+    //     }
+
+    //     // Check drop right
+    //     testPos = new Vector3Int(pos.x + 3, pos.y - 5, 0);
+    //     if (IsWalkable(testPos) && IsClear(pos, testPos, false)) {
+    //         Node newNode = new Node(testPos, n, 2f);
+    //         neighbors.Add(newNode);
+    //     }
+
+    //     return neighbors;
+    // }
+
     public List<Node> GetNeighbors(Node n) {
         List<Node> neighbors = new List<Node>();
         Vector3Int pos = n.GetPos();
@@ -197,35 +246,134 @@ public class AStar : MonoBehaviour
             neighbors.Add(newNode);
         }
 
-        // Check jump left
-        testPos = new Vector3Int(pos.x - 3, pos.y + 5, 0);
-        if (IsWalkable(testPos) && IsClear(pos, testPos, true)) {
-            Node newNode = new Node(testPos, n, 3f);
-            neighbors.Add(newNode);
+        // Check right jump/drop positions
+        int xOffset = 3;
+        int yOffset = -5;
+        for (int y = yOffset; y < 6; y++) {
+            testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
+            if (IsWalkable(testPos) && IsClear(pos, testPos)) {
+                Node newNode;
+                // Jump
+                if (y >= 0 && !platformTilemap.HasTile(new Vector3Int(testPos.x - 1, testPos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 3f);
+                // Drop
+                } else if (!platformTilemap.HasTile(new Vector3Int(pos.x + 1, pos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 2f);
+                } else {
+                    continue;
+                }
+                neighbors.Add(newNode);
+            }
+        }
+        xOffset = 4;
+        yOffset = -4;
+        for (int y = yOffset; y < 5; y++) {
+            testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
+            if (IsWalkable(testPos) && IsClear(pos, testPos)) {
+                Node newNode;
+                // Jump
+                if (y >= 0 && !platformTilemap.HasTile(new Vector3Int(testPos.x - 1, testPos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 3f);
+                // Drop
+                } else if (!platformTilemap.HasTile(new Vector3Int(pos.x + 1, pos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 2f);
+                } else {
+                    continue;
+                }
+                neighbors.Add(newNode);
+            }
+        }
+        xOffset = 5;
+        yOffset = -3;
+        for (int y = yOffset; y < 4; y++) {
+            testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
+            if (IsWalkable(testPos) && IsClear(pos, testPos)) {
+                Node newNode;
+                // Jump
+                if (y >= 0 && !platformTilemap.HasTile(new Vector3Int(testPos.x - 1, testPos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 3f);
+                // Drop
+                } else if (!platformTilemap.HasTile(new Vector3Int(pos.x + 1, pos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 2f);
+                } else {
+                    continue;
+                }
+                neighbors.Add(newNode);
+            }
         }
 
-        // Check jump right
-        testPos = new Vector3Int(pos.x + 3, pos.y + 5, 0);
-        if (IsWalkable(testPos) && IsClear(pos, testPos, true)) {
-            Node newNode = new Node(testPos, n, 3f);
-            neighbors.Add(newNode);
+        // Check left jump/drop positions
+        xOffset = -3;
+        yOffset = -5;
+        for (int y = yOffset; y < 6; y++) {
+            testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
+            if (IsWalkable(testPos) && IsClear(pos, testPos)) {
+                Node newNode;
+                // Jump
+                if (y >= 0 && !platformTilemap.HasTile(new Vector3Int(testPos.x + 1, testPos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 3f);
+                // Drop
+                } else if (!platformTilemap.HasTile(new Vector3Int(pos.x - 1, pos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 2f);
+                } else {
+                    continue;
+                }
+                neighbors.Add(newNode);
+            }
         }
-
-        // Check drop left
-        testPos = new Vector3Int(pos.x - 3, pos.y - 5, 0);
-        if (IsWalkable(testPos) && IsClear(pos, testPos, false)) {
-            Node newNode = new Node(testPos, n, 2f);
-            neighbors.Add(newNode);
+        xOffset = -4;
+        yOffset = -4;
+        for (int y = yOffset; y < 5; y++) {
+            testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
+            if (IsWalkable(testPos) && IsClear(pos, testPos)) {
+                Node newNode;
+                // Jump
+                if (y >= 0 && !platformTilemap.HasTile(new Vector3Int(testPos.x + 1, testPos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 3f);
+                // Drop
+                } else if (!platformTilemap.HasTile(new Vector3Int(pos.x - 1, pos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 2f);
+                } else {
+                    continue;
+                }
+                neighbors.Add(newNode);
+            }
         }
-
-        // Check drop right
-        testPos = new Vector3Int(pos.x + 3, pos.y - 5, 0);
-        if (IsWalkable(testPos) && IsClear(pos, testPos, false)) {
-            Node newNode = new Node(testPos, n, 2f);
-            neighbors.Add(newNode);
+        xOffset = -5;
+        yOffset = -3;
+        for (int y = yOffset; y < 4; y++) {
+            testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
+            if (IsWalkable(testPos) && IsClear(pos, testPos)) {
+                Node newNode;
+                // Jump
+                if (y >= 0 && !platformTilemap.HasTile(new Vector3Int(testPos.x + 1, testPos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 3f);
+                // Drop
+                } else if (!platformTilemap.HasTile(new Vector3Int(pos.x - 1, pos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 2f);
+                } else {
+                    continue;
+                }
+                neighbors.Add(newNode);
+            }
         }
+        // Debug.Log("called");
+        // foreach (var neighbor in neighbors) {
+        //     Vector3 p = neighbor.GetPos();
+        //     GameObject node = GameObject.Instantiate(nodePrefab, new Vector2(p.x + 0.5f, p.y + 0.5f), Quaternion.identity);
+        //     node.GetComponent<SpriteRenderer>().color = new Color(0f, 0f, 1f, 1f);
+        // }
 
         return neighbors;
+    }
+
+    private bool IsClear(Vector3Int pos, Vector3Int testPos) {
+        Vector2 abovePos = AdjustPos(new Vector3Int(pos.x, pos.y + 2, 0));
+        Vector2 aboveTestPos = AdjustPos(new Vector3Int(testPos.x, testPos.y + 2, 0));
+        Vector2 dir = (aboveTestPos - abovePos).normalized;
+        RaycastHit2D raycastHit2D = Physics2D.Raycast(abovePos, dir, CalcHeuristic(pos, testPos), platformLayerMask);
+        //Debug.DrawRay(abovePos, dir.normalized * CalcHeuristic(pos, testPos), Color.blue);
+        return raycastHit2D.collider == null;
     }
 
 
@@ -280,7 +428,7 @@ public class AStar : MonoBehaviour
                 }
                 counter -= 1;
             }
-            //Debug.Log("Not found. Expanded: " + counter);
+            Debug.Log("Not found. Searched: " + counter + " nodes.");
         }
         return null;
     }
@@ -341,6 +489,7 @@ public class AStar : MonoBehaviour
     // Returns the enemy's adjusted position.
     public Vector2 GetAdjustedPosition() {
         Vector3Int pos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
+        //Debug.Log(AdjustPos(pos));
         return AdjustPos(pos);
     }
 
