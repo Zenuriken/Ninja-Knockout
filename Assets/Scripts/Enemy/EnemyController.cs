@@ -105,6 +105,8 @@ public class EnemyController : MonoBehaviour
     [Tooltip("The shuriken drop prefab.")]
     private GameObject shurikenDropPrefab;
     [Space(5)]
+
+    public float jumpMultiplier;
     #endregion
     
     #region Private Variables
@@ -147,6 +149,9 @@ public class EnemyController : MonoBehaviour
     private float leftPatrolEnd;
     private float rightPatrolEnd;
 
+    private Vector2 jumpTarget;
+    private Vector2 jumpDir;
+
     // Condition Variables
     public bool isAlerted;
     private bool hasDied;
@@ -164,6 +169,8 @@ public class EnemyController : MonoBehaviour
     private bool isDetectingPlayer;
     private bool isPlayingMeleeNoise;
     private bool isInPlayerMeleeRange;
+
+    private bool isJumping;
     #endregion
 
     #region Initializaiton Functions
@@ -301,29 +308,50 @@ public class EnemyController : MonoBehaviour
     private void Pursue(float speed) {
         if (pursuePath == null || currPathIndex >= pursuePath.Count) {
             return;
+        } else if (isJumping) {
+            enemyRB.velocity = jumpDir * jumpMultiplier;
+            if (adjustedPos.x == jumpTarget.x + 1) {
+                isJumping = false;
+            }
+            return;
         }
         Vector2 nextPos = pursuePath[currPathIndex];
         Vector2 dir = (nextPos - adjustedPos).normalized;
         // Move/Drop right
         if (dir.x > 0 && dir.y <= 0) {
+            isJumping = false;
             enemyRB.velocity = new Vector2(speed, enemyRB.velocity.y);
         // Move/Drop left
         } else if (dir.x < 0 && dir.y <= 0) {
+            isJumping = false;
             enemyRB.velocity = new Vector2(-speed, enemyRB.velocity.y);
         // Jump right
         } else if (dir.x > 0 && dir.y > 0) {
-            if (speed == patrolSpeed) {
-                enemyRB.velocity = new Vector2(patrolAirborneVelX, jumpVelY);
-            } else {
-                enemyRB.velocity = new Vector2(pursueAirborneVelX, jumpVelY);
-            }
+            //isJumping = true;
+            // if (speed == patrolSpeed) {
+            //     enemyRB.velocity = new Vector2(patrolAirborneVelX, jumpVelY);
+            // } else {
+            //     enemyRB.velocity = new Vector2(pursueAirborneVelX, jumpVelY);
+            // }
+            // Vector2 jumpTarget = new Vector2(nextPos.x, nextPos.y + 3);
+            // Vector2 jumpDir = (jumpTarget - adjustedPos).normalized;
+            // enemyRB.velocity = jumpDir * jumpMultiplier;
+        //Debug.Log("lastPos: " + lastPathPos + ", nextPos: " + nextPos);
         // Jump left
         } else if (dir.x < 0 && dir.y > 0) {
-            if (speed == patrolSpeed) {
-                enemyRB.velocity = new Vector2(-patrolAirborneVelX, jumpVelY);
-            } else {
-                enemyRB.velocity = new Vector2(-pursueAirborneVelX, jumpVelY);
+            // if (speed == patrolSpeed) {
+            //     enemyRB.velocity = new Vector2(-patrolAirborneVelX, jumpVelY);
+            // } else {
+            //     enemyRB.velocity = new Vector2(-pursueAirborneVelX, jumpVelY);
+            // }
+            if (!isJumping) {
+                isJumping = true;
+                jumpTarget = new Vector2(nextPos.x, nextPos.y + 2);
+                jumpDir = (jumpTarget - adjustedPos).normalized;
+                enemyRB.velocity = jumpDir * jumpMultiplier;
             }
+        } else {
+            isJumping = false;
         }
         // Create dust when running on the ground.
         if (Mathf.Abs(enemyRB.velocity.x) > 0.05f && isGrounded && speed == pursueSpeed) {
@@ -346,9 +374,9 @@ public class EnemyController : MonoBehaviour
                 }
             }
         }
-
         // Increment path counter if enemy has reached the current path node.
         if (adjustedPos == pursuePath[currPathIndex]) {
+            //Debug.Log("reached current way point");
             currPathIndex++;
         }
     }
@@ -467,9 +495,14 @@ public class EnemyController : MonoBehaviour
 
     // Sets whether the enemy is grounded.
     private void IsGrounded() {
+        bool lastGroundStatus = isGrounded;
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(enemyCollider.bounds.center, new Vector2(0.6f, enemyCollider.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
         bool onGround = raycastHit2D.collider != null;
         isGrounded = onGround;
+        if (lastGroundStatus == false && isGrounded == true) {
+            isJumping = false;
+        }
+        return;
     }
 
     // Sets the direction of the enemy to where it's moving.
