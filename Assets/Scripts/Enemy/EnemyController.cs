@@ -169,6 +169,7 @@ public class EnemyController : MonoBehaviour
     private bool isDetectingPlayer;
     private bool isPlayingMeleeNoise;
     private bool isInPlayerMeleeRange;
+    private bool beganCalculatingPath;
 
     private bool isJumping;
     #endregion
@@ -223,7 +224,6 @@ public class EnemyController : MonoBehaviour
         patrolPath = astarScript.CalculatePatrolPath(maxNodeDist);
         leftPatrolEnd = adjustedPos.x - maxNodeDist;
         rightPatrolEnd = adjustedPos.x + maxNodeDist;
-        InvokeRepeating("UpdatePursuePath", 0f, 0.1f);
 
         alertedObj.SetActive(false);
         alertedSightSprite.enabled = false;
@@ -388,7 +388,7 @@ public class EnemyController : MonoBehaviour
                 }
             }
         }
-        
+
         // Increment path counter if enemy has reached the current path node.
         if (adjustedPos == pursuePath[currPathIndex]) {
             //Debug.Log("reached current way point");
@@ -398,6 +398,7 @@ public class EnemyController : MonoBehaviour
 
     // Updates the enemy's pursue path.
     private void UpdatePursuePath() {
+        Debug.Log("time: " + Time.time);
         newPath = astarScript.CalculatePath();
         if (newPath != null) {
             pursuePath = newPath;
@@ -437,6 +438,10 @@ public class EnemyController : MonoBehaviour
         alertedObj.SetActive(true);
         astarScript.SetReturnToPatrolPos(false);
         UpdatePursuePath();
+        if (!beganCalculatingPath) {
+            beganCalculatingPath = true;
+            InvokeRepeating("UpdatePursuePath", 0f, 0.5f);
+        }
         yield return new WaitForSeconds(alertedDelay);
         isAlerted = true;
         alertedSightSprite.enabled = true;
