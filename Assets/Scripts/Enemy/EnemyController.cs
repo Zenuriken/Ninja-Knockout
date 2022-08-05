@@ -342,13 +342,13 @@ public class EnemyController : MonoBehaviour
             }
         // Drop Left
         } else if (dir.x < 0 && dir.y <= 0) {
-            if (dir.x > 2 && !isJumping) {
+            if (dir.x < -2 && !isJumping) {
                 isJumping = true;
                 jumpTarget = new Vector2(nextPos.x, nextPos.y + 1);
                 jumpDir = (jumpTarget - adjustedPos).normalized;
                 enemyRB.velocity = jumpDir * jumpMultiplier;
             } else {
-                enemyRB.velocity = new Vector2(speed, enemyRB.velocity.y);
+                enemyRB.velocity = new Vector2(-speed, enemyRB.velocity.y);
             }
         // Jump right
         } else if (dir.x > 1 && dir.y > 0) {
@@ -359,7 +359,7 @@ public class EnemyController : MonoBehaviour
                 enemyRB.velocity = jumpDir * jumpMultiplier;
             }
         // Jump left
-        } else if (dir.x < 1 && dir.y > 0) {
+        } else if (dir.x < -1 && dir.y > 0) {
             if (!isJumping) {
                 isJumping = true;
                 jumpTarget = new Vector2(nextPos.x, nextPos.y + 2);
@@ -367,7 +367,6 @@ public class EnemyController : MonoBehaviour
                 enemyRB.velocity = jumpDir * jumpMultiplier;
             }
         }
-        Debug.Log("Dir: " + dir);
         // Create dust when running on the ground.
         if (Mathf.Abs(enemyRB.velocity.x) > 0.05f && isGrounded && speed == pursueSpeed) {
             CreateDust();
@@ -389,6 +388,7 @@ public class EnemyController : MonoBehaviour
                 }
             }
         }
+        
         // Increment path counter if enemy has reached the current path node.
         if (adjustedPos == pursuePath[currPathIndex]) {
             //Debug.Log("reached current way point");
