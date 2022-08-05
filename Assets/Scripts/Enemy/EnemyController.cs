@@ -306,53 +306,68 @@ public class EnemyController : MonoBehaviour
 
     // The enemy's pursuing state.
     private void Pursue(float speed) {
+        // If there is no path or our current path index is greater than the length of our path, terminate.
         if (pursuePath == null || currPathIndex >= pursuePath.Count) {
             return;
+        // If we're jumping and we are one unit away from our jump target, stop jumping. This is to help prevent overshooting.
         } else if (isJumping) {
             enemyRB.velocity = jumpDir * jumpMultiplier;
-            if (adjustedPos.x == jumpTarget.x + 1) {
+            if ((jumpDir.x >= 0 && adjustedPos.x == jumpTarget.x - 1) ||
+                (jumpDir.x < 0 && adjustedPos.x == jumpTarget.x + 1)) {
                 isJumping = false;
             }
             return;
         }
+
         Vector2 nextPos = pursuePath[currPathIndex];
-        Vector2 dir = (nextPos - adjustedPos).normalized;
-        // Move/Drop right
-        if (dir.x > 0 && dir.y <= 0) {
-            isJumping = false;
+        Vector2 dir = (nextPos - adjustedPos);
+
+        // Move Right
+        if (dir.x == 1 && dir.y == 0) {
             enemyRB.velocity = new Vector2(speed, enemyRB.velocity.y);
-        // Move/Drop left
-        } else if (dir.x < 0 && dir.y <= 0) {
-            isJumping = false;
+        }
+        // Move Left
+        else if (dir.x == -1 && dir.y == 0) {
             enemyRB.velocity = new Vector2(-speed, enemyRB.velocity.y);
+        }
+        // Drop Right
+        else if (dir.x > 0 && dir.y <= 0) {
+            if (dir.x > 2 && !isJumping) {
+                isJumping = true;
+                jumpTarget = new Vector2(nextPos.x, nextPos.y + 1);
+                jumpDir = (jumpTarget - adjustedPos).normalized;
+                enemyRB.velocity = jumpDir * jumpMultiplier;
+            } else {
+                enemyRB.velocity = new Vector2(speed, enemyRB.velocity.y);
+            }
+        // Drop Left
+        } else if (dir.x < 0 && dir.y <= 0) {
+            if (dir.x > 2 && !isJumping) {
+                isJumping = true;
+                jumpTarget = new Vector2(nextPos.x, nextPos.y + 1);
+                jumpDir = (jumpTarget - adjustedPos).normalized;
+                enemyRB.velocity = jumpDir * jumpMultiplier;
+            } else {
+                enemyRB.velocity = new Vector2(speed, enemyRB.velocity.y);
+            }
         // Jump right
-        } else if (dir.x > 0 && dir.y > 0) {
-            //isJumping = true;
-            // if (speed == patrolSpeed) {
-            //     enemyRB.velocity = new Vector2(patrolAirborneVelX, jumpVelY);
-            // } else {
-            //     enemyRB.velocity = new Vector2(pursueAirborneVelX, jumpVelY);
-            // }
-            // Vector2 jumpTarget = new Vector2(nextPos.x, nextPos.y + 3);
-            // Vector2 jumpDir = (jumpTarget - adjustedPos).normalized;
-            // enemyRB.velocity = jumpDir * jumpMultiplier;
-        //Debug.Log("lastPos: " + lastPathPos + ", nextPos: " + nextPos);
-        // Jump left
-        } else if (dir.x < 0 && dir.y > 0) {
-            // if (speed == patrolSpeed) {
-            //     enemyRB.velocity = new Vector2(-patrolAirborneVelX, jumpVelY);
-            // } else {
-            //     enemyRB.velocity = new Vector2(-pursueAirborneVelX, jumpVelY);
-            // }
+        } else if (dir.x > 1 && dir.y > 0) {
             if (!isJumping) {
                 isJumping = true;
                 jumpTarget = new Vector2(nextPos.x, nextPos.y + 2);
                 jumpDir = (jumpTarget - adjustedPos).normalized;
                 enemyRB.velocity = jumpDir * jumpMultiplier;
             }
-        } else {
-            isJumping = false;
+        // Jump left
+        } else if (dir.x < 1 && dir.y > 0) {
+            if (!isJumping) {
+                isJumping = true;
+                jumpTarget = new Vector2(nextPos.x, nextPos.y + 2);
+                jumpDir = (jumpTarget - adjustedPos).normalized;
+                enemyRB.velocity = jumpDir * jumpMultiplier;
+            }
         }
+        Debug.Log("Dir: " + dir);
         // Create dust when running on the ground.
         if (Mathf.Abs(enemyRB.velocity.x) > 0.05f && isGrounded && speed == pursueSpeed) {
             CreateDust();
