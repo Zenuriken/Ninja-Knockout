@@ -160,7 +160,7 @@ public class PlayerController : MonoBehaviour
     private bool isStunned;
     private bool isGrounded;
     private bool isAgainstWall;
-    private bool isCovered;
+    //private bool isCovered;
     private bool isHiding;
     private bool isDamaged;
     private bool hasDied;
@@ -170,6 +170,8 @@ public class PlayerController : MonoBehaviour
     private bool isPlayingLeavingBushesNoise;
     private bool isPlayingWallJumpingNoise;
     private bool isPlayingStealthMeleeKill;
+
+    private int numCovered;
 
     // Private Dash Variables
     private int dashCounter;
@@ -320,6 +322,8 @@ public class PlayerController : MonoBehaviour
             HidePlayer();
         }
         UpdateSprite();
+
+        Debug.Log("Num covered: " + numCovered);
     }
     #endregion
 
@@ -954,7 +958,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private void HidePlayer() {
-        if (isCovered && isSneaking && alertedNum <= 0 && !isAttacking) {
+        if (numCovered > 0 && isSneaking && alertedNum <= 0 && !isAttacking) {
             isHiding = true;
             playerSprite.color = new Color(1f, 1f, 1f, 0.5f);
             Physics2D.IgnoreLayerCollision(7, 9, true);
@@ -965,7 +969,7 @@ public class PlayerController : MonoBehaviour
                 isPlayingEnteringBushesNoise = true;
                 isPlayingLeavingBushesNoise = false;
             }
-        } else if (!isBuffering && isHiding && (!isCovered || !isSneaking || isAttacking)) {
+        } else if (!isBuffering && isHiding && (numCovered <= 0 || !isSneaking || isAttacking)) {
             playerSprite.color = new Color(1f, 1f, 1f, 1f);
             isHiding = false;
             Physics2D.IgnoreLayerCollision(7, 9, false);
@@ -994,8 +998,8 @@ public class PlayerController : MonoBehaviour
         isStunned = state;
     }
 
-    public void SetCoverStatus(bool status) {
-        isCovered = status;
+    public void SetCoverStatus(int status) {
+        numCovered += status;
     }
 
     public bool IsHiding() {

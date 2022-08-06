@@ -20,8 +20,8 @@ public class EnemyController : MonoBehaviour
     [Tooltip("The speed of the enemy when pursuing.")]
     private float pursueSpeed;
     [SerializeField]
-    [Tooltip("The vertical jump velocity of the enemy when pursuing.")]
-    private float jumpVelY;
+    [Tooltip("The velocity multiplier for jumping.")]
+    private float jumpMultiplier;
     [SerializeField]
     [Tooltip("The horizontal airborne velocity of the enemy when pursuing.")]
     private float pursueAirborneVelX;
@@ -105,8 +105,23 @@ public class EnemyController : MonoBehaviour
     [Tooltip("The shuriken drop prefab.")]
     private GameObject shurikenDropPrefab;
     [Space(5)]
+    #endregion
 
-    public float jumpMultiplier;
+    #region Toggle Variables
+    [Header("Toggle Variables")]
+    [SerializeField]
+    [Tooltip("Controls if the enemy is alerted.")]
+    private bool isAlerted;
+    [SerializeField]
+    [Tooltip("Controls whether the enemy will patrol.")]
+    private bool patrolEnabled;
+    [SerializeField]
+    [Tooltip("Controls the starting direction of the enemy (-1 for left, 0 for random, 1 for right).")]
+    private int startingDir;
+    [SerializeField]
+    [Tooltip("Controls the chances of the enemy dropping a shuriken (0 - 100).")]
+    private float dropChance;
+    [Space(5)]
     #endregion
     
     #region Private Variables
@@ -135,7 +150,6 @@ public class EnemyController : MonoBehaviour
     private LayerMask playerAndPlatformLayerMask;
     private Vector2 adjustedPos;
     private int damageCounter;
-    private int startingDir;
     private float lastIdle;
     private float lastAttack;
     private string gruntSound;
@@ -153,7 +167,6 @@ public class EnemyController : MonoBehaviour
     private Vector2 jumpDir;
 
     // Condition Variables
-    public bool isAlerted;
     private bool hasDied;
     private bool isStunned;
     private bool isGrounded;
@@ -202,10 +215,12 @@ public class EnemyController : MonoBehaviour
 
         // Determines whether the enemy will begin patrolling left or right.
         float value = Random.Range(0, 100);
-        if (value < 50) {
-            startingDir = -1;
-        } else {
-            startingDir = 1;
+        if (startingDir == 0) {
+            if (value < 50) {
+                startingDir = -1;
+            } else {
+                startingDir = 1;
+            }
         }
         value = Random.Range(0, 100);
         if (value < 50) {
@@ -228,6 +243,8 @@ public class EnemyController : MonoBehaviour
         alertedObj.SetActive(false);
         alertedSightSprite.enabled = false;
 
+        SetDirection(true);
+
     }
     #endregion
 
@@ -243,7 +260,7 @@ public class EnemyController : MonoBehaviour
 
             // Executing Actions
             if (!isStunned && !isMeleeing && !isThrowing && !isDetectingPlayer) {
-                SetDirection();
+                SetDirection(false);
                 if (isAlerted && !playerScript.IsHiding()) {
                     Attack();
                 }
@@ -260,7 +277,7 @@ public class EnemyController : MonoBehaviour
     #region Movement Functions
     // Controls the enemy's movments.
     private void Move() {
-        if (!isAlerted && !isReturningToPatrolPos) {
+        if (patrolEnabled && !isAlerted && !isReturningToPatrolPos) {
             Patrol();
         } else if (!isAlerted && isReturningToPatrolPos) {
             if (astarScript.IsAtSpawnPos()) {
@@ -398,7 +415,6 @@ public class EnemyController : MonoBehaviour
 
     // Updates the enemy's pursue path.
     private void UpdatePursuePath() {
-        Debug.Log("time: " + Time.time);
         newPath = astarScript.CalculatePath();
         if (newPath != null) {
             pursuePath = newPath;
@@ -485,7 +501,7 @@ public class EnemyController : MonoBehaviour
         StartCoroutine("FadeAway");
 
         float value = Random.Range(0, 100);
-        if (value < 40) {
+        if (value < dropChance) {
             GameObject shurikenDrop = Instantiate(shurikenDropPrefab, this.transform.position, Quaternion.identity);
         }
 
@@ -526,13 +542,23 @@ public class EnemyController : MonoBehaviour
     }
 
     // Sets the direction of the enemy to where it's moving.
-    private void SetDirection() {
-        if (enemyRB.velocity.x > 0.05f) {
-            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-            fov.SetStartingAngle(15f);
-        } else if (enemyRB.velocity.x < -0.05f) {
-            transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-            fov.SetStartingAngle(200f);
+    private void SetDirection(bool justSpawned) {
+        if (!justSpawned) {
+            if (enemyRB.velocity.x > 0.05f) {
+                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+                fov.SetStartingAngle(15f);
+            } else if (enemyRB.velocity.x < -0.05f) {
+                transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+                fov.SetStartingAngle(200f);
+            }
+        } else {
+            if (startingDir == 1) {
+                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+                fov.SetStartingAngle(15f);
+            } else if (startingDir == -1) {
+                transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+                fov.SetStartingAngle(200f);
+            }
         }
     }
 
@@ -581,15 +607,15 @@ public class EnemyController : MonoBehaviour
         shurikenScript.SetShurikenVelocity(dir);
     }
 
-    private bool IsWithinVectorBounds(Vector2 dir) {
-        float dot;
-        if (dir.x >= 0) {
-            dot = Vector2.Dot(dir, Vector2.right);
-        } else {
-            dot = Vector2.Dot(dir, Vector2.left);
-        }
-        return dot >= 0.5f; // 0.5 is the dot product value for 60 degrees
-    }
+    // private bool IsWithinVectorBounds(Vector2 dir) {
+    //     float dot;
+    //     if (dir.x >= 0) {
+    //         dot = Vector2.Dot(dir, Vector2.right);
+    //     } else {
+    //         dot = Vector2.Dot(dir, Vector2.left);
+    //     }
+    //     return dot >= 0.5f; // 0.5 is the dot product value for 60 degrees
+    // }
     #endregion
 
     #region Sprite Rendering Functions
