@@ -8,7 +8,7 @@ public class FieldOfView : MonoBehaviour
     private EnemyController enemyScript;
     private PlayerController playerScript;
     private Transform playerTrans;
-    private LayerMask allPlatformsLayerMask;
+    private LayerMask platformsLayerMask;
     private LayerMask playerAndPlatformLayerMask;
     private Mesh mesh;
     private Vector3 origin;
@@ -34,8 +34,8 @@ public class FieldOfView : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
-        playerAndPlatformLayerMask = LayerMask.GetMask("Player", "Platform", "OneWayPlatform");
+        platformsLayerMask = LayerMask.GetMask("Platform");
+        playerAndPlatformLayerMask = LayerMask.GetMask("Player", "Platform");
         mesh = new Mesh();
         this.GetComponent<MeshFilter>().mesh = mesh;
         meshRenderer = this.GetComponent<MeshRenderer>();
@@ -62,7 +62,7 @@ public class FieldOfView : MonoBehaviour
             for (int i = 0; i <= rayCount; i++) {
                 Vector3 vertex;
                 
-                RaycastHit2D raycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(angle), viewDistance, allPlatformsLayerMask);
+                RaycastHit2D raycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(angle), viewDistance, platformsLayerMask);
                 if (raycastHit2D.collider == null) {
                     // No hit
                     vertex = origin + GetVectorFromAngle(angle) * viewDistance;
