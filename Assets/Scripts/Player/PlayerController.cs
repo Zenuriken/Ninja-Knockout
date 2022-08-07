@@ -322,8 +322,6 @@ public class PlayerController : MonoBehaviour
             HidePlayer();
         }
         UpdateSprite();
-
-        Debug.Log("Num covered: " + numCovered);
     }
     #endregion
 
@@ -699,9 +697,15 @@ public class PlayerController : MonoBehaviour
             if (platformColliders.Count > 0) {
                 contact = true;
                 sparks = true;
-                //hitPlatform = true;
-            } else {
-                //hitPlatform = false;
+            }
+
+            List<Collider2D> leverColliders = meleeScript.GetLeverColliders();
+            foreach (Collider2D collider in leverColliders) {
+                Lever lever = collider.gameObject.GetComponent<Lever>();
+                if (!lever.HasBeenDamaged(meleeCounter)) {
+                    lever.Switch();
+                    lever.SetMeleeCounter(meleeCounter);
+                }
             }
 
             if (contact) {

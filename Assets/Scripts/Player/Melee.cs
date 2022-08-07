@@ -8,6 +8,7 @@ public class Melee : MonoBehaviour
     private List<Collider2D> enemyColliders;
     private List<Collider2D> projectileColliders;
     private List<Collider2D> platformColliders;
+    private List<Collider2D> leverColliders;
 
     //private PlayerController playerScript;
     #endregion
@@ -19,7 +20,7 @@ public class Melee : MonoBehaviour
         enemyColliders = new List<Collider2D>();
         projectileColliders = new List<Collider2D>();
         platformColliders = new List<Collider2D>();
-        //playerScript = this.transform.parent.GetComponent<PlayerController>();
+        leverColliders = new List<Collider2D>();
     }
     #endregion
 
@@ -41,14 +42,17 @@ public class Melee : MonoBehaviour
             if (!platformColliders.Contains(other)) {
                 platformColliders.Add(other);
             }
+        } else if (other.gameObject.tag == "Lever") {
+            if (!leverColliders.Contains(other)) {
+                leverColliders.Add(other);
+                Lever leverScript = other.GetComponent<Lever>();
+                leverScript.SetHighLight(true);
+            }
         }
     }
 
     private void OnTriggerExit2D(Collider2D other) {
         if (other.gameObject.tag == "Enemy") {
-            // if (enemyColliders.Contains(other)) {
-            //     enemyColliders.Remove(other);
-            // }
             enemyColliders.Remove(other);
             EnemyController enemyScript = other.GetComponent<EnemyController>();
             enemyScript.SetIsInPlayerMeleeRange(false);
@@ -57,6 +61,10 @@ public class Melee : MonoBehaviour
             projectileColliders.Remove(other);
         } else if (other.gameObject.tag == "Platform") {
             platformColliders.Remove(other);
+        } else if (other.gameObject.tag == "Lever") {
+            leverColliders.Remove(other);
+            Lever leverScript = other.GetComponent<Lever>();
+            leverScript.SetHighLight(false);
         }
     }
     #endregion
@@ -97,6 +105,11 @@ public class Melee : MonoBehaviour
     // Returns the list of platform colliders the melee will contact with.
     public List<Collider2D> GetPlatformColliders() {
         return platformColliders;
+    }
+
+    // Returns the list of levers the melee will contact with.
+    public List<Collider2D> GetLeverColliders() {
+        return leverColliders;
     }
     #endregion
 }
