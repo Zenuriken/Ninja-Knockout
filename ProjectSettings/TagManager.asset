@@ -9,6 +9,7 @@ TagManager:
   - Platform
   - Cover
   - PlayerCenter
+  - Lever
   layers:
   - Default
   - TransparentFX
