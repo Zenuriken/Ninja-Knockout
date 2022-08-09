@@ -9,6 +9,7 @@ public class Melee : MonoBehaviour
     private List<Collider2D> projectileColliders;
     private List<Collider2D> platformColliders;
     private List<Collider2D> leverColliders;
+    private List<Collider2D> destructibleColliders;
 
     //private PlayerController playerScript;
     #endregion
@@ -21,6 +22,7 @@ public class Melee : MonoBehaviour
         projectileColliders = new List<Collider2D>();
         platformColliders = new List<Collider2D>();
         leverColliders = new List<Collider2D>();
+        destructibleColliders = new List<Collider2D>();
     }
     #endregion
 
@@ -48,6 +50,12 @@ public class Melee : MonoBehaviour
                 Lever leverScript = other.GetComponent<Lever>();
                 leverScript.SetHighLight(true);
             }
+        } else if (other.gameObject.tag == "Destructible") {
+            if (!destructibleColliders.Contains(other)) {
+                destructibleColliders.Add(other);
+                Destructible destructibleScript = other.GetComponent<Destructible>();
+                destructibleScript.SetHighLight(true);
+            }
         }
     }
 
@@ -65,6 +73,10 @@ public class Melee : MonoBehaviour
             leverColliders.Remove(other);
             Lever leverScript = other.GetComponent<Lever>();
             leverScript.SetHighLight(false);
+        } else if (other.gameObject.tag == "Destructible") {
+            destructibleColliders.Remove(other);
+            Destructible destructibleScript = other.GetComponent<Destructible>();
+            destructibleScript.SetHighLight(false);
         }
     }
     #endregion
@@ -78,17 +90,17 @@ public class Melee : MonoBehaviour
         enemyScript.SetHighLight(false);
     }
 
-    // Removes an enemy from the list of projectile colliders upon destruction
+    // Removes an projectile from the list of projectile colliders upon destruction
     public void RemoveProjFromList(Collider2D projCollider) {
         if (projectileColliders.Contains(projCollider)) {
             projectileColliders.Remove(projCollider);
         }
     }
 
-    // Removes a platform from the list of platform colliders.
-    public void RemovePlatFromList(Collider2D platCollider) {
-        if (platformColliders.Contains(platCollider)) {
-            platformColliders.Remove(platCollider);
+    // Removes a destructible from the list of destructible colliders upon destruction
+    public void RemoveDestructibleFromList(Collider2D col) {
+        if (destructibleColliders.Contains(col)) {
+            destructibleColliders.Remove(col);
         }
     }
 
@@ -110,6 +122,11 @@ public class Melee : MonoBehaviour
     // Returns the list of levers the melee will contact with.
     public List<Collider2D> GetLeverColliders() {
         return leverColliders;
+    }
+
+    // Returns the list of destructibles the melee will contact with.
+    public List<Collider2D> GetDestructibleColliders() {
+        return destructibleColliders;
     }
     #endregion
 }

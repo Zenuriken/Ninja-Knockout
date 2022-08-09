@@ -708,6 +708,15 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
+            List<Collider2D> destructibleColliders = meleeScript.GetDestructibleColliders();
+            foreach (Collider2D collider in destructibleColliders) {
+                Destructible obj = collider.gameObject.GetComponent<Destructible>();
+                if (!obj.HasBeenDamaged(meleeCounter) && obj.CanBreak()) {
+                    obj.Break();
+                    obj.SetMeleeCounter(meleeCounter);
+                }
+            }
+
             if (contact) {
                 Vector2 dir = new Vector2(-lastDir, 0f);
                 //StartCoroutine(KnockBack(dir));
