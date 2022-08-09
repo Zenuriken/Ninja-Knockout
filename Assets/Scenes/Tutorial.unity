@@ -292,12 +292,12 @@ PrefabInstance:
     - target: {fileID: 9028812071720061487, guid: ccca0b46d1820ef4ba27a55676e29cf9,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 6.58
+      value: 6.6
       objectReference: {fileID: 0}
     - target: {fileID: 9028812071720061487, guid: ccca0b46d1820ef4ba27a55676e29cf9,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.45
+      value: -0.41
       objectReference: {fileID: 0}
     - target: {fileID: 9028812071720061487, guid: ccca0b46d1820ef4ba27a55676e29cf9,
         type: 3}
@@ -456,6 +456,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 889378307}
     m_Modifications:
+    - target: {fileID: 7152872730886903528, guid: 5e9c68fd6c32ddc42a015a00fdcefbcd,
+        type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7152872730886903529, guid: 5e9c68fd6c32ddc42a015a00fdcefbcd,
         type: 3}
       propertyPath: Priority
@@ -521,7 +526,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Crate
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6007405689400181526, guid: 5e9c68fd6c32ddc42a015a00fdcefbcd, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 5e9c68fd6c32ddc42a015a00fdcefbcd, type: 3}
 --- !u!4 &267338825 stripped
 Transform:

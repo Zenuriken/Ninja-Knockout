@@ -49,6 +49,7 @@ public class Destructible : MonoBehaviour
         sprite.enabled = false;
         SetHighLight(false);
         sound.Play();
+        this.gameObject.layer = 12; // Set it to a layer where the player can't interact with it.
         yield return new WaitForSeconds(1f);
         meleeScript.RemoveDestructibleFromList(this.GetComponent<Collider2D>());
         Destroy(this.gameObject);
