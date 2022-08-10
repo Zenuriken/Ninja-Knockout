@@ -16,20 +16,29 @@ public class Destructible : MonoBehaviour
     [SerializeField]
     [Tooltip("The left bound for spawning drops.")]
     private float xOffset;
+    [SerializeField]
+    [Tooltip("The delay before object begins to fade.")]
+    private float fadeAwayDelay;
+    [SerializeField]
+    [Tooltip("The speed in which object fades away.")]
+    private float fadeAwaySpeed;
 
     private Melee meleeScript;
     private bool canDestroy;
     private GameObject highLight;
     private SpriteRenderer sprite;
     private AudioSource sound;
+    private Animator anim;
     private int meleeCounter;
 
     private void Awake() {
         highLight = this.transform.GetChild(0).gameObject;
         sprite = this.GetComponent<SpriteRenderer>();
         sound = this.GetComponent<AudioSource>();
+        anim = this.GetComponent<Animator>();
         meleeScript = GameObject.Find("Player").gameObject.transform.GetChild(1).GetComponent<Melee>();
         canDestroy = true;
+        anim.enabled = false;
     }
 
     public void Break() {
@@ -46,12 +55,16 @@ public class Destructible : MonoBehaviour
 
     IEnumerator Destroy() {
         canDestroy = false;
-        sprite.enabled = false;
         SetHighLight(false);
         sound.Play();
         this.gameObject.layer = 12; // Set it to a layer where the player can't interact with it.
-        yield return new WaitForSeconds(1f);
+        anim.enabled = true;
+        yield return new WaitForSeconds(fadeAwayDelay);
         meleeScript.RemoveDestructibleFromList(this.GetComponent<Collider2D>());
+        for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * fadeAwaySpeed) {
+            sprite.color = new Color(1f, 1f, 1f, alpha);
+            yield return new WaitForEndOfFrame();
+        }
         Destroy(this.gameObject);
     }
 

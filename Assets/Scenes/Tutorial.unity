@@ -456,16 +456,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 889378307}
     m_Modifications:
-    - target: {fileID: 7152872730886903528, guid: 5e9c68fd6c32ddc42a015a00fdcefbcd,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7152872730886903529, guid: 5e9c68fd6c32ddc42a015a00fdcefbcd,
-        type: 3}
-      propertyPath: Priority
-      value: 75
-      objectReference: {fileID: 0}
     - target: {fileID: 7152872730886903530, guid: 5e9c68fd6c32ddc42a015a00fdcefbcd,
         type: 3}
       propertyPath: m_RootOrder
@@ -526,8 +516,7 @@ PrefabInstance:
       propertyPath: m_Name
       value: Crate
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 6007405689400181526, guid: 5e9c68fd6c32ddc42a015a00fdcefbcd, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5e9c68fd6c32ddc42a015a00fdcefbcd, type: 3}
 --- !u!4 &267338825 stripped
 Transform:
@@ -705,7 +694,7 @@ PrefabInstance:
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 354.38
+      value: 358.93
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
@@ -4691,7 +4680,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1996979206
 Transform:
   m_ObjectHideFlags: 0

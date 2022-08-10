@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 9028812071720061486}
   - component: {fileID: 9028812071720061484}
   - component: {fileID: 1419963568}
+  - component: {fileID: 569272797}
   m_Layer: 8
   m_Name: Barrel
   m_TagString: Destructible
@@ -254,6 +255,8 @@ MonoBehaviour:
   numDrop: 3
   chancePerDrop: 50
   xOffset: 1
+  fadeAwayDelay: 1
+  fadeAwaySpeed: 0.5
 --- !u!82 &9028812071720061484
 AudioSource:
   m_ObjectHideFlags: 0
@@ -371,3 +374,22 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!95 &569272797
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9028812071720061481}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c06fcc969e50093418b2bf11889220b8, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
