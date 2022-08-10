@@ -6,30 +6,25 @@ using System;
 
 public class AStar : MonoBehaviour
 {
-    [SerializeField]
-    [Tooltip("Where the AStar object is located.")]
-    private Vector3 center;
-    [SerializeField]
-    [Tooltip("The maximum number of nodes width-wise to create nodes for.")]
-    private int width;
-    [SerializeField]
-    [Tooltip("The maximum number of nodes height-wise to create nodes for.")]
-    private int height;
-    [SerializeField]
-    [Tooltip("The Node prefab for visual aid.")]
-    private GameObject nodePrefab;
-    [SerializeField]
-    [Tooltip("The platform tilemap.")]
-    private Tilemap platformTilemap;
-    [SerializeField]
-    [Tooltip("The target position of the path.")]
-    private Transform target;
-    [SerializeField]
-    [Tooltip("The starting position of the path.")]
-    private Transform start;
+    // #region Debugging Variables
+    // [SerializeField]
+    // [Tooltip("Where the AStar object is located.")]
+    // private Vector3 center;
+    // [SerializeField]
+    // [Tooltip("The maximum number of nodes width-wise to create nodes for.")]
+    // private int width;
+    // [SerializeField]
+    // [Tooltip("The maximum number of nodes height-wise to create nodes for.")]
+    // private int height;
+    // [SerializeField]
+    // [Tooltip("The Node prefab for visual aid.")]
+    // private GameObject nodePrefab;
+    // #endregion
 
+    private Tilemap platformTilemap;
     private LayerMask platformLayerMask;
     private PlayerController playerScript;
+    private Transform playerTrans;
     private Vector3 spawnPos;
     private bool isReturningToPatrolPos;
     
@@ -64,19 +59,15 @@ public class AStar : MonoBehaviour
         }
     }
 
-    // Draws the bounds of where pathfinding will take place.
-    private void OnDrawGizmos() {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(center, new Vector2(width, height));
-    }
-
     private void Awake() {
         platformLayerMask = LayerMask.GetMask("Platform");
+        spawnPos = this.transform.position;
     }
 
     private void Start() {
+        platformTilemap = GameObject.Find("Tilemap_Platform").GetComponent<Tilemap>();
         playerScript = GameObject.Find("Player").GetComponent<PlayerController>();
-        spawnPos = start.position;
+        playerTrans = playerScript.transform;
     }
 
     // private void Start() {
@@ -387,8 +378,8 @@ public class AStar : MonoBehaviour
             return null;
         }
 
-        Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
-        Vector3Int goalPos = platformTilemap.WorldToCell(new Vector2(target.position.x, target.position.y - 1f));
+        Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
+        Vector3Int goalPos = platformTilemap.WorldToCell(new Vector2(playerTrans.position.x, playerTrans.position.y - 1f));
 
         if (isReturningToPatrolPos) {
             goalPos = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y - 1f));
@@ -428,7 +419,7 @@ public class AStar : MonoBehaviour
                 }
                 counter -= 1;
             }
-            Debug.Log("Not found. Searched: " + counter + " nodes.");
+            //Debug.Log("Not found. Searched: " + counter + " nodes.");
         }
         return null;
     }
@@ -456,7 +447,7 @@ public class AStar : MonoBehaviour
     // Calculates the position of two ends of a platform for the enemy to patrol
     public List<Vector2> CalculatePatrolPath(int maxNodeDist) {
         List<Vector2> posList = new List<Vector2>();
-        Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
+        Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
         Vector3Int leftEnd = startPos;
         Vector3Int rightEnd = startPos;
         Vector3Int testPos;
@@ -488,14 +479,14 @@ public class AStar : MonoBehaviour
 
     // Returns the enemy's adjusted position.
     public Vector2 GetAdjustedPosition() {
-        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
+        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
         //Debug.Log(AdjustPos(pos));
         return AdjustPos(pos);
     }
 
     // Returns whether the enemy is currently stuck.
     public bool IsStuck() {
-        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
+        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
         if (IsWalkable(pos)) {
             return false;
         }
@@ -509,7 +500,7 @@ public class AStar : MonoBehaviour
 
     // Returns the direction the enemy should move when stuck.
     public Vector2 GetMoveDir() {
-        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
+        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
         Vector3Int leftPos = new Vector3Int(pos.x - 1, pos.y, 0);
         Vector3Int rightPos = new Vector3Int(pos.x + 1, pos.y, 0);
         if (IsWalkable(rightPos)) {
@@ -527,7 +518,7 @@ public class AStar : MonoBehaviour
     }
 
     public bool IsAtSpawnPos() {
-        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(start.position.x, start.position.y - 1f));
+        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
         Vector3Int spawnPosition  = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y - 1f));
         if (pos == spawnPosition) {
             isReturningToPatrolPos = false;

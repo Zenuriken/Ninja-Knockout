@@ -129,6 +129,7 @@ public class EnemyController : MonoBehaviour
     private PlayerController playerScript;
     private Health playerHealthScript;
     private Melee meleeScript;
+    private GameObject fieldOfViewParent;
 
     // Cached components
     private GameObject alertedObj;
@@ -212,6 +213,7 @@ public class EnemyController : MonoBehaviour
         meleeScript = playerScript.transform.GetChild(1).GetComponent<Melee>();
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
         playerAndPlatformLayerMask = LayerMask.GetMask("Player", "Platform", "OneWayPlatform");
+        fieldOfViewParent = GameObject.Find("FieldOfViews");
 
         // Determines whether the enemy will begin patrolling left or right.
         float value = Random.Range(0, 100);
@@ -231,7 +233,7 @@ public class EnemyController : MonoBehaviour
             deathSound = "FemaleDeath";
         }
 
-        GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj);
+        GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj, fieldOfViewParent.transform);
         fov = lineOfSight.GetComponent<FieldOfView>();
         fov.InitializeEnemyScript(this);
 
