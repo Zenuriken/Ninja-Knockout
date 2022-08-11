@@ -10,9 +10,10 @@ public class Hazard : MonoBehaviour
         healthScript = GameObject.Find("Player").GetComponent<Health>();
     }
     
-    private void OnCollisionEnter2D(Collision2D other) {
+    private void OnCollisionStay2D(Collision2D other) {
         if (other.gameObject.tag == "Player") {
-            healthScript.TakeEnvironDmg(1);
+            ContactPoint2D contact = other.contacts[0];
+            healthScript.TakeDmg(1, contact.point);
         }
     }
 }

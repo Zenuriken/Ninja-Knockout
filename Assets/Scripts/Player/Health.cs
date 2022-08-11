@@ -108,7 +108,11 @@ public class Health : MonoBehaviour
         if (!isBuffering) {
             currHealth -= x;
             ScoreManager.singleton.UpdateHealth(currHealth);
+
+            // Kill the player
             if (currHealth <= 0) {
+                ScoreManager.singleton.FadeScreen();
+                //playerScript.SetPlayerInput(false);
                 StartCoroutine("Death");
                 return;
             }
@@ -131,9 +135,15 @@ public class Health : MonoBehaviour
     public void TakeEnvironDmg(int x) {
         currHealth -= x;
         ScoreManager.singleton.UpdateHealth(currHealth);
+        ScoreManager.singleton.FadeScreen();
+        //playerScript.SetPlayerInput(false);
+
+        // Kill the player
         if (currHealth <= 0) {
             StartCoroutine("Death");
             return;
+        } else {
+            sounds.Play("Grunt");
         }
     }
 }

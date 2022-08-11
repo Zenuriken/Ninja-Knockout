@@ -320,6 +320,8 @@ public class PlayerController : MonoBehaviour
                 fireHolding = Input.GetKey(fireKey);
                 upHolding = Input.GetKey(upKey);
                 downHolding = Input.GetKey(downKey);
+            } else {
+                xInput = 0f;
             }
             IsGrounded();
             IsAgainstWall();
@@ -1065,6 +1067,10 @@ public class PlayerController : MonoBehaviour
     // public bool IsFreeOfAction() {
     //     return (!isAgainstWall || isGrounded) && !isDashing && !isJumping && !isStunned;
     // }
+
+    public void SetPlayerInput(bool state) {
+        playerInputEnabled = state;
+    }
     #endregion
 
     #region Misc Functions

@@ -882,6 +882,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
+      propertyPath: playerInputEnabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969652, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_Name
@@ -6450,6 +6455,11 @@ PrefabInstance:
     - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
         type: 3}
       propertyPath: fadeAwaySpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2799566261082796605, guid: 1c6e436d7503f3842bd4e74f05e055e1,
+        type: 3}
+      propertyPath: deathFadeAwaySpeed
       value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []

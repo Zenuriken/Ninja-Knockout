@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -20,11 +21,10 @@ public class ScoreManager : MonoBehaviour
     public float deathFadeAwaySpeed;
     public float fadeAwayDelay;
 
-
+    private bool isBlackingOutScreen;
     private RawImage curHealthSprite;
     private RawImage curShurikenSprite;
     private Image fadeOutScreen;
-    private bool isFadingScreen;
     private Vector2 spawnLocation;
 
     private void Awake() {
@@ -63,7 +63,14 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    IEnumerator BlackOut(float speed) {
+    IEnumerator BlackOut() {
+        isBlackingOutScreen = true;
+        float speed;
+        if (health <= 0) {
+            speed = deathFadeAwaySpeed;
+        } else {
+            speed = fadeAwaySpeed;
+        }
         yield return new WaitForSeconds(fadeAwayDelay);
         for (float alpha = 0f; alpha < 1f; alpha += Time.deltaTime * speed) {
             fadeOutScreen.color = new Color(0f, 0f, 0f, alpha);
@@ -71,15 +78,29 @@ public class ScoreManager : MonoBehaviour
         }
         fadeOutScreen.color = new Color(0f, 0f, 0f, 1f);
 
+        // If the player is still alive, bring them to the last checkpoint. If not, then restart level.
+        PlayerController playerScript = GameObject.Find("Player").GetComponent<PlayerController>();
         if (health > 0) {
-            GameObject player = GameObject.Find("Player");
-            player.transform.position = this.spawnLocation;
+            playerScript.SetPlayerInput(false);
+            Rigidbody2D playerRB = playerScript.GetComponent<Rigidbody2D>();
+            playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
+            playerScript.transform.position = this.spawnLocation;
             yield return new WaitForSeconds(fadeAwayDelay);
             for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
                 fadeOutScreen.color = new Color(0f, 0f, 0f, alpha);
                 yield return new WaitForEndOfFrame();
             }
             fadeOutScreen.color = new Color(0f, 0f, 0f, 0f);
+        } else {
+            SceneManager.LoadScene("Tutorial");
+        }
+        isBlackingOutScreen = false;
+        playerScript.SetPlayerInput(true);
+    }
+
+    public void FadeScreen() {
+        if (!isBlackingOutScreen) {
+            StartCoroutine("BlackOut");
         }
     }
 
