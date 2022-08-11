@@ -36,6 +36,8 @@ public class CameraController : MonoBehaviour
     private float xVelocity;
     private float currSmoothTime;
     private float cameraHalfWidth;
+
+    private bool titleScreenModeEnabled;
     #endregion
 
     #region Initializing Functions
@@ -46,6 +48,7 @@ public class CameraController : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         playerScript = player.GetComponent<PlayerController>();
         playerDir = playerScript.GetPlayerDir();
+        titleScreenModeEnabled = playerScript.GetTitleScreenModeStatus();
 
         currSmoothTime = smoothTime;
 
@@ -81,11 +84,18 @@ public class CameraController : MonoBehaviour
         //     || playerPos.y < pos.y - cam.orthographicSize * yThreshold) {
         //         pos.y = Mathf.SmoothDamp(pos.y, playerPos.y, ref yVelocity, smoothTime);
         // }
-        
-        if ((targetPos.x > pos.x + cam.orthographicSize * xThreshold && pos.x < rightXLimit - cameraHalfWidth)
-            || (targetPos.x < pos.x - cam.orthographicSize * xThreshold && pos.x > leftXLimit + cameraHalfWidth)) {
-                //Debug.Log("Moving cam");
-                pos.x = Mathf.SmoothDamp(pos.x, targetPos.x, ref xVelocity, currSmoothTime);
+        if (!titleScreenModeEnabled) {
+            if ((targetPos.x > pos.x + cam.orthographicSize * xThreshold && pos.x < rightXLimit - cameraHalfWidth)
+                || (targetPos.x < pos.x - cam.orthographicSize * xThreshold && pos.x > leftXLimit + cameraHalfWidth)) {
+                    //Debug.Log("Moving cam");
+                    pos.x = Mathf.SmoothDamp(pos.x, targetPos.x, ref xVelocity, currSmoothTime);
+            }
+        } else {
+            if ((targetPos.x > pos.x + cam.orthographicSize * xThreshold)
+                || (targetPos.x < pos.x - cam.orthographicSize * xThreshold)) {
+                    //Debug.Log("Moving cam");
+                    pos.x = Mathf.SmoothDamp(pos.x, targetPos.x, ref xVelocity, currSmoothTime);
+            }
         }
         this.transform.position = pos;
     }

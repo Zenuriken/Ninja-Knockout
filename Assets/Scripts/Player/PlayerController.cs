@@ -126,6 +126,14 @@ public class PlayerController : MonoBehaviour
     [Space(5)]
     #endregion
 
+    #region Inspector Variables
+    [Header("Toggles")]
+    [SerializeField]
+    private bool playerInputEnabled;
+    [SerializeField]
+    private bool titleScreenModeEnabled;
+    #endregion
+
     #region Private Variables
     // Private Input Variables
     private KeyCode jumpKey = KeyCode.Z;
@@ -283,8 +291,9 @@ public class PlayerController : MonoBehaviour
         doubleJumpTrail.emitting = false;
         numShurikens = maxShurikens;
         //meleeTrail.emitting = false;
-
-        ScoreManager.singleton.UpdateShurikenNum(numShurikens);
+        if (!titleScreenModeEnabled) {
+            ScoreManager.singleton.UpdateShurikenNum(numShurikens);
+        }
     }
     #endregion
 
@@ -299,17 +308,19 @@ public class PlayerController : MonoBehaviour
 
         if (!hasDied) {
             // Get Player Input
-            xInput = Input.GetAxisRaw("Horizontal");
-            jumpPressed = Input.GetKeyDown(jumpKey);
-            jumpHolding = Input.GetKey(jumpKey);
-            jumpReleased = Input.GetKeyUp(jumpKey);
-            dashPressed = Input.GetKeyDown(dashKey);
-            sneakHolding = Input.GetKey(sneakKey);
-            meleePressed = Input.GetKeyDown(meleeKey);
-            fireReleased = Input.GetKeyUp(fireKey);
-            fireHolding = Input.GetKey(fireKey);
-            upHolding = Input.GetKey(upKey);
-            downHolding = Input.GetKey(downKey);
+            if (playerInputEnabled) {
+                xInput = Input.GetAxisRaw("Horizontal");
+                jumpPressed = Input.GetKeyDown(jumpKey);
+                jumpHolding = Input.GetKey(jumpKey);
+                jumpReleased = Input.GetKeyUp(jumpKey);
+                dashPressed = Input.GetKeyDown(dashKey);
+                sneakHolding = Input.GetKey(sneakKey);
+                meleePressed = Input.GetKeyDown(meleeKey);
+                fireReleased = Input.GetKeyUp(fireKey);
+                fireHolding = Input.GetKey(fireKey);
+                upHolding = Input.GetKey(upKey);
+                downHolding = Input.GetKey(downKey);
+            }
             IsGrounded();
             IsAgainstWall();
             SetDirection();
@@ -320,6 +331,13 @@ public class PlayerController : MonoBehaviour
                 Attack();
             }
             HidePlayer();
+
+            if (titleScreenModeEnabled) {
+                playerRB.velocity = new Vector2(speed, playerRB.velocity.y);
+                if (isGrounded) {
+                    CreateDust(0);
+                }
+            }
         }
         UpdateSprite();
     }
@@ -1054,6 +1072,10 @@ public class PlayerController : MonoBehaviour
         // angle = 0 -> 360
         float angleRad = angle * (Mathf.PI/180f);
         return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
+    }
+
+    public bool GetTitleScreenModeStatus() {
+        return this.titleScreenModeEnabled;
     }
     #endregion
 

@@ -13,13 +13,22 @@ public class Parallax : MonoBehaviour
     [SerializeField]
     [Tooltip("The parallax offset.")]
     private float offset;
+    [SerializeField]
+    private bool isGrid;
     
     private float length;
     private float startPos;
 
     private void Start() {
         startPos = transform.position.x;
-        length = GetComponent<SpriteRenderer>().bounds.size.x;
+        if (!isGrid) {
+            length = GetComponent<SpriteRenderer>().bounds.size.x;
+        } else {
+            Camera c = cam.GetComponent<Camera>();
+            float height = 2f * c.orthographicSize;
+            float width = height * c.aspect;
+            length = (int) width;
+        }
     }
     
     // Update is called once per frame

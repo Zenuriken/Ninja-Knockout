@@ -12,8 +12,7 @@ public class Hazard : MonoBehaviour
     
     private void OnCollisionEnter2D(Collision2D other) {
         if (other.gameObject.tag == "Player") {
-            ContactPoint2D contact = other.contacts[0];
-            healthScript.TakeDmg(1, contact.point);
+            healthScript.TakeEnvironDmg(1);
         }
     }
 }

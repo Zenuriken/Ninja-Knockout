@@ -31,8 +31,10 @@ public class Health : MonoBehaviour
         playerCollider = this.GetComponent<BoxCollider2D>();
         playerRB = this.GetComponent<Rigidbody2D>();
         gravity = playerRB.gravityScale;
-        ScoreManager.singleton.UpdateHealth(currHealth);
         sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
+        if (!playerScript.GetTitleScreenModeStatus()) {
+            ScoreManager.singleton.UpdateHealth(currHealth);
+        }
     }
 
     private void OnCollisionStay2D(Collision2D other) {
@@ -111,6 +113,7 @@ public class Health : MonoBehaviour
                 return;
             }
 
+            // Stun the Player
             if (!hasDied) {
                 Vector2 dir = new Vector2(1f / 2f, Mathf.Sqrt(3) / 2f);
                 float collisionDir = this.gameObject.transform.position.x - enemyPos.x;
@@ -121,6 +124,16 @@ public class Health : MonoBehaviour
                 StartCoroutine(Stunned(dir));
                 StartCoroutine("DamageBuffer");
             }
+        }
+    }
+
+    // Decreases the player's health when interacting with environment
+    public void TakeEnvironDmg(int x) {
+        currHealth -= x;
+        ScoreManager.singleton.UpdateHealth(currHealth);
+        if (currHealth <= 0) {
+            StartCoroutine("Death");
+            return;
         }
     }
 }
