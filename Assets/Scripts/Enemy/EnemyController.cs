@@ -756,6 +756,7 @@ public class EnemyController : MonoBehaviour
     public void SetAlertStatus(bool status) {
         // If we are setting the enemy to alerted and we're not already alerted and playing our detecting coroutine.
         if (status && !isAlerted && !isDetectingPlayer) {
+            Debug.Log("Playerdetected");
             StartCoroutine("PlayerDetected");
         } else if (!status) {
             isAlerted = status;

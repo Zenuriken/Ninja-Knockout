@@ -41,8 +41,8 @@ public class Health : MonoBehaviour
         if (other.gameObject.tag == "Enemy" && !isBuffering && !hasDied) {
             EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
             if (!enemyScript.HasDied()) {
-                enemyScript.SetAlertStatus(true);
                 TakeDmg(1, enemyScript.transform.position);
+                enemyScript.SetAlertStatus(true);
             }
         }
     }
@@ -92,15 +92,13 @@ public class Health : MonoBehaviour
     }
 
     // Controls the player's death animation.
-    IEnumerator Death() {
+    private void Death() {
         hasDied = true;
         // 7 = Player Layer, 9 = Enemy Layer
         Physics2D.IgnoreLayerCollision(7, 9, true);
         Physics2D.IgnoreLayerCollision(0, 9, true);
         playerRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
         playerScript.SetHasDied(true);
-        yield return new WaitForSeconds(destroyDelay);
-        playerSprite.color = new Color(1f, 1f, 1f, 0f);
     }
 
     // Decreases the player's current health by x amount.
@@ -113,7 +111,7 @@ public class Health : MonoBehaviour
             if (currHealth <= 0) {
                 ScoreManager.singleton.FadeScreen();
                 //playerScript.SetPlayerInput(false);
-                StartCoroutine("Death");
+                Death();
                 return;
             }
 
@@ -145,6 +143,24 @@ public class Health : MonoBehaviour
         } else {
             sounds.Play("Grunt");
         } 
+    }
+
+    // Sets the players health to the specified number
+    public void SetPlayerHealth(int num) {
+        currHealth = num;
+        ScoreManager.singleton.UpdateHealth(currHealth);
+    }
+
+    public void ResetHealth() {
+        hasDied = false;
+        // 7 = Player Layer, 9 = Enemy Layer
+        Physics2D.IgnoreLayerCollision(7, 9, false);
+        Physics2D.IgnoreLayerCollision(0, 9, false);
+        playerRB.constraints = RigidbodyConstraints2D.FreezeRotation;
+        playerScript.SetHasDied(false);
+        playerSprite.color = new Color(1f, 1f, 1f, 1f);
+        currHealth = maxHealth;
+        ScoreManager.singleton.UpdateHealth(currHealth);
     }
 }
 

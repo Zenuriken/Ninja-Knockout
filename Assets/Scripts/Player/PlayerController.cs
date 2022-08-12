@@ -91,6 +91,9 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The max number of shurikens player can hold.")]
     private int maxShurikens;
     [SerializeField]
+    [Tooltip("The starting number of shurikens the player holds.")]
+    private int startingShurikens;
+    [SerializeField]
     [Tooltip("The radius of the shuriken for collision detection.")]
     private float shurikenRadius;
     // [SerializeField]
@@ -342,6 +345,7 @@ public class PlayerController : MonoBehaviour
             }
         }
         UpdateSprite();
+        Debug.Log("alerted num: " + alertedNum);
     }
     #endregion
 
@@ -1047,6 +1051,22 @@ public class PlayerController : MonoBehaviour
 
     public void SetPlayerInput(bool state) {
         playerInputEnabled = state;
+    }
+
+    public void SetNumShurikens(int num) {
+        numShurikens = num;
+        ScoreManager.singleton.UpdateShurikenNum(numShurikens);
+    }
+
+    public void Reset() {
+        alertedNum = 0;
+        playerRB.position = Vector2.zero;
+        numShurikens = startingShurikens;
+        ScoreManager.singleton.UpdateShurikenNum(numShurikens);
+    }
+
+    public void ResetAlertedNum() {
+        alertedNum = 0;
     }
     #endregion
 

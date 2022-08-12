@@ -8,11 +8,14 @@ using UnityEngine.SceneManagement;
 public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager singleton;
-    public static Vector2 spawnLocation;
     public static bool detectionAllowed;
-    private static int health;
-    private static int shurikensRemaining;
-    private static int score;
+    private static Vector2 spawnLocation;
+    private static int spawnHealth;
+    private static int spawnShurikens;
+
+    private int health;
+    private int shurikensRemaining;
+    private int score;
 
     [SerializeField]
     [Tooltip("List of textures for health UI.")]
@@ -70,6 +73,7 @@ public class ScoreManager : MonoBehaviour
             curShurikenSprite.texture = null;
             curShurikenSprite.color = new Color(0f, 0f, 0f, 0f);
         } else {
+            curShurikenSprite.color = new Color(1f, 1f, 1f, 1f);
             curShurikenSprite.texture = shurikenList[shurikensRemaining - 1];
         }
     }
@@ -80,6 +84,7 @@ public class ScoreManager : MonoBehaviour
             curHealthSprite.texture = null;
             curHealthSprite.color = new Color(0f, 0f, 0f, 0f);
         } else if (health > 0) {
+            curHealthSprite.color = new Color(1f, 1f, 1f, 1f);
             curHealthSprite.texture = healthList[health - 1];
         }
     }
@@ -92,11 +97,12 @@ public class ScoreManager : MonoBehaviour
 
     public void SetSpawnLocation(Vector2 location) {
         spawnLocation = location;
-        Debug.Log("Setting SpawnLocation: " + spawnLocation);
+        spawnHealth = health;
+        spawnShurikens = shurikensRemaining;
     }
 
     public void PlayerDetected() {
-        if (!detectionAllowed) {
+        if (!detectionAllowed && health > 0) {
             StartCoroutine("DetectionScreen");
         }
     }
@@ -120,12 +126,13 @@ public class ScoreManager : MonoBehaviour
         fadeOutScreen.color = new Color(0f, 0f, 0f, 1f);
 
         // If the player is still alive, bring them to the last checkpoint. If not, then restart level.
-        PlayerController playerScript = GameObject.Find("Player").GetComponent<PlayerController>();
+        PlayerController playerScript = PlayerController.singleton;
         if (health > 0) {
             playerScript.SetPlayerInput(false);
             Rigidbody2D playerRB = playerScript.GetComponent<Rigidbody2D>();
             playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
             playerScript.transform.position = spawnLocation;
+            PlayerController.singleton.ResetAlertedNum();
             yield return new WaitForSeconds(fadeAwayDelay);
             for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
                 fadeOutScreen.color = new Color(0f, 0f, 0f, alpha);
@@ -133,7 +140,22 @@ public class ScoreManager : MonoBehaviour
             }
             fadeOutScreen.color = new Color(0f, 0f, 0f, 0f);
         } else {
+            Debug.Log("Level reset");
+            PlayerController.singleton.SetPlayerInput(false);
+            Rigidbody2D playerRB = PlayerController.singleton.GetComponent<Rigidbody2D>();
+            playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
+            PlayerController.singleton.Reset();
+            Health healthScript = PlayerController.singleton.GetComponent<Health>();
+            healthScript.ResetHealth();
+            PlayerController.singleton.ResetAlertedNum();
             SceneManager.LoadScene("Tutorial");
+            yield return new WaitForSeconds(fadeAwayDelay);
+            for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
+                fadeOutScreen.color = new Color(0f, 0f, 0f, alpha);
+                yield return new WaitForEndOfFrame();
+            }
+            fadeOutScreen.color = new Color(0f, 0f, 0f, 0f);
+
         }
         isBlackingOutScreen = false;
         playerScript.SetPlayerInput(true);
@@ -143,6 +165,7 @@ public class ScoreManager : MonoBehaviour
     IEnumerator DetectionScreen() {
         hasDetectionScreen = true;
         Time.timeScale = 0.25f;
+        // Fade in the detection screen
         yield return new WaitForSeconds(detectionScreenDelay);
         for (float alpha = 0f; alpha <= 1f; alpha += Time.deltaTime * detectionScreenSpeed) {
             detectedScreen.color = new Color(0.2f, 0f, 0f, alpha);
@@ -151,20 +174,27 @@ public class ScoreManager : MonoBehaviour
         }
         detectedScreen.color = new Color(0.2f, 0f, 0f, 1f);
         detectedTxt.alpha = 1f;
+
+        // While screen is covered, reset the player to last spawn point.
         PlayerController.singleton.SetPlayerInput(false);
-        // // 7 = Player Layer, 9 = Enemy Layer
-        // Physics2D.IgnoreLayerCollision(7, 9, true);
-        // Physics2D.IgnoreLayerCollision(0, 9, true);
-        PlayerController playerScript = GameObject.Find("Player").GetComponent<PlayerController>();
-        Rigidbody2D playerRB = playerScript.GetComponent<Rigidbody2D>();
+        Rigidbody2D playerRB = PlayerController.singleton.GetComponent<Rigidbody2D>();
         playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
-        Debug.Log("SpawnLocation: " + spawnLocation);
-        playerScript.transform.position = spawnLocation;
+        PlayerController.singleton.transform.position = spawnLocation;
+        PlayerController.singleton.SetNumShurikens(spawnShurikens);
+        Health healthScript = PlayerController.singleton.GetComponent<Health>();
+        healthScript.SetPlayerHealth(spawnHealth);
+        PlayerController.singleton.ResetAlertedNum();
         SceneManager.LoadScene("Tutorial");
-        yield return new WaitForSeconds(detectionScreenDelay);
-        PlayerController.singleton.SetPlayerInput(true);
-        detectedScreen.color = new Color(0.2f, 0f, 0f, 0f);
+        // Fade out the detection screen
+        yield return new WaitForSeconds(detectionScreenDelay * 2f);
+        for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * detectionScreenSpeed) {
+            detectedScreen.color = new Color(0.2f, 0f, 0f, alpha);
+            detectedTxt.alpha = alpha;
+            yield return new WaitForEndOfFrame();
+        }
+        detectedScreen.color = new Color(0f, 0f, 0f, 0f);
         detectedTxt.alpha = 0f;
+        PlayerController.singleton.SetPlayerInput(true);
         Time.timeScale = 1f;
     }
     #endregion
