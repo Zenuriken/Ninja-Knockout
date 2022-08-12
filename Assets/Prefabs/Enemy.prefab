@@ -15626,7 +15626,7 @@ GameObject:
   - component: {fileID: 6371837797275581661}
   - component: {fileID: 6371837796901407429}
   - component: {fileID: 6371837796901407430}
-  - component: {fileID: 6371837796901407431}
+  - component: {fileID: 533243481}
   - component: {fileID: 381119507}
   - component: {fileID: 1977679683}
   - component: {fileID: 679184198}
@@ -15732,8 +15732,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!61 &6371837796901407431
-BoxCollider2D:
+--- !u!70 &533243481
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -15746,18 +15746,8 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: -0.03163654, y: -0.3535895}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.43, y: 0.5}
-    oldSize: {x: 3.51, y: 3.51}
-    newSize: {x: 3.51, y: 3.51}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
   m_Size: {x: 1.528123, y: 2.433827}
-  m_EdgeRadius: 0
+  m_Direction: 0
 --- !u!114 &381119507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15774,13 +15764,16 @@ MonoBehaviour:
   idleDur: 4
   patrolSpeed: 3
   pursueSpeed: 10
-  jumpVelY: 25
+  jumpMultiplier: 25
   pursueAirborneVelX: 6
   patrolAirborneVelX: 8
   alertedDelay: 1
   groundDust: {fileID: 1236189714}
   questionMark: {fileID: 1118731532}
   exclamationMark: {fileID: 1407061483849676469}
+  jumpOffset1: 1
+  jumpOffset2: 2
+  jumpOffset3: 5
   enemyHealth: 5
   destroyDelay: 10
   bodySplatDelay: 0.35
@@ -15798,8 +15791,10 @@ MonoBehaviour:
     type: 3}
   shurikenDropPrefab: {fileID: 301443893935112129, guid: aecd5a24796c6d3428dd784cfe9112ed,
     type: 3}
-  jumpMultiplier: 25
   isAlerted: 0
+  patrolEnabled: 0
+  startingDir: -1
+  dropChance: 0
 --- !u!95 &1977679683
 Animator:
   serializedVersion: 3
@@ -15831,14 +15826,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 410ed2b82dc29b34685516d1b1444aaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  center: {x: 0, y: 0, z: 0}
-  width: 60
-  height: 30
-  nodePrefab: {fileID: 809376892443580591, guid: 2f5fdddcecbd0c046aadb5ddc1bae4c2,
-    type: 3}
-  platformTilemap: {fileID: 0}
-  target: {fileID: 0}
-  start: {fileID: 6371837797275581661}
 --- !u!1 &6371837797875019193
 GameObject:
   m_ObjectHideFlags: 0

@@ -136,7 +136,7 @@ public class Health : MonoBehaviour
         currHealth -= x;
         ScoreManager.singleton.UpdateHealth(currHealth);
         ScoreManager.singleton.FadeScreen();
-        //playerScript.SetPlayerInput(false);
+        playerScript.SetPlayerInput(false);
 
         // Kill the player
         if (currHealth <= 0) {
@@ -144,7 +144,7 @@ public class Health : MonoBehaviour
             return;
         } else {
             sounds.Play("Grunt");
-        }
+        } 
     }
 }
 

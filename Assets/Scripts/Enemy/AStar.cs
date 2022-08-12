@@ -504,9 +504,9 @@ public class AStar : MonoBehaviour
         Vector3Int leftPos = new Vector3Int(pos.x - 1, pos.y, 0);
         Vector3Int rightPos = new Vector3Int(pos.x + 1, pos.y, 0);
         if (IsWalkable(rightPos)) {
-            return new Vector2(1f, 0);
+            return new Vector2(1f, 1f);
         } else if (IsWalkable(leftPos)) {
-            return new Vector2(-1f, 0);
+            return new Vector2(-1f, 1f);
         } else {
             Debug.Log("No walkable platforms found. Enemy stuck.");
             return Vector2.zero;

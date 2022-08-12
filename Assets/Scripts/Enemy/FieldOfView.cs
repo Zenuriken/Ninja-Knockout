@@ -158,7 +158,6 @@ public class FieldOfView : MonoBehaviour
     }
 
     public void SetMeshRendererToAlertGrad() {
-        Debug.Log("Set curGradient: " + Time.time);
         curGradient = detectedGradient;
     }
 }

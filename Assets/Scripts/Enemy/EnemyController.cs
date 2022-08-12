@@ -40,6 +40,15 @@ public class EnemyController : MonoBehaviour
     [SerializeField]
     [Tooltip("Exclamation mark effect when alerted by the player.")]
     private ParticleSystem exclamationMark;
+    [SerializeField]
+    [Tooltip("The vertical cell offset for jumping 1-2 cells high.")]
+    private float jumpOffset1;
+    [SerializeField]
+    [Tooltip("The vertical cell offset for jumping 3 cells high.")]
+    private float jumpOffset2;
+    [SerializeField]
+    [Tooltip("The vertical cell offset for jumping 4-5 cells high.")]
+    private float jumpOffset3;
     [Space(5)]
     #endregion
     
@@ -137,7 +146,7 @@ public class EnemyController : MonoBehaviour
     private SpriteRenderer enemySprite;
     private SpriteRenderer alertedSightSprite;
     private Animator enemyAnim;
-    private BoxCollider2D enemyCollider;
+    private CapsuleCollider2D enemyCollider;
     private Rigidbody2D enemyRB;
     private AStar astarScript;
     private FieldOfView fov;
@@ -196,7 +205,7 @@ public class EnemyController : MonoBehaviour
         sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
 
         enemySprite = this.GetComponent<SpriteRenderer>();
-        enemyCollider = this.GetComponent<BoxCollider2D>();
+        enemyCollider = this.GetComponent<CapsuleCollider2D>();
         enemyRB = this.GetComponent<Rigidbody2D>();
         enemyAnim = this.GetComponent<Animator>();
         astarScript = this.GetComponent<AStar>();
@@ -293,6 +302,7 @@ public class EnemyController : MonoBehaviour
 
         // Handles the case in which the enemy gets stuck on an edge.
         if (isAlerted && astarScript.IsStuck() && Mathf.Abs(enemyRB.velocity.x) < 0.05 && Mathf.Abs(enemyRB.velocity.y) < 0.05) {
+            Debug.Log("unstuck enemy: " + Time.time);
             Vector2 moveDir = astarScript.GetMoveDir();
             enemyRB.velocity = new Vector2(moveDir.x * pursueSpeed, enemyRB.velocity.y);
         }
@@ -373,7 +383,15 @@ public class EnemyController : MonoBehaviour
         } else if (dir.x > 1 && dir.y > 0) {
             if (!isJumping) {
                 isJumping = true;
-                jumpTarget = new Vector2(nextPos.x, nextPos.y + 2);
+                float jumpOffset;
+                if (dir.y < 3) {
+                    jumpOffset = jumpOffset1;
+                } else if (dir.y < 4) {
+                    jumpOffset = jumpOffset2;
+                } else {
+                    jumpOffset = jumpOffset3;
+                }
+                jumpTarget = new Vector2(nextPos.x, nextPos.y + jumpOffset);
                 jumpDir = (jumpTarget - adjustedPos).normalized;
                 enemyRB.velocity = jumpDir * jumpMultiplier;
             }
@@ -381,7 +399,15 @@ public class EnemyController : MonoBehaviour
         } else if (dir.x < -1 && dir.y > 0) {
             if (!isJumping) {
                 isJumping = true;
-                jumpTarget = new Vector2(nextPos.x, nextPos.y + 2);
+                float jumpOffset;
+                if (dir.y < 3) {
+                    jumpOffset = jumpOffset1;
+                } else if (dir.y < 4) {
+                    jumpOffset = jumpOffset2;
+                } else {
+                    jumpOffset = jumpOffset3;
+                }
+                jumpTarget = new Vector2(nextPos.x, nextPos.y + jumpOffset);
                 jumpDir = (jumpTarget - adjustedPos).normalized;
                 enemyRB.velocity = jumpDir * jumpMultiplier;
             }
