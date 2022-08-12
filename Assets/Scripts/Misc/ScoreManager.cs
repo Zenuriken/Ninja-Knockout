@@ -151,15 +151,18 @@ public class ScoreManager : MonoBehaviour
         }
         detectedScreen.color = new Color(0.2f, 0f, 0f, 1f);
         detectedTxt.alpha = 1f;
-        
-        SceneManager.LoadScene("Tutorial");
+        PlayerController.singleton.SetPlayerInput(false);
+        // // 7 = Player Layer, 9 = Enemy Layer
+        // Physics2D.IgnoreLayerCollision(7, 9, true);
+        // Physics2D.IgnoreLayerCollision(0, 9, true);
         PlayerController playerScript = GameObject.Find("Player").GetComponent<PlayerController>();
-        playerScript.SetPlayerInput(false);
         Rigidbody2D playerRB = playerScript.GetComponent<Rigidbody2D>();
         playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
         Debug.Log("SpawnLocation: " + spawnLocation);
-        yield return new WaitForSeconds(detectionScreenDelay);
         playerScript.transform.position = spawnLocation;
+        SceneManager.LoadScene("Tutorial");
+        yield return new WaitForSeconds(detectionScreenDelay);
+        PlayerController.singleton.SetPlayerInput(true);
         detectedScreen.color = new Color(0.2f, 0f, 0f, 0f);
         detectedTxt.alpha = 0f;
         Time.timeScale = 1f;
