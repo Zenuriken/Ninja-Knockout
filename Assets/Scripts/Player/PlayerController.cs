@@ -6,6 +6,8 @@ using System.IO.IsolatedStorage;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController singleton;
+    
     #region Movement Variables
     [Header("Movement")]
     [SerializeField]
@@ -89,11 +91,14 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The max number of shurikens player can hold.")]
     private int maxShurikens;
     [SerializeField]
-    [Tooltip("The knock back force when clashing with a platform or enemy.")]
-    private float knockBackForce;
-    [SerializeField]
-    [Tooltip("The knock back duration when clashing with a platform or enemy.")]
-    private float knockBackDur;
+    [Tooltip("The radius of the shuriken for collision detection.")]
+    private float shurikenRadius;
+    // [SerializeField]
+    // [Tooltip("The knock back force when clashing with a platform or enemy.")]
+    // private float knockBackForce;
+    // [SerializeField]
+    // [Tooltip("The knock back duration when clashing with a platform or enemy.")]
+    // private float knockBackDur;
     [Space(5)]
     #endregion
 
@@ -186,6 +191,7 @@ public class PlayerController : MonoBehaviour
     private float lastDash;
 
     // Private shooting variables
+    private EnemyController lastEnemyContact;
     private Transform firePointTrans;
     private Transform skillShotTrans;
     private SpriteRenderer skillShotSprite;
@@ -199,26 +205,18 @@ public class PlayerController : MonoBehaviour
     private int lastAttackDir;
     private int numShurikens;
 
-    private EnemyController lastEnemyContact;
-
     // Private Jump Variables
+    private Vector2 lastJumpPos;
     private float jumpDurTimer;
     private float jumpCounter;
     private float lastJump;
-
-    private Vector2 lastJumpPos;
     private float lastYVel;
-    //private float currFallTime;
 
     // Melee private variables
     private Melee meleeScript;
     private bool meleeActive;
     private float meleeSpeed;
     private static int meleeCounter;
-    //private bool hitPlatform;
-    // private Transform point0;
-    // private Transform point1;
-    // private Transform point2;
 
     // Private WallClimbing Variables
     private float currWallClimbTime;
@@ -240,8 +238,6 @@ public class PlayerController : MonoBehaviour
     private int side;
     private int alertedNum;
 
-    public float radiusF;
-
     // Private Animator Private Variables
     private Animator playerAnim;
     private SpriteRenderer playerSprite;
@@ -252,27 +248,34 @@ public class PlayerController : MonoBehaviour
     #region Initializing Functions
     // Awake is called before Start
     private void Awake() {
-        // Getting Player Components
-        playerRB = GetComponent<Rigidbody2D>();
-        boxCollider2D = GetComponent<Collider2D>();
-        playerAnim = GetComponent<Animator>();
-        playerSprite = GetComponent<SpriteRenderer>();
-        sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
-        dashTrail = this.transform.GetChild(2).GetChild(1).GetComponent<TrailRenderer>();
-        doubleJumpTrail = this.transform.GetChild(2).GetChild(2).GetComponent<TrailRenderer>();
-        platformLayerMask = LayerMask.GetMask("Platform");
-        allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
-        enemyAndPlatformLayerMask = LayerMask.GetMask("Enemy", "Platform", "OneWayPlatform");
-        meleeScript = this.transform.GetChild(1).GetComponent<Melee>();
-        
-        firePointTrans = this.transform.GetChild(0).transform;
-        skillShotTrans = firePointTrans.GetChild(0).transform;
-        skillShotSprite = skillShotTrans.GetComponent<SpriteRenderer>();
+        if (singleton != null && singleton != this) { 
+            Destroy(this.gameObject); 
+        } 
+        else { 
+            singleton = this;
+            DontDestroyOnLoad(this.gameObject);
 
-        wallFirePointTrans = this.transform.GetChild(5).transform;
-        wallSkillShotTrans = wallFirePointTrans.GetChild(0).transform;
-        wallSkillShotSprite = wallSkillShotTrans.GetComponent<SpriteRenderer>();
+            // Getting Player Components
+            playerRB = GetComponent<Rigidbody2D>();
+            boxCollider2D = GetComponent<Collider2D>();
+            playerAnim = GetComponent<Animator>();
+            playerSprite = GetComponent<SpriteRenderer>();
+            sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
+            dashTrail = this.transform.GetChild(2).GetChild(1).GetComponent<TrailRenderer>();
+            doubleJumpTrail = this.transform.GetChild(2).GetChild(2).GetComponent<TrailRenderer>();
+            platformLayerMask = LayerMask.GetMask("Platform");
+            allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
+            enemyAndPlatformLayerMask = LayerMask.GetMask("Enemy", "Platform", "OneWayPlatform");
+            meleeScript = this.transform.GetChild(1).GetComponent<Melee>();
+            
+            firePointTrans = this.transform.GetChild(0).transform;
+            skillShotTrans = firePointTrans.GetChild(0).transform;
+            skillShotSprite = skillShotTrans.GetComponent<SpriteRenderer>();
 
+            wallFirePointTrans = this.transform.GetChild(5).transform;
+            wallSkillShotTrans = wallFirePointTrans.GetChild(0).transform;
+            wallSkillShotSprite = wallSkillShotTrans.GetComponent<SpriteRenderer>();
+        }
         // point0 = this.transform.GetChild(1).GetChild(1).transform;
         // point1 = this.transform.GetChild(1).GetChild(2).transform;
         // point2 = this.transform.GetChild(1).GetChild(3).transform;
@@ -290,7 +293,6 @@ public class PlayerController : MonoBehaviour
         dashTrail.emitting = false;
         doubleJumpTrail.emitting = false;
         numShurikens = maxShurikens;
-        //meleeTrail.emitting = false;
         if (!titleScreenModeEnabled) {
             ScoreManager.singleton.UpdateShurikenNum(numShurikens);
         }
@@ -301,8 +303,6 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Debug.Log("num: " + alertedNum);
-        
         // Limits the velocity when falling
         playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
 
@@ -457,8 +457,6 @@ public class PlayerController : MonoBehaviour
             }
             lastYVel = this.playerRB.velocity.y;
         }
-
-        //Debug.Log("Jump counter: " + jumpCounter);
     }
 
     // Sets the variable: lastDir based on the xInput of the player.
@@ -559,9 +557,6 @@ public class PlayerController : MonoBehaviour
         if (lastGroundStatus == false && isGrounded == true && FallDistanceMet(this.transform.position)) {
             CreateDust(0);
             sounds.Play("Landing");
-            //currFallTime = 0f;
-        } else if (isGrounded) {
-            //currFallTime = 0f;
         }
         return;
     }
@@ -590,17 +585,6 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
-    // private Vector3 pos;
-    // private bool skillShotting;
-
-    // private void OnDrawGizmos() {
-    //     if (skillShotting) {
-    //         Gizmos.color = Color.cyan;
-    //         Gizmos.DrawWireSphere(pos, radiusF);
-    //     }
-    // }
-
-
     #region Attack Functions
     // Main attack function.
     private void Attack() {
@@ -622,7 +606,7 @@ public class PlayerController : MonoBehaviour
                 skillShotTrans.rotation = Quaternion.Euler(0, 0, angleAdjusted - 90f);
 
                 Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
-                RaycastHit2D raycastHit2D = Physics2D.CircleCast(firePointTrans.position, radiusF, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask, 0f, 0f);
+                RaycastHit2D raycastHit2D = Physics2D.CircleCast(firePointTrans.position, shurikenRadius, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask, 0f, 0f);
                 //Debug.DrawRay(firePointTrans.position, GetVectorFromAngle(angleAdjusted) * 50f, Color.red);
                 //RaycastHit2D raycastHit2D = Physics2D.Raycast(firePointTrans.position, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask);
                 // If the raycast hits an enemy.
@@ -832,7 +816,6 @@ public class PlayerController : MonoBehaviour
             return false;
         }
         float dist = Mathf.Sqrt(Mathf.Pow(lastJumpPos.x - pos.x, 2) + Mathf.Pow(lastJumpPos.y - pos.y, 2));
-        //Debug.Log("Distance: " + dist);
         return Mathf.Sqrt(Mathf.Pow(lastJumpPos.x - pos.x, 2) + Mathf.Pow(lastJumpPos.y - pos.y, 2)) >= fallSoundDist && !isStunned;
     }
 
@@ -875,12 +858,12 @@ public class PlayerController : MonoBehaviour
     // }
 
     // Knocks the player back when attacking an enemy or platform.
-    IEnumerator KnockBack(Vector2 dir) {
-        yield return new WaitForSeconds(0.001f);
-        playerRB.velocity = new Vector2(0f, 0f);
-        playerRB.AddForce(dir * knockBackForce, ForceMode2D.Impulse);
-        yield return new WaitForSeconds(knockBackDur);
-    }
+    // IEnumerator KnockBack(Vector2 dir) {
+    //     yield return new WaitForSeconds(0.001f);
+    //     playerRB.velocity = new Vector2(0f, 0f);
+    //     playerRB.AddForce(dir * knockBackForce, ForceMode2D.Impulse);
+    //     yield return new WaitForSeconds(knockBackDur);
+    // }
 
     // Spawns the shuriken at the fire point of the player.
     private IEnumerator SpawnShuriken(Vector2 shootDir, Vector3 spawnPos) {
@@ -914,7 +897,6 @@ public class PlayerController : MonoBehaviour
         
         if (playerRB.velocity.y < -0.001) {
             playerAnim.SetBool("isFalling", true);
-            //currFallTime += Time.deltaTime;
         } else {
             playerAnim.SetBool("isFalling", false);
         }
@@ -1007,7 +989,6 @@ public class PlayerController : MonoBehaviour
             isHiding = false;
             Physics2D.IgnoreLayerCollision(7, 9, false);
             Physics2D.IgnoreLayerCollision(0, 9, false);
-            //sounds.Play("LeavingBushes");
             if (!isPlayingLeavingBushesNoise) {
                 sounds.Stop("EnteringBushes");
                 sounds.Play("LeavingBushes");
@@ -1063,10 +1044,6 @@ public class PlayerController : MonoBehaviour
     public bool CanPickUpShuriken() {
         return numShurikens < maxShurikens;
     }
-
-    // public bool IsFreeOfAction() {
-    //     return (!isAgainstWall || isGrounded) && !isDashing && !isJumping && !isStunned;
-    // }
 
     public void SetPlayerInput(bool state) {
         playerInputEnabled = state;

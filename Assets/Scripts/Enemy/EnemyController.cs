@@ -486,6 +486,7 @@ public class EnemyController : MonoBehaviour
             beganCalculatingPath = true;
             InvokeRepeating("UpdatePursuePath", 0f, 0.5f);
         }
+        ScoreManager.singleton.PlayerDetected();
         yield return new WaitForSeconds(alertedDelay);
         isAlerted = true;
         alertedSightSprite.enabled = true;
