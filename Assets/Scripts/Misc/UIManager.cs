@@ -47,6 +47,9 @@ public class UIManager : MonoBehaviour
     private Image detectedScreen;
     private TMP_Text detectedTxt;
 
+    private GameObject blackBars;
+    private GameObject playerStatus;
+
     private void Awake() {
         if (singleton != null && singleton != this) { 
             Destroy(this.gameObject); 
@@ -59,6 +62,8 @@ public class UIManager : MonoBehaviour
             fadeOutScreen = GameObject.Find("FadeOutScreen").GetComponent<Image>();
             detectedScreen = GameObject.Find("DetectedScreen").GetComponent<Image>();
             detectedTxt = detectedScreen.transform.GetChild(0).GetComponent<TMP_Text>();
+            blackBars = this.transform.GetChild(3).gameObject;
+            playerStatus = this.transform.GetChild(0).gameObject;
         }
     }
     
@@ -105,6 +110,14 @@ public class UIManager : MonoBehaviour
         if (!detectionAllowed && health > 0) {
             StartCoroutine("DetectionScreen");
         }
+    }
+
+    public void DropBars(bool state) {
+        blackBars.SetActive(state);
+    }
+
+    public void HidePlayerStatus(bool state) {
+        playerStatus.SetActive(state);
     }
     #endregion
 
