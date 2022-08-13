@@ -297,7 +297,7 @@ public class PlayerController : MonoBehaviour
         doubleJumpTrail.emitting = false;
         numShurikens = maxShurikens;
         if (!titleScreenModeEnabled) {
-            ScoreManager.singleton.UpdateShurikenNum(numShurikens);
+            UIManager.singleton.UpdateShurikenNum(numShurikens);
         }
     }
     #endregion
@@ -345,7 +345,7 @@ public class PlayerController : MonoBehaviour
             }
         }
         UpdateSprite();
-        Debug.Log("alerted num: " + alertedNum);
+        //Debug.Log("alerted num: " + alertedNum);
     }
     #endregion
 
@@ -922,7 +922,7 @@ public class PlayerController : MonoBehaviour
             playerAnim.SetBool("isThrowing", true);
             lastAttack = Time.time;
             numShurikens -= 1;
-            ScoreManager.singleton.UpdateShurikenNum(numShurikens);
+            UIManager.singleton.UpdateShurikenNum(numShurikens);
             Invoke("SetIsThrowingFalse", 0.5f);
         }
 
@@ -1042,7 +1042,7 @@ public class PlayerController : MonoBehaviour
 
     public void IncreaseShurikenNumBy(int num) {
         numShurikens += num;
-        ScoreManager.singleton.UpdateShurikenNum(numShurikens);
+        UIManager.singleton.UpdateShurikenNum(numShurikens);
     }
 
     public bool CanPickUpShuriken() {
@@ -1055,14 +1055,14 @@ public class PlayerController : MonoBehaviour
 
     public void SetNumShurikens(int num) {
         numShurikens = num;
-        ScoreManager.singleton.UpdateShurikenNum(numShurikens);
+        UIManager.singleton.UpdateShurikenNum(numShurikens);
     }
 
     public void Reset() {
         alertedNum = 0;
         playerRB.position = Vector2.zero;
         numShurikens = startingShurikens;
-        ScoreManager.singleton.UpdateShurikenNum(numShurikens);
+        UIManager.singleton.UpdateShurikenNum(numShurikens);
     }
 
     public void ResetAlertedNum() {

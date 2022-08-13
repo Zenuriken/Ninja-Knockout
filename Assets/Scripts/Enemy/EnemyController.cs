@@ -486,7 +486,7 @@ public class EnemyController : MonoBehaviour
             beganCalculatingPath = true;
             InvokeRepeating("UpdatePursuePath", 0f, 0.5f);
         }
-        ScoreManager.singleton.PlayerDetected();
+        UIManager.singleton.PlayerDetected();
         yield return new WaitForSeconds(alertedDelay);
         isAlerted = true;
         alertedSightSprite.enabled = true;
@@ -515,9 +515,9 @@ public class EnemyController : MonoBehaviour
     IEnumerator Death() {
         hasDied = true;
         if (!isAlerted) {
-            ScoreManager.singleton.IncreaseScoreBy(enemyPoints * 2);
+            UIManager.singleton.IncreaseScoreBy(enemyPoints * 2);
         } else {
-            ScoreManager.singleton.IncreaseScoreBy(enemyPoints);
+            UIManager.singleton.IncreaseScoreBy(enemyPoints);
         }
         alertedObj.SetActive(false);
         SetHighLight(false);

@@ -5,9 +5,9 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class ScoreManager : MonoBehaviour
+public class UIManager : MonoBehaviour
 {
-    public static ScoreManager singleton;
+    public static UIManager singleton;
     public static bool detectionAllowed;
     private static Vector2 spawnLocation;
     private static int spawnHealth;

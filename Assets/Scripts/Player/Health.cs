@@ -33,7 +33,7 @@ public class Health : MonoBehaviour
         gravity = playerRB.gravityScale;
         sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
         if (!playerScript.GetTitleScreenModeStatus()) {
-            ScoreManager.singleton.UpdateHealth(currHealth);
+            UIManager.singleton.UpdateHealth(currHealth);
         }
     }
 
@@ -105,11 +105,11 @@ public class Health : MonoBehaviour
     public void TakeDmg(int x, Vector3 enemyPos) {
         if (!isBuffering) {
             currHealth -= x;
-            ScoreManager.singleton.UpdateHealth(currHealth);
+            UIManager.singleton.UpdateHealth(currHealth);
 
             // Kill the player
             if (currHealth <= 0) {
-                ScoreManager.singleton.FadeScreen();
+                UIManager.singleton.FadeScreen();
                 //playerScript.SetPlayerInput(false);
                 Death();
                 return;
@@ -132,8 +132,8 @@ public class Health : MonoBehaviour
     // Decreases the player's health when interacting with environment
     public void TakeEnvironDmg(int x) {
         currHealth -= x;
-        ScoreManager.singleton.UpdateHealth(currHealth);
-        ScoreManager.singleton.FadeScreen();
+        UIManager.singleton.UpdateHealth(currHealth);
+        UIManager.singleton.FadeScreen();
         playerScript.SetPlayerInput(false);
 
         // Kill the player
@@ -148,7 +148,7 @@ public class Health : MonoBehaviour
     // Sets the players health to the specified number
     public void SetPlayerHealth(int num) {
         currHealth = num;
-        ScoreManager.singleton.UpdateHealth(currHealth);
+        UIManager.singleton.UpdateHealth(currHealth);
     }
 
     public void ResetHealth() {
@@ -160,7 +160,7 @@ public class Health : MonoBehaviour
         playerScript.SetHasDied(false);
         playerSprite.color = new Color(1f, 1f, 1f, 1f);
         currHealth = maxHealth;
-        ScoreManager.singleton.UpdateHealth(currHealth);
+        UIManager.singleton.UpdateHealth(currHealth);
     }
 }
 
