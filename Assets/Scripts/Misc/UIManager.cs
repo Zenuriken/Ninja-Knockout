@@ -49,6 +49,11 @@ public class UIManager : MonoBehaviour
 
     private GameObject blackBars;
     private GameObject playerStatus;
+    // private GameObject playButton;
+    // private GameObject optionButton;
+    // private GameObject quitButton;
+    private GameObject buttons;
+    private GameObject title;
 
     private void Awake() {
         if (singleton != null && singleton != this) { 
@@ -57,15 +62,49 @@ public class UIManager : MonoBehaviour
         else { 
             singleton = this;
             DontDestroyOnLoad(this.gameObject);
-            curHealthSprite = GameObject.Find("LifeUI").GetComponent<RawImage>();
-            curShurikenSprite = GameObject.Find("ShurikenUI").GetComponent<RawImage>();
-            fadeOutScreen = GameObject.Find("FadeOutScreen").GetComponent<Image>();
-            detectedScreen = GameObject.Find("DetectedScreen").GetComponent<Image>();
-            detectedTxt = detectedScreen.transform.GetChild(0).GetComponent<TMP_Text>();
-            blackBars = this.transform.GetChild(3).gameObject;
+
             playerStatus = this.transform.GetChild(0).gameObject;
-            detectionAllowed = true;
+            blackBars = this.transform.GetChild(1).gameObject;
+            buttons = this.transform.GetChild(3).gameObject;
+            title = this.transform.GetChild(4).gameObject;
+            curHealthSprite = playerStatus.transform.GetChild(2).GetComponent<RawImage>();
+            curShurikenSprite = playerStatus.transform.GetChild(3).GetComponent<RawImage>();
+            fadeOutScreen = this.transform.GetChild(1).GetComponent<Image>();
+            detectedScreen = this.transform.GetChild(2).GetComponent<Image>();
+            detectedTxt = detectedScreen.transform.GetChild(0).GetComponent<TMP_Text>();
         }
+    }
+
+    // called first
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    // called second
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        string sceneName = scene.name;
+        if (sceneName == "TitleScreen") {
+            playerStatus.SetActive(false);
+            buttons.SetActive(true);
+            title.SetActive(true);
+        } else if (sceneName == "Tutorial") {
+            playerStatus.SetActive(true);
+            buttons.SetActive(false);
+            title.SetActive(false);
+        }
+    }
+
+    // called third
+    void Start()
+    {
+    }
+
+    // called when the game is terminated
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
     
     #region Public Function
@@ -101,6 +140,14 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void FadeOutScreen() {
+        StartCoroutine("FadeOut");
+    }
+
+    public void FadeInScreen() {
+        StartCoroutine("FadeIn");
+    }
+
     public void SetSpawnLocation(Vector2 location) {
         spawnLocation = location;
         spawnHealth = health;
@@ -127,6 +174,39 @@ public class UIManager : MonoBehaviour
     #endregion
 
     #region Coroutine Functions
+    IEnumerator FadeOut() {
+        float speed = deathFadeAwaySpeed;
+        for (float alpha = 0f; alpha < 1f; alpha += Time.deltaTime * speed) {
+            fadeOutScreen.color = new Color(0f, 0f, 0f, alpha);
+            yield return new WaitForEndOfFrame();
+        }
+        fadeOutScreen.color = new Color(0f, 0f, 0f, 1f);
+    }
+
+    IEnumerator FadeIn() {
+        float speed = deathFadeAwaySpeed;
+        yield return new WaitForSeconds(fadeAwayDelay);
+            for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
+                fadeOutScreen.color = new Color(0f, 0f, 0f, alpha);
+                yield return new WaitForEndOfFrame();
+            }
+        fadeOutScreen.color = new Color(0f, 0f, 0f, 0f);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // Fades the screen out to black.
     IEnumerator BlackOut() {
         isBlackingOutScreen = true;
@@ -163,6 +243,7 @@ public class UIManager : MonoBehaviour
             Rigidbody2D playerRB = PlayerController.singleton.GetComponent<Rigidbody2D>();
             playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
             PlayerController.singleton.Reset();
+            UIManager.singleton.UpdateShurikenNum(PlayerController.singleton.GetNumShurikens());
             Health healthScript = PlayerController.singleton.GetComponent<Health>();
             healthScript.ResetHealth();
             PlayerController.singleton.ResetAlertedNum();

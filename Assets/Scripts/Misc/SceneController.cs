@@ -18,10 +18,22 @@ public class SceneController : MonoBehaviour
     }
 
     public void LoadTutorialScene() {
-        SceneManager.LoadScene("Tutorial");
+        StartCoroutine("LoadInTutorial");
     }
 
     public void QuitGame() {
         Application.Quit();
+    }
+
+
+    IEnumerator LoadInTutorial() {
+        UIManager.singleton.FadeOutScreen();
+        MusicManager.singleton.FadeOutAudio("Adventure");
+        yield return new WaitForSeconds(3f);
+        SceneManager.LoadScene("Tutorial");
+        MusicManager.singleton.Stop("Adventure");
+        MusicManager.singleton.FadeInAudio("Traveler");
+        PlayerController.singleton.Reset();
+        UIManager.singleton.FadeInScreen();
     }
 }

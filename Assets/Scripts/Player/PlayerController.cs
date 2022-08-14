@@ -1059,14 +1059,20 @@ public class PlayerController : MonoBehaviour
     }
 
     public void Reset() {
+        titleScreenModeEnabled = false;
         alertedNum = 0;
+        playerRB.velocity = Vector2.zero;
         playerRB.position = Vector2.zero;
         numShurikens = startingShurikens;
-        UIManager.singleton.UpdateShurikenNum(numShurikens);
+        SetPlayerInput(true);
     }
 
     public void ResetAlertedNum() {
         alertedNum = 0;
+    }
+
+    public int GetNumShurikens() {
+        return numShurikens;
     }
     #endregion
 
