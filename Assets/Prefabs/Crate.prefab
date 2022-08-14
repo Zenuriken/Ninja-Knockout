@@ -52,6 +52,11 @@ PrefabInstance:
       propertyPath: m_Offset.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9028812071720061486, guid: ccca0b46d1820ef4ba27a55676e29cf9,
+        type: 3}
+      propertyPath: chanceIsHealth
+      value: 40
+      objectReference: {fileID: 0}
     - target: {fileID: 9028812071720061487, guid: ccca0b46d1820ef4ba27a55676e29cf9,
         type: 3}
       propertyPath: m_RootOrder

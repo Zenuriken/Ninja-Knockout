@@ -5,11 +5,23 @@ using UnityEngine;
 public class Destructible : MonoBehaviour
 {
     [SerializeField]
-    [Tooltip("The item drop prefab.")]
+    [Tooltip("The shuriken drop prefab.")]
     private GameObject shurikenDropPrefab;
+    [SerializeField]
+    [Tooltip("The health drop prefab.")]
+    private GameObject healthDropPrefab;
+    [SerializeField]
+    [Tooltip("The coin drop prefab.")]
+    private GameObject coinDropPrefab;
+    [SerializeField]
+    [Tooltip("The chance the drop will be a health drop vs shuriken.")]
+    private float chanceIsHealth;
     [SerializeField]
     [Tooltip("The number of items this item will drop when broke.")]
     private int numDrop;
+    [SerializeField]
+    [Tooltip("The number of coins this item will drop when broke.")]
+    private int numCoins;
     [SerializeField]
     [Tooltip("The chance each item will drop.")]
     private int chancePerDrop;
@@ -46,9 +58,18 @@ public class Destructible : MonoBehaviour
             for (int i = 0; i < numDrop; i++) {
                 int roll = Random.Range(0, 100);
                 if (roll < chancePerDrop) {
-                    GameObject shurikenDrop = GameObject.Instantiate(shurikenDropPrefab, GetRandomPos(), Quaternion.identity);
+                    roll = Random.Range(0, 100);
+                    if (roll < chanceIsHealth) {
+                        GameObject healthDrop = GameObject.Instantiate(healthDropPrefab, GetRandomPos(), Quaternion.identity);
+                    } else {
+                        GameObject shurikenDrop = GameObject.Instantiate(shurikenDropPrefab, GetRandomPos(), Quaternion.identity);
+                    }
                 }
             }
+            for (int i = 0; i < numCoins; i++) {
+                GameObject coinDrop = GameObject.Instantiate(coinDropPrefab, GetRandomPos(), Quaternion.identity);
+            }
+            StartCoroutine("Destroy");
             StartCoroutine("Destroy");
         }
     }

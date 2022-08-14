@@ -151,6 +151,12 @@ public class Health : MonoBehaviour
         UIManager.singleton.UpdateHealth(currHealth);
     }
 
+    // Sets the players health to the specified number
+    public void IncreasePlayerHealth(int num) {
+        currHealth += num;
+        UIManager.singleton.UpdateHealth(currHealth);
+    }
+
     public void ResetHealth() {
         hasDied = false;
         // 7 = Player Layer, 9 = Enemy Layer
@@ -161,6 +167,10 @@ public class Health : MonoBehaviour
         playerSprite.color = new Color(1f, 1f, 1f, 1f);
         currHealth = maxHealth;
         UIManager.singleton.UpdateHealth(currHealth);
+    }
+
+    public bool CanPickUpHealth() {
+        return currHealth < maxHealth;
     }
 }
 

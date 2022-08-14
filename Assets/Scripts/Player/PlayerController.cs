@@ -140,6 +140,8 @@ public class PlayerController : MonoBehaviour
     private bool playerInputEnabled;
     [SerializeField]
     private bool titleScreenModeEnabled;
+    [SerializeField]
+    private bool dashEnabled;
     #endregion
 
     #region Private Variables
@@ -295,7 +297,7 @@ public class PlayerController : MonoBehaviour
         meleeCounter = 0;
         dashTrail.emitting = false;
         doubleJumpTrail.emitting = false;
-        numShurikens = maxShurikens;
+        numShurikens = startingShurikens;
         if (!titleScreenModeEnabled) {
             UIManager.singleton.UpdateShurikenNum(numShurikens);
         }
@@ -397,7 +399,7 @@ public class PlayerController : MonoBehaviour
             }
 
             // Tapping the dash button.
-            if (dashPressed && !isDashing && !isJumping && !isWallJumping && !isAttacking && (dashCounter > 0 || isGrounded) && CanDash()) {
+            if (dashEnabled && dashPressed && !isDashing && !isJumping && !isWallJumping && !isAttacking && (dashCounter > 0 || isGrounded) && CanDash()) {
                 lastDash = Time.time;
                 StartCoroutine("Dash");
             }

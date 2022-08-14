@@ -252,7 +252,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shurikenDropPrefab: {fileID: 301443893935112129, guid: aecd5a24796c6d3428dd784cfe9112ed,
     type: 3}
+  healthDropPrefab: {fileID: 5068184746089896516, guid: 9a0817ccccd304e48ae7735a85a87231,
+    type: 3}
+  coinDropPrefab: {fileID: 7576914877624823266, guid: 2d28f000a3498be468c7739380656110,
+    type: 3}
+  chanceIsHealth: 0
   numDrop: 3
+  numCoins: 3
   chancePerDrop: 50
   xOffset: 1
   fadeAwayDelay: 1

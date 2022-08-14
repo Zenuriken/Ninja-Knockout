@@ -64,11 +64,11 @@ public class UIManager : MonoBehaviour
             DontDestroyOnLoad(this.gameObject);
 
             playerStatus = this.transform.GetChild(0).gameObject;
-            blackBars = this.transform.GetChild(1).gameObject;
-            buttons = this.transform.GetChild(3).gameObject;
-            title = this.transform.GetChild(4).gameObject;
+            blackBars = this.transform.GetChild(3).gameObject;
+            buttons = this.transform.GetChild(4).gameObject;
+            title = this.transform.GetChild(5).gameObject;
             curHealthSprite = playerStatus.transform.GetChild(2).GetComponent<RawImage>();
-            curShurikenSprite = playerStatus.transform.GetChild(3).GetComponent<RawImage>();
+            curShurikenSprite = playerStatus.transform.GetChild(4).GetComponent<RawImage>();
             fadeOutScreen = this.transform.GetChild(1).GetComponent<Image>();
             detectedScreen = this.transform.GetChild(2).GetComponent<Image>();
             detectedTxt = detectedScreen.transform.GetChild(0).GetComponent<TMP_Text>();
@@ -192,20 +192,6 @@ public class UIManager : MonoBehaviour
             }
         fadeOutScreen.color = new Color(0f, 0f, 0f, 0f);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // Fades the screen out to black.
     IEnumerator BlackOut() {
