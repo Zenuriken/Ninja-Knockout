@@ -64,6 +64,7 @@ public class UIManager : MonoBehaviour
             detectedTxt = detectedScreen.transform.GetChild(0).GetComponent<TMP_Text>();
             blackBars = this.transform.GetChild(3).gameObject;
             playerStatus = this.transform.GetChild(0).gameObject;
+            detectionAllowed = true;
         }
     }
     
