@@ -7,25 +7,20 @@ public class CutSceneTrigger : MonoBehaviour
     [SerializeField]
     [Tooltip("How long the player will be paused for")]
     private float pauseTime;
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField]
+    [Tooltip("The enemy that will appear")]
+    private GameObject enemy;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
+    private bool hasTriggered;
 
     private void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.tag == "Player") {
+        if (other.gameObject.tag == "Player" && !hasTriggered) {
+            hasTriggered = true;
             PlayerController.singleton.SetPlayerInput(false);
             UIManager.singleton.HidePlayerStatus(true);
             UIManager.singleton.DropBars(true);
+            UIManager.singleton.SetDetectionAllowed(true);
+            enemy.SetActive(true);
         }
         StartCoroutine("UnpausePlayer");
     }

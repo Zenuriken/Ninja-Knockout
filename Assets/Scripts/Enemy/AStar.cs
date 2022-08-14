@@ -61,7 +61,8 @@ public class AStar : MonoBehaviour
 
     private void Awake() {
         platformLayerMask = LayerMask.GetMask("Platform");
-        spawnPos = this.transform.position;
+        RaycastHit2D raycastHit2D = Physics2D.Raycast(this.transform.position, Vector2.down, 100f, platformLayerMask);
+        spawnPos = raycastHit2D.point;
     }
 
     private void Start() {
@@ -382,7 +383,7 @@ public class AStar : MonoBehaviour
         Vector3Int goalPos = platformTilemap.WorldToCell(new Vector2(playerTrans.position.x, playerTrans.position.y - 1f));
 
         if (isReturningToPatrolPos) {
-            goalPos = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y - 1f));
+            goalPos = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y + 1f));
         }
 
         if (IsWalkable(startPos) && IsWalkable(goalPos)) {

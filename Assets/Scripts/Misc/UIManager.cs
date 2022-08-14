@@ -117,7 +117,11 @@ public class UIManager : MonoBehaviour
     }
 
     public void HidePlayerStatus(bool state) {
-        playerStatus.SetActive(state);
+        playerStatus.SetActive(!state);
+    }
+
+    public void SetDetectionAllowed(bool state) {
+        detectionAllowed = state;
     }
     #endregion
 
