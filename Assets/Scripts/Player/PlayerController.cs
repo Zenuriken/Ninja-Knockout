@@ -153,6 +153,7 @@ public class PlayerController : MonoBehaviour
     private KeyCode sneakKey = KeyCode.LeftControl;
     private KeyCode upKey = KeyCode.UpArrow;
     private KeyCode downKey = KeyCode.DownArrow;
+    private KeyCode removePopUp = KeyCode.Escape;
 
     // Player Input Variables
     private bool rightPressed;
@@ -167,6 +168,7 @@ public class PlayerController : MonoBehaviour
     private bool sneakHolding;
     private bool upHolding;
     private bool downHolding;
+    private bool escapePressed;
 
     // State Variables
     private bool isJumping;
@@ -313,6 +315,8 @@ public class PlayerController : MonoBehaviour
 
         if (!hasDied) {
             // Get Player Input
+            escapePressed = Input.GetKeyDown(removePopUp);
+
             if (playerInputEnabled) {
                 xInput = Input.GetAxisRaw("Horizontal");
                 jumpPressed = Input.GetKeyDown(jumpKey);
@@ -338,6 +342,11 @@ public class PlayerController : MonoBehaviour
                 Attack();
             }
             HidePlayer();
+
+            if (escapePressed) {
+                UIManager.singleton.RemoveTutorialScreen();
+            }
+
 
             if (titleScreenModeEnabled) {
                 playerRB.velocity = new Vector2(speed, playerRB.velocity.y);

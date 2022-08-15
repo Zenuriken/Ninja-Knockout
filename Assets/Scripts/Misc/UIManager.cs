@@ -24,6 +24,9 @@ public class UIManager : MonoBehaviour
     [Tooltip("List of textures for shuriken UI.")]
     private List<Texture> shurikenList;
     [SerializeField]
+    [Tooltip("List of textures for Tutorial Popup.")]
+    private List<Texture> tutorialPopUps;
+    [SerializeField]
     [Tooltip("How fast the screen fades away when damaged.")]
     private float fadeAwaySpeed;
     [SerializeField]
@@ -55,6 +58,11 @@ public class UIManager : MonoBehaviour
     private GameObject buttons;
     private GameObject title;
 
+    private GameObject tutorialPopUp;
+    private RawImage currTutorial;
+    private GameObject tutorialBackground;
+    private bool showingTutorial;
+
     private void Awake() {
         if (singleton != null && singleton != this) { 
             Destroy(this.gameObject); 
@@ -72,6 +80,10 @@ public class UIManager : MonoBehaviour
             fadeOutScreen = this.transform.GetChild(1).GetComponent<Image>();
             detectedScreen = this.transform.GetChild(2).GetComponent<Image>();
             detectedTxt = detectedScreen.transform.GetChild(0).GetComponent<TMP_Text>();
+
+            tutorialPopUp = this.transform.GetChild(6).gameObject;
+            currTutorial = tutorialPopUp.GetComponent<RawImage>();
+            tutorialBackground = this.transform.GetChild(7).gameObject;
         }
     }
 
@@ -94,6 +106,9 @@ public class UIManager : MonoBehaviour
             buttons.SetActive(false);
             title.SetActive(false);
         }
+        currTutorial.texture = null;
+        currTutorial.color = new Color(0f, 0f, 0f, 0f);
+        tutorialBackground.SetActive(false);
     }
 
     // called third
@@ -170,6 +185,47 @@ public class UIManager : MonoBehaviour
 
     public void SetDetectionAllowed(bool state) {
         detectionAllowed = state;
+    }
+
+    public void ShowTutorialScreen(string name) {
+        showingTutorial = true;
+        if (name == "Move") {
+            currTutorial.texture = tutorialPopUps[0];
+        } else if (name == "Jump") {
+            currTutorial.texture = tutorialPopUps[1];
+        } else if (name == "DoubleJump") {
+            currTutorial.texture = tutorialPopUps[2];
+        } else if (name == "Melee") {
+            currTutorial.texture = tutorialPopUps[3];
+        } else if (name == "WallClimb") {
+            currTutorial.texture = tutorialPopUps[4];
+        } else if (name == "StealthKill") {
+            currTutorial.texture = tutorialPopUps[5];
+        } else if (name == "Fire") {
+            currTutorial.texture = tutorialPopUps[6];
+        } else if (name == "Aim") {
+            currTutorial.texture = tutorialPopUps[7];
+        } else if (name == "Sneak") {
+            currTutorial.texture = tutorialPopUps[8];
+        } else if (name == "Hide") {
+            currTutorial.texture = tutorialPopUps[9];
+        } else {
+            currTutorial.texture = null;
+            currTutorial.color = new Color(0f, 0f, 0f, 0f);
+        }
+        currTutorial.color = new Color(1f, 1f, 1f, 1f);
+        tutorialBackground.SetActive(true);
+        Time.timeScale = 0f;
+    }
+
+    public void RemoveTutorialScreen() {
+        if(showingTutorial) {
+            currTutorial.texture = null;
+            currTutorial.color = new Color(0f, 0f, 0f, 0f);
+            tutorialBackground.SetActive(false);
+            showingTutorial = false;
+            Time.timeScale = 1f;
+        }
     }
     #endregion
 
