@@ -13,7 +13,7 @@ public class UIManager : MonoBehaviour
 
     private int health;
     private int shurikensRemaining;
-    private int score;
+    private int gold;
 
     #region UI Lists
     [Header("UI Lists")]
@@ -23,6 +23,9 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     [Tooltip("List of textures for shuriken UI.")]
     private List<Texture> shurikenList;
+    [SerializeField]
+    [Tooltip("List of textures backgrounds for shuriken UI.")]
+    private List<Texture> shurikenBackgroundList;
     [SerializeField]
     [Tooltip("List of textures for Tutorial Popup.")]
     private List<Texture> tutorialPopUps;
@@ -61,6 +64,9 @@ public class UIManager : MonoBehaviour
     [Tooltip("How fast the screen fades when dying.")]
     private float deathFadeAwaySpeed;
     [SerializeField]
+    [Tooltip("How fast the gold UI will fade")]
+    private float goldUIFadeSpeed;
+    [SerializeField]
     [Tooltip("The delay before fading the screen.")]
     private float fadeAwayDelay;
     [SerializeField]
@@ -78,11 +84,16 @@ public class UIManager : MonoBehaviour
     private bool isShowingTutorialPrompt;
     private bool hasDetectionScreen;
     private RawImage currHealthSprite;
+    private RawImage currShurikenBackgroundSprite;
     private RawImage currShurikenSprite;
     private RawImage currTutorial;
+    private RawImage goldSprite;
     private Image fadeOutScreenImg;
     private Image detectedScreenImg;
     private TMP_Text detectedTxt;
+    private TMP_Text goldTxt;
+    private float pickUpTime;
+    
 
     private void Awake() {
         if (singleton != null && singleton != this) { 
@@ -92,11 +103,15 @@ public class UIManager : MonoBehaviour
             singleton = this;
             DontDestroyOnLoad(this.gameObject);
             currHealthSprite = playerStatus.transform.GetChild(2).GetComponent<RawImage>();
+            currShurikenBackgroundSprite = playerStatus.transform.GetChild(3).GetComponent<RawImage>();
             currShurikenSprite = playerStatus.transform.GetChild(4).GetComponent<RawImage>();
             currTutorial = tutorialPopUp.GetComponent<RawImage>();
             fadeOutScreenImg = fadeOutScreen.GetComponent<Image>();
             detectedScreenImg = detectionScreen.GetComponent<Image>();
             detectedTxt = detectionScreen.transform.GetChild(0).GetComponent<TMP_Text>();
+
+            goldSprite = playerStatus.transform.GetChild(5).GetComponent<RawImage>();
+            goldTxt = goldSprite.transform.GetChild(0).GetComponent<TMP_Text>();
         }
     }
 
@@ -137,9 +152,20 @@ public class UIManager : MonoBehaviour
     
     #region Public Function
     // Increases the player's score by amount.
-    public void IncreaseScoreBy(int amount) {
-        score += amount;
+    public void UpdateGold(int amount) {
+        pickUpTime = Time.time;
+        goldTxt.alpha = 1f;
+        goldSprite.color = new Color(1f, 1f, 1f, 1f);
+        gold = amount;
+        goldTxt.text = gold.ToString();
+        StartCoroutine("FadeGoldUI");
     }
+
+    // Initializes the background for the shuriken UI.
+    public void InitializeShurikenBackground(int maxShurikens) {
+        currShurikenBackgroundSprite.texture = shurikenBackgroundList[maxShurikens - 2];
+    }
+
 
     // Updates the shurikens remaining UI.
     public void UpdateShurikenNum(int newNum) {
@@ -260,6 +286,9 @@ public class UIManager : MonoBehaviour
     public void DisableTitleButtons() {
         titleButtons.SetActive(false);
     }
+
+    // Updates the gold collected UI text
+    
     #endregion
 
     #region Coroutine Functions
@@ -319,6 +348,22 @@ public class UIManager : MonoBehaviour
         detectedTxt.alpha = 0f;
         PlayerController.singleton.SetPlayerInput(true);
         Time.timeScale = 1f;
+    }
+
+    // Fades the Gold UI after picking up gold.
+    IEnumerator FadeGoldUI() {
+        yield return new WaitForSeconds(fadeAwayDelay);
+        if (pickUpTime > Time.time - fadeAwayDelay) {
+            yield break;
+        }
+        for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * goldUIFadeSpeed) {
+            if (pickUpTime > Time.time - fadeAwayDelay) {
+                yield break;
+            }
+            goldSprite.color = new Color(1f, 1f, 1f, alpha);
+            goldTxt.alpha = alpha;
+            yield return new WaitForEndOfFrame();
+        }
     }
     #endregion
 }

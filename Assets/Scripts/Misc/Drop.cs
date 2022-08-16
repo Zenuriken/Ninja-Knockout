@@ -96,6 +96,7 @@ public class Drop : MonoBehaviour
                 pickUpSound.Play();
                 canPick = false;
                 sprite.enabled = false;
+                playerScript.IncreaseGoldBy(1);
                 Invoke("Destroy", 2f);
             }
         }

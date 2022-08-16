@@ -244,6 +244,7 @@ public class PlayerController : MonoBehaviour {
     private int lastDir;
     private int side;
     private int alertedNum;
+    private int gold;
 
     // Private Animator Private Variables
     private Animator playerAnim;
@@ -305,6 +306,7 @@ public class PlayerController : MonoBehaviour {
         numShurikens = startingShurikens;
         if (!titleScreenModeEnabled) {
             UIManager.singleton.UpdateShurikenNum(numShurikens);
+            UIManager.singleton.InitializeShurikenBackground(maxShurikens);
         }
     }
     #endregion
@@ -569,7 +571,7 @@ public class PlayerController : MonoBehaviour {
             dashCounter = 1;
         }
         // If the player has landed on the grounded.
-        if (lastGroundStatus == false && isGrounded == true && FallDistanceMet(this.transform.position)) {
+        if (lastGroundStatus == false && isGrounded == true && FallDistanceMet(this.transform.position) && raycastHit2D.collider.tag == "Platform") {
             CreateDust(0);
             sounds.Play("Landing");
         }
@@ -898,7 +900,7 @@ public class PlayerController : MonoBehaviour {
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
-        if (Mathf.Abs(playerRB.velocity.x) > 0) {
+        if (Mathf.Abs(playerRB.velocity.x) > 0f) {
             playerAnim.SetBool("isMoving", true);
         } else {
             playerAnim.SetBool("isMoving", false);
@@ -1054,6 +1056,11 @@ public class PlayerController : MonoBehaviour {
     public void IncreaseShurikenNumBy(int num) {
         numShurikens += num;
         UIManager.singleton.UpdateShurikenNum(numShurikens);
+    }
+
+    public void IncreaseGoldBy(int num) {
+        gold += num;
+        UIManager.singleton.UpdateGold(gold);
     }
 
     public bool CanPickUpShuriken() {

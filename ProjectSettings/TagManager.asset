@@ -11,6 +11,7 @@ TagManager:
   - PlayerCenter
   - Lever
   - Destructible
+  - OneWayPlatform
   layers:
   - Default
   - TransparentFX

@@ -514,11 +514,11 @@ public class EnemyController : MonoBehaviour
     // Kills the enemy
     IEnumerator Death() {
         hasDied = true;
-        if (!isAlerted) {
-            UIManager.singleton.IncreaseScoreBy(enemyPoints * 2);
-        } else {
-            UIManager.singleton.IncreaseScoreBy(enemyPoints);
-        }
+        // if (!isAlerted) {
+        //     UIManager.singleton.IncreaseScoreBy(enemyPoints * 2);
+        // } else {
+        //     UIManager.singleton.IncreaseScoreBy(enemyPoints);
+        // }
         alertedObj.SetActive(false);
         SetHighLight(false);
         if (playerIsInThrowingRange && isAlerted) {
