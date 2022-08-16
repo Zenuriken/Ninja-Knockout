@@ -4,10 +4,9 @@ using UnityEngine;
 using TMPro;
 using System.IO.IsolatedStorage;
 
-public class PlayerController : MonoBehaviour
-{
+public class PlayerController : MonoBehaviour {
     public static PlayerController singleton;
-    
+
     #region Movement Variables
     [Header("Movement")]
     [SerializeField]
@@ -96,6 +95,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     [Tooltip("The radius of the shuriken for collision detection.")]
     private float shurikenRadius;
+
     // [SerializeField]
     // [Tooltip("The knock back force when clashing with a platform or enemy.")]
     // private float knockBackForce;
@@ -248,17 +248,21 @@ public class PlayerController : MonoBehaviour
     // Private Animator Private Variables
     private Animator playerAnim;
     private SpriteRenderer playerSprite;
+
+    // Private Respawn Variables
+    private Vector2 spawnLocation;
+    private int spawnHealth;
+    private int spawnShurikens;
     #endregion
 
-/**********************************************************************************/
+    /**********************************************************************************/
 
     #region Initializing Functions
     // Awake is called before Start
     private void Awake() {
-        if (singleton != null && singleton != this) { 
-            Destroy(this.gameObject); 
-        } 
-        else { 
+        if (singleton != null && singleton != this) {
+            Destroy(this.gameObject);
+        } else {
             singleton = this;
             DontDestroyOnLoad(this.gameObject);
 
@@ -274,7 +278,7 @@ public class PlayerController : MonoBehaviour
             allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
             enemyAndPlatformLayerMask = LayerMask.GetMask("Enemy", "Platform", "OneWayPlatform");
             meleeScript = this.transform.GetChild(1).GetComponent<Melee>();
-            
+
             firePointTrans = this.transform.GetChild(0).transform;
             skillShotTrans = firePointTrans.GetChild(0).transform;
             skillShotSprite = skillShotTrans.GetComponent<SpriteRenderer>();
@@ -289,8 +293,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
         speed = moveSpeed;
         lastDir = 1;
         gravity = playerRB.gravityScale;
@@ -308,8 +311,7 @@ public class PlayerController : MonoBehaviour
 
     #region Update Functions
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
         // Limits the velocity when falling
         playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
 
@@ -535,7 +537,7 @@ public class PlayerController : MonoBehaviour
         // Create ground dust
         if (s == 0) {
             groundDust.Play();
-        // Create wall dust on appropriate side.
+            // Create wall dust on appropriate side.
         } else if (s == 1) {
             wallClimbDust.Play();
         }
@@ -580,9 +582,9 @@ public class PlayerController : MonoBehaviour
         RaycastHit2D raycastHit2D;
         // Check right
         if (lastDir == 1) {
-           raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 0.6f), 0f, Vector2.right, 0.1f, platformLayerMask);
-           currSide = 1;
-        // Check left
+            raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 0.6f), 0f, Vector2.right, 0.1f, platformLayerMask);
+            currSide = 1;
+            // Check left
         } else {
             raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 0.6f), 0f, Vector2.left, 0.1f, platformLayerMask);
             currSide = -1;
@@ -642,9 +644,9 @@ public class PlayerController : MonoBehaviour
                     if (!enemyScript.HasDied()) {
                         enemyScript.SetHighLight(true);
                     }
-                // If the raycast was null, and the last raycast hit an enmy and that enemy hasn't died.
+                    // If the raycast was null, and the last raycast hit an enmy and that enemy hasn't died.
                 } else if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
-                        lastEnemyContact.SetHighLight(false);
+                    lastEnemyContact.SetHighLight(false);
                 }
             } else if (fireHolding) {
                 currHoldTime += Time.deltaTime;
@@ -665,7 +667,7 @@ public class PlayerController : MonoBehaviour
             }
 
         }
-        
+
         if (meleePressed && CanAttack() && isGrounded && !isDashing && !isWallClimbing && !isWallJumping) {
             skillShotSprite.enabled = false;
             if (isGrounded) {
@@ -781,9 +783,9 @@ public class PlayerController : MonoBehaviour
                     if (!enemyScript.HasDied()) {
                         enemyScript.SetHighLight(true);
                     }
-                // If the raycast was null, and the last raycast hit an enmy and that enemy hasn't died.
+                    // If the raycast was null, and the last raycast hit an enmy and that enemy hasn't died.
                 } else if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
-                        lastEnemyContact.SetHighLight(false);
+                    lastEnemyContact.SetHighLight(false);
                 }
             } else if (fireHolding) {
                 currHoldTime += Time.deltaTime;
@@ -907,7 +909,7 @@ public class PlayerController : MonoBehaviour
         } else {
             playerAnim.SetBool("isJumping", false);
         }
-        
+
         if (playerRB.velocity.y < -0.001) {
             playerAnim.SetBool("isFalling", true);
         } else {
@@ -1067,12 +1069,31 @@ public class PlayerController : MonoBehaviour
         UIManager.singleton.UpdateShurikenNum(numShurikens);
     }
 
+    // Reset the player to the beginning of the level.
     public void Reset() {
         titleScreenModeEnabled = false;
         alertedNum = 0;
         playerRB.velocity = Vector2.zero;
         playerRB.position = Vector2.zero;
         numShurikens = startingShurikens;
+        Health healthScript = this.GetComponent<Health>();
+        healthScript.ResetHealth();
+        UIManager.singleton.UpdateHealth(healthScript.GetHealth());
+        UIManager.singleton.UpdateShurikenNum(numShurikens);
+        SetPlayerInput(true);
+    }
+
+    // Respawns the player to the last saved game state.
+    public void Respawn() {
+        titleScreenModeEnabled = false;
+        alertedNum = 0;
+        playerRB.velocity = Vector2.zero;
+        playerRB.position = spawnLocation;
+        numShurikens = spawnShurikens;
+        Health healthScript = this.GetComponent<Health>();
+        healthScript.SetPlayerHealth(spawnHealth);
+        UIManager.singleton.UpdateHealth(healthScript.GetHealth());
+        UIManager.singleton.UpdateShurikenNum(numShurikens);
         SetPlayerInput(true);
     }
 
@@ -1083,12 +1104,20 @@ public class PlayerController : MonoBehaviour
     public int GetNumShurikens() {
         return numShurikens;
     }
+
+    // Saves the last game state of the player.
+    public void SetSpawnLocation(Vector2 location) {
+        spawnLocation = location;
+        Health healthScript = this.GetComponent<Health>();
+        spawnHealth = healthScript.GetHealth();
+        spawnShurikens = numShurikens;
+    }
     #endregion
 
     #region Misc Functions
     public Vector2 GetVectorFromAngle(float angle) {
         // angle = 0 -> 360
-        float angleRad = angle * (Mathf.PI/180f);
+        float angleRad = angle * (Mathf.PI / 180f);
         return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
     }
 

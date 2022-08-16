@@ -7,7 +7,7 @@ public class Hazard : MonoBehaviour
     Health healthScript;
 
     private void Awake() {
-        healthScript = GameObject.Find("Player").GetComponent<Health>();
+        healthScript = PlayerController.singleton.GetComponent<Health>();
     }
     
     private void OnCollisionStay2D(Collision2D other) {

@@ -8,11 +8,8 @@ using UnityEngine.SceneManagement;
 public class UIManager : MonoBehaviour
 {
     public static UIManager singleton;
-    public static bool detectionAllowed;
-    public static bool tutorialEnabled;
-    private static Vector2 spawnLocation;
-    private static int spawnHealth;
-    private static int spawnShurikens;
+    public bool detectionAllowed;
+    public bool tutorialEnabled;
 
     private int health;
     private int shurikensRemaining;
@@ -75,6 +72,7 @@ public class UIManager : MonoBehaviour
     [Space(5)]
     #endregion
 
+    private bool isFading;
     private bool isBlackingOutScreen;
     private bool isShowingTutorialPopUp;
     private bool isShowingTutorialPrompt;
@@ -168,11 +166,11 @@ public class UIManager : MonoBehaviour
     }
 
     // Fades the screen
-    public void FadeScreen() {
-        if (!isBlackingOutScreen) {
-            StartCoroutine("BlackOut");
-        }
-    }
+    // public void FadeSreen() {
+    //     if (!isBlackingOutScreen) {
+    //         StartCoroutine("BlackOut");
+    //     }
+    // }
 
     // Fades the screen to black.
     public void FadeOutScreen() {
@@ -182,13 +180,6 @@ public class UIManager : MonoBehaviour
     // Fades the screen back into view.
     public void FadeInScreen() {
         StartCoroutine("FadeIn");
-    }
-
-    // Saves the last game state of the player.
-    public void SetSpawnLocation(Vector2 location) {
-        spawnLocation = location;
-        spawnHealth = health;
-        spawnShurikens = shurikensRemaining;
     }
 
     // Fades in detection screen if detection is not allowed.
@@ -247,10 +238,9 @@ public class UIManager : MonoBehaviour
         if (isShowingTutorialPopUp) {
             RemoveTutorialPopUp();
         } else if (isShowingTutorialPrompt) {
-            ShowTutorialPrompt(false)
-;        }
+            ShowTutorialPrompt(false);
+        }
     }
-
 
     // Removes the tutorial pop up if it's currently being displayed.
     public void RemoveTutorialPopUp() {
@@ -291,112 +281,120 @@ public class UIManager : MonoBehaviour
 
     #region Coroutine Functions
     IEnumerator FadeOut() {
-        float speed = deathFadeAwaySpeed;
-        for (float alpha = 0f; alpha < 1f; alpha += Time.deltaTime * speed) {
-            fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
-            yield return new WaitForEndOfFrame();
+        if(!isFading) {
+            isFading = true;
+            float speed = deathFadeAwaySpeed;
+            for (float alpha = 0f; alpha < 1f; alpha += Time.deltaTime * speed) {
+                fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
+                yield return new WaitForEndOfFrame();
+            }
+            fadeOutScreenImg.color = new Color(0f, 0f, 0f, 1f);
+            isFading = false;
         }
-        fadeOutScreenImg.color = new Color(0f, 0f, 0f, 1f);
     }
 
     IEnumerator FadeIn() {
-        float speed = deathFadeAwaySpeed;
-        yield return new WaitForSeconds(fadeAwayDelay);
+        if(!isFading) {
+            isFading = true;
+            float speed = deathFadeAwaySpeed;
+            yield return new WaitForSeconds(fadeAwayDelay);
             for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
                 fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
                 yield return new WaitForEndOfFrame();
             }
-        fadeOutScreenImg.color = new Color(0f, 0f, 0f, 0f);
+            fadeOutScreenImg.color = new Color(0f, 0f, 0f, 0f);
+            isFading = false;
+        }
     }
 
     // Fades the screen out to black.
-    IEnumerator BlackOut() {
-        isBlackingOutScreen = true;
-        float speed;
-        if (health <= 0) {
-            speed = deathFadeAwaySpeed;
-        } else {
-            speed = fadeAwaySpeed;
-        }
-        yield return new WaitForSeconds(fadeAwayDelay);
-        for (float alpha = 0f; alpha < 1f; alpha += Time.deltaTime * speed) {
-            fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
-            yield return new WaitForEndOfFrame();
-        }
-        fadeOutScreenImg.color = new Color(0f, 0f, 0f, 1f);
+    // IEnumerator BlackOut() {
+    //     isBlackingOutScreen = true;
+    //     float speed;
+    //     if (health <= 0) {
+    //         speed = deathFadeAwaySpeed;
+    //     } else {
+    //         speed = fadeAwaySpeed;
+    //     }
+    //     yield return new WaitForSeconds(fadeAwayDelay);
+    //     for (float alpha = 0f; alpha < 1f; alpha += Time.deltaTime * speed) {
+    //         fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
+    //         yield return new WaitForEndOfFrame();
+    //     }
+    //     fadeOutScreenImg.color = new Color(0f, 0f, 0f, 1f);
 
-        // If the player is still alive, bring them to the last checkpoint. If not, then restart level.
-        PlayerController playerScript = PlayerController.singleton;
-        if (health > 0) {
-            playerScript.SetPlayerInput(false);
-            Rigidbody2D playerRB = playerScript.GetComponent<Rigidbody2D>();
-            playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
-            playerScript.transform.position = spawnLocation;
-            PlayerController.singleton.ResetAlertedNum();
-            yield return new WaitForSeconds(fadeAwayDelay);
-            for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
-                fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
-                yield return new WaitForEndOfFrame();
-            }
-            fadeOutScreenImg.color = new Color(0f, 0f, 0f, 0f);
-        } else {
-            Debug.Log("Level reset");
-            PlayerController.singleton.SetPlayerInput(false);
-            Rigidbody2D playerRB = PlayerController.singleton.GetComponent<Rigidbody2D>();
-            playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
-            PlayerController.singleton.Reset();
-            UIManager.singleton.UpdateShurikenNum(PlayerController.singleton.GetNumShurikens());
-            Health healthScript = PlayerController.singleton.GetComponent<Health>();
-            healthScript.ResetHealth();
-            PlayerController.singleton.ResetAlertedNum();
-            SceneManager.LoadScene("Tutorial");
-            yield return new WaitForSeconds(fadeAwayDelay);
-            for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
-                fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
-                yield return new WaitForEndOfFrame();
-            }
-            fadeOutScreenImg.color = new Color(0f, 0f, 0f, 0f);
+    //     // If the player is still alive, bring them to the last checkpoint. If not, then restart level.
+    //     PlayerController playerScript = PlayerController.singleton;
+    //     if (health > 0) {
+    //         playerScript.SetPlayerInput(false);
+    //         Rigidbody2D playerRB = playerScript.GetComponent<Rigidbody2D>();
+    //         playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
+    //         playerScript.transform.position = spawnLocation;
+    //         PlayerController.singleton.ResetAlertedNum();
+    //         yield return new WaitForSeconds(fadeAwayDelay);
+    //         for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
+    //             fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
+    //             yield return new WaitForEndOfFrame();
+    //         }
+    //         fadeOutScreenImg.color = new Color(0f, 0f, 0f, 0f);
+    //     } else {
+    //         Debug.Log("Level reset");
+    //         PlayerController.singleton.SetPlayerInput(false);
+    //         Rigidbody2D playerRB = PlayerController.singleton.GetComponent<Rigidbody2D>();
+    //         playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
+    //         PlayerController.singleton.Reset();
+    //         UIManager.singleton.UpdateShurikenNum(PlayerController.singleton.GetNumShurikens());
+    //         Health healthScript = PlayerController.singleton.GetComponent<Health>();
+    //         healthScript.ResetHealth();
+    //         PlayerController.singleton.ResetAlertedNum();
+    //         SceneManager.LoadScene("Tutorial");
+    //         yield return new WaitForSeconds(fadeAwayDelay);
+    //         for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
+    //             fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
+    //             yield return new WaitForEndOfFrame();
+    //         }
+    //         fadeOutScreenImg.color = new Color(0f, 0f, 0f, 0f);
 
-        }
-        isBlackingOutScreen = false;
-        playerScript.SetPlayerInput(true);
-    }
+    //     }
+    //     isBlackingOutScreen = false;
+    //     playerScript.SetPlayerInput(true);
+    // }
 
     // Fades in the detection screen.
-    IEnumerator DetectionScreen() {
-        hasDetectionScreen = true;
-        Time.timeScale = 0.25f;
-        // Fade in the detection screen
-        yield return new WaitForSeconds(detectionScreenDelay);
-        for (float alpha = 0f; alpha <= 1f; alpha += Time.deltaTime * detectionScreenSpeed) {
-            detectedScreenImg.color = new Color(0.2f, 0f, 0f, alpha);
-            detectedTxt.alpha = alpha;
-            yield return new WaitForEndOfFrame();
-        }
-        detectedScreenImg.color = new Color(0.2f, 0f, 0f, 1f);
-        detectedTxt.alpha = 1f;
+    // IEnumerator DetectionScreen() {
+    //     hasDetectionScreen = true;
+    //     Time.timeScale = 0.25f;
+    //     // Fade in the detection screen
+    //     yield return new WaitForSeconds(detectionScreenDelay);
+    //     for (float alpha = 0f; alpha <= 1f; alpha += Time.deltaTime * detectionScreenSpeed) {
+    //         detectedScreenImg.color = new Color(0.2f, 0f, 0f, alpha);
+    //         detectedTxt.alpha = alpha;
+    //         yield return new WaitForEndOfFrame();
+    //     }
+    //     detectedScreenImg.color = new Color(0.2f, 0f, 0f, 1f);
+    //     detectedTxt.alpha = 1f;
 
-        // While screen is covered, reset the player to last spawn point.
-        PlayerController.singleton.SetPlayerInput(false);
-        Rigidbody2D playerRB = PlayerController.singleton.GetComponent<Rigidbody2D>();
-        playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
-        PlayerController.singleton.transform.position = spawnLocation;
-        PlayerController.singleton.SetNumShurikens(spawnShurikens);
-        Health healthScript = PlayerController.singleton.GetComponent<Health>();
-        healthScript.SetPlayerHealth(spawnHealth);
-        PlayerController.singleton.ResetAlertedNum();
-        SceneManager.LoadScene("Tutorial");
-        // Fade out the detection screen
-        yield return new WaitForSeconds(detectionScreenDelay * 2f);
-        for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * detectionScreenSpeed) {
-            detectedScreenImg.color = new Color(0.2f, 0f, 0f, alpha);
-            detectedTxt.alpha = alpha;
-            yield return new WaitForEndOfFrame();
-        }
-        detectedScreenImg.color = new Color(0f, 0f, 0f, 0f);
-        detectedTxt.alpha = 0f;
-        PlayerController.singleton.SetPlayerInput(true);
-        Time.timeScale = 1f;
-    }
+    //     // While screen is covered, reset the player to last spawn point.
+    //     PlayerController.singleton.SetPlayerInput(false);
+    //     Rigidbody2D playerRB = PlayerController.singleton.GetComponent<Rigidbody2D>();
+    //     playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
+    //     PlayerController.singleton.transform.position = spawnLocation;
+    //     PlayerController.singleton.SetNumShurikens(spawnShurikens);
+    //     Health healthScript = PlayerController.singleton.GetComponent<Health>();
+    //     healthScript.SetPlayerHealth(spawnHealth);
+    //     PlayerController.singleton.ResetAlertedNum();
+    //     SceneManager.LoadScene("Tutorial");
+    //     // Fade out the detection screen
+    //     yield return new WaitForSeconds(detectionScreenDelay * 2f);
+    //     for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * detectionScreenSpeed) {
+    //         detectedScreenImg.color = new Color(0.2f, 0f, 0f, alpha);
+    //         detectedTxt.alpha = alpha;
+    //         yield return new WaitForEndOfFrame();
+    //     }
+    //     detectedScreenImg.color = new Color(0f, 0f, 0f, 0f);
+    //     detectedTxt.alpha = 0f;
+    //     PlayerController.singleton.SetPlayerInput(true);
+    //     Time.timeScale = 1f;
+    // }
     #endregion
 }

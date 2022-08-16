@@ -47,6 +47,19 @@ public class Health : MonoBehaviour
         }
     }
 
+    // Controls the player's death animation.
+    private void Death() {
+        hasDied = true;
+        // 7 = Player Layer, 9 = Enemy Layer
+        Physics2D.IgnoreLayerCollision(7, 9, true);
+        Physics2D.IgnoreLayerCollision(0, 9, true);
+        playerRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+        playerScript.SetHasDied(true);
+        UIManager.singleton.FadeOutScreen();
+        UIManager.singleton.FadeInScreen();
+    }
+
+    #region Coroutines
     // Prevents the player from moving when getting hit
     private IEnumerator Stunned(Vector2 dir) {
         playerScript.SetStunned(true);
@@ -90,42 +103,30 @@ public class Health : MonoBehaviour
         Physics2D.IgnoreLayerCollision(7, 9, false);
         Physics2D.IgnoreLayerCollision(0, 9, false);
     }
+    #endregion
 
-    // Controls the player's death animation.
-    private void Death() {
-        hasDied = true;
-        // 7 = Player Layer, 9 = Enemy Layer
-        Physics2D.IgnoreLayerCollision(7, 9, true);
-        Physics2D.IgnoreLayerCollision(0, 9, true);
-        playerRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
-        playerScript.SetHasDied(true);
-    }
-
+    #region Public Functions
     // Decreases the player's current health by x amount.
     public void TakeDmg(int x, Vector3 enemyPos) {
-        if (!isBuffering) {
+        if (!isBuffering && !hasDied) {
             currHealth -= x;
             UIManager.singleton.UpdateHealth(currHealth);
 
             // Kill the player
             if (currHealth <= 0) {
-                UIManager.singleton.FadeScreen();
-                //playerScript.SetPlayerInput(false);
                 Death();
                 return;
             }
 
             // Stun the Player
-            if (!hasDied) {
-                Vector2 dir = new Vector2(1f / 2f, Mathf.Sqrt(3) / 2f);
-                float collisionDir = this.gameObject.transform.position.x - enemyPos.x;
-                if (collisionDir < 0) {
-                    dir.x *= -1;
-                }
-                sounds.Play("Grunt");
-                StartCoroutine(Stunned(dir));
-                StartCoroutine("DamageBuffer");
+            Vector2 dir = new Vector2(1f / 2f, Mathf.Sqrt(3) / 2f);
+            float collisionDir = this.gameObject.transform.position.x - enemyPos.x;
+            if (collisionDir < 0) {
+                dir.x *= -1;
             }
+            sounds.Play("Grunt");
+            StartCoroutine(Stunned(dir));
+            StartCoroutine("DamageBuffer");
         }
     }
 
@@ -133,7 +134,8 @@ public class Health : MonoBehaviour
     public void TakeEnvironDmg(int x) {
         currHealth -= x;
         UIManager.singleton.UpdateHealth(currHealth);
-        UIManager.singleton.FadeScreen();
+        UIManager.singleton.FadeOutScreen();
+        UIManager.singleton.FadeInScreen();
         playerScript.SetPlayerInput(false);
 
         // Kill the player
@@ -172,6 +174,9 @@ public class Health : MonoBehaviour
     public bool CanPickUpHealth() {
         return currHealth < maxHealth;
     }
+
+    public int GetHealth() {
+        return currHealth;
+    }
+    #endregion
 }
-
-
