@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager singleton;
     public static bool detectionAllowed;
+    public static bool tutorialEnabled;
     private static Vector2 spawnLocation;
     private static int spawnHealth;
     private static int spawnShurikens;
@@ -17,6 +18,8 @@ public class UIManager : MonoBehaviour
     private int shurikensRemaining;
     private int score;
 
+    #region UI Lists
+    [Header("UI Lists")]
     [SerializeField]
     [Tooltip("List of textures for health UI.")]
     private List<Texture> healthList;
@@ -26,6 +29,34 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     [Tooltip("List of textures for Tutorial Popup.")]
     private List<Texture> tutorialPopUps;
+    [Space(5)]
+    #endregion
+
+    #region UI Components
+    [Header("UI Components")]
+    [SerializeField]
+    private GameObject playerStatus;
+    [SerializeField]
+    private GameObject blackBars;
+    [SerializeField]
+    private GameObject titleButtons;
+    [SerializeField]
+    private GameObject title;
+    [SerializeField]
+    private GameObject tutorialPrompt;
+    [SerializeField]
+    private GameObject tutorialBackground;
+    [SerializeField]
+    private GameObject tutorialPopUp;
+    [SerializeField]
+    private GameObject fadeOutScreen;
+    [SerializeField]
+    private GameObject detectionScreen;
+    [Space(5)]
+    #endregion
+
+    #region Screen Variables
+    [Header("Screen Fade Properties")]
     [SerializeField]
     [Tooltip("How fast the screen fades away when damaged.")]
     private float fadeAwaySpeed;
@@ -41,27 +72,18 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     [Tooltip("The delay before the detection screen appears")]
     private float detectionScreenDelay;
+    [Space(5)]
+    #endregion
 
     private bool isBlackingOutScreen;
+    private bool isShowingTutorial;
     private bool hasDetectionScreen;
-    private RawImage curHealthSprite;
-    private RawImage curShurikenSprite;
-    private Image fadeOutScreen;
-    private Image detectedScreen;
-    private TMP_Text detectedTxt;
-
-    private GameObject blackBars;
-    private GameObject playerStatus;
-    // private GameObject playButton;
-    // private GameObject optionButton;
-    // private GameObject quitButton;
-    private GameObject buttons;
-    private GameObject title;
-
-    private GameObject tutorialPopUp;
+    private RawImage currHealthSprite;
+    private RawImage currShurikenSprite;
     private RawImage currTutorial;
-    private GameObject tutorialBackground;
-    private bool showingTutorial;
+    private Image fadeOutScreenImg;
+    private Image detectedScreenImg;
+    private TMP_Text detectedTxt;
 
     private void Awake() {
         if (singleton != null && singleton != this) { 
@@ -70,20 +92,12 @@ public class UIManager : MonoBehaviour
         else { 
             singleton = this;
             DontDestroyOnLoad(this.gameObject);
-
-            playerStatus = this.transform.GetChild(0).gameObject;
-            blackBars = this.transform.GetChild(3).gameObject;
-            buttons = this.transform.GetChild(4).gameObject;
-            title = this.transform.GetChild(5).gameObject;
-            curHealthSprite = playerStatus.transform.GetChild(2).GetComponent<RawImage>();
-            curShurikenSprite = playerStatus.transform.GetChild(4).GetComponent<RawImage>();
-            fadeOutScreen = this.transform.GetChild(1).GetComponent<Image>();
-            detectedScreen = this.transform.GetChild(2).GetComponent<Image>();
-            detectedTxt = detectedScreen.transform.GetChild(0).GetComponent<TMP_Text>();
-
-            tutorialPopUp = this.transform.GetChild(6).gameObject;
+            currHealthSprite = playerStatus.transform.GetChild(2).GetComponent<RawImage>();
+            currShurikenSprite = playerStatus.transform.GetChild(4).GetComponent<RawImage>();
             currTutorial = tutorialPopUp.GetComponent<RawImage>();
-            tutorialBackground = this.transform.GetChild(7).gameObject;
+            fadeOutScreenImg = fadeOutScreen.GetComponent<Image>();
+            detectedScreenImg = detectionScreen.GetComponent<Image>();
+            detectedTxt = detectionScreen.transform.GetChild(0).GetComponent<TMP_Text>();
         }
     }
 
@@ -99,11 +113,11 @@ public class UIManager : MonoBehaviour
         string sceneName = scene.name;
         if (sceneName == "TitleScreen") {
             playerStatus.SetActive(false);
-            buttons.SetActive(true);
+            titleButtons.SetActive(true);
             title.SetActive(true);
         } else if (sceneName == "Tutorial") {
             playerStatus.SetActive(true);
-            buttons.SetActive(false);
+            titleButtons.SetActive(false);
             title.SetActive(false);
         }
         currTutorial.texture = null;
@@ -130,22 +144,22 @@ public class UIManager : MonoBehaviour
     public void UpdateShurikenNum(int newNum) {
         shurikensRemaining = newNum;
         if (shurikensRemaining <= 0) {
-            curShurikenSprite.texture = null;
-            curShurikenSprite.color = new Color(0f, 0f, 0f, 0f);
+            currShurikenSprite.texture = null;
+            currShurikenSprite.color = new Color(0f, 0f, 0f, 0f);
         } else {
-            curShurikenSprite.color = new Color(1f, 1f, 1f, 1f);
-            curShurikenSprite.texture = shurikenList[shurikensRemaining - 1];
+            currShurikenSprite.color = new Color(1f, 1f, 1f, 1f);
+            currShurikenSprite.texture = shurikenList[shurikensRemaining - 1];
         }
     }
 
     public void UpdateHealth(int newHealth) {
         health = newHealth;
         if (health <= 0) {
-            curHealthSprite.texture = null;
-            curHealthSprite.color = new Color(0f, 0f, 0f, 0f);
+            currHealthSprite.texture = null;
+            currHealthSprite.color = new Color(0f, 0f, 0f, 0f);
         } else if (health > 0) {
-            curHealthSprite.color = new Color(1f, 1f, 1f, 1f);
-            curHealthSprite.texture = healthList[health - 1];
+            currHealthSprite.color = new Color(1f, 1f, 1f, 1f);
+            currHealthSprite.texture = healthList[health - 1];
         }
     }
 
@@ -187,8 +201,8 @@ public class UIManager : MonoBehaviour
         detectionAllowed = state;
     }
 
-    public void ShowTutorialScreen(string name) {
-        showingTutorial = true;
+    public void ShowTutorialPopUp(string name) {
+        isShowingTutorial = true;
         if (name == "Move") {
             currTutorial.texture = tutorialPopUps[0];
         } else if (name == "Jump") {
@@ -218,14 +232,32 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 0f;
     }
 
-    public void RemoveTutorialScreen() {
-        if(showingTutorial) {
+    public void RemoveTutorialPopUp() {
+        if(isShowingTutorial) {
             currTutorial.texture = null;
             currTutorial.color = new Color(0f, 0f, 0f, 0f);
             tutorialBackground.SetActive(false);
-            showingTutorial = false;
+            isShowingTutorial = false;
             Time.timeScale = 1f;
         }
+    }
+
+    public void ShowTutorialPrompt(bool state) {
+        tutorialPrompt.SetActive(state); 
+        tutorialBackground.SetActive(state);
+        title.SetActive(state);
+    }
+
+    public void SetTutorialEnabled(bool state) {
+        tutorialEnabled = state;
+    }
+
+    public bool TutorialIsEnabled() {
+        return tutorialEnabled;
+    }
+
+    public void DisableTitleButtons() {
+        titleButtons.SetActive(false);
     }
     #endregion
 
@@ -233,20 +265,20 @@ public class UIManager : MonoBehaviour
     IEnumerator FadeOut() {
         float speed = deathFadeAwaySpeed;
         for (float alpha = 0f; alpha < 1f; alpha += Time.deltaTime * speed) {
-            fadeOutScreen.color = new Color(0f, 0f, 0f, alpha);
+            fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
             yield return new WaitForEndOfFrame();
         }
-        fadeOutScreen.color = new Color(0f, 0f, 0f, 1f);
+        fadeOutScreenImg.color = new Color(0f, 0f, 0f, 1f);
     }
 
     IEnumerator FadeIn() {
         float speed = deathFadeAwaySpeed;
         yield return new WaitForSeconds(fadeAwayDelay);
             for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
-                fadeOutScreen.color = new Color(0f, 0f, 0f, alpha);
+                fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
                 yield return new WaitForEndOfFrame();
             }
-        fadeOutScreen.color = new Color(0f, 0f, 0f, 0f);
+        fadeOutScreenImg.color = new Color(0f, 0f, 0f, 0f);
     }
 
     // Fades the screen out to black.
@@ -260,10 +292,10 @@ public class UIManager : MonoBehaviour
         }
         yield return new WaitForSeconds(fadeAwayDelay);
         for (float alpha = 0f; alpha < 1f; alpha += Time.deltaTime * speed) {
-            fadeOutScreen.color = new Color(0f, 0f, 0f, alpha);
+            fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
             yield return new WaitForEndOfFrame();
         }
-        fadeOutScreen.color = new Color(0f, 0f, 0f, 1f);
+        fadeOutScreenImg.color = new Color(0f, 0f, 0f, 1f);
 
         // If the player is still alive, bring them to the last checkpoint. If not, then restart level.
         PlayerController playerScript = PlayerController.singleton;
@@ -275,10 +307,10 @@ public class UIManager : MonoBehaviour
             PlayerController.singleton.ResetAlertedNum();
             yield return new WaitForSeconds(fadeAwayDelay);
             for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
-                fadeOutScreen.color = new Color(0f, 0f, 0f, alpha);
+                fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
                 yield return new WaitForEndOfFrame();
             }
-            fadeOutScreen.color = new Color(0f, 0f, 0f, 0f);
+            fadeOutScreenImg.color = new Color(0f, 0f, 0f, 0f);
         } else {
             Debug.Log("Level reset");
             PlayerController.singleton.SetPlayerInput(false);
@@ -292,10 +324,10 @@ public class UIManager : MonoBehaviour
             SceneManager.LoadScene("Tutorial");
             yield return new WaitForSeconds(fadeAwayDelay);
             for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
-                fadeOutScreen.color = new Color(0f, 0f, 0f, alpha);
+                fadeOutScreenImg.color = new Color(0f, 0f, 0f, alpha);
                 yield return new WaitForEndOfFrame();
             }
-            fadeOutScreen.color = new Color(0f, 0f, 0f, 0f);
+            fadeOutScreenImg.color = new Color(0f, 0f, 0f, 0f);
 
         }
         isBlackingOutScreen = false;
@@ -309,11 +341,11 @@ public class UIManager : MonoBehaviour
         // Fade in the detection screen
         yield return new WaitForSeconds(detectionScreenDelay);
         for (float alpha = 0f; alpha <= 1f; alpha += Time.deltaTime * detectionScreenSpeed) {
-            detectedScreen.color = new Color(0.2f, 0f, 0f, alpha);
+            detectedScreenImg.color = new Color(0.2f, 0f, 0f, alpha);
             detectedTxt.alpha = alpha;
             yield return new WaitForEndOfFrame();
         }
-        detectedScreen.color = new Color(0.2f, 0f, 0f, 1f);
+        detectedScreenImg.color = new Color(0.2f, 0f, 0f, 1f);
         detectedTxt.alpha = 1f;
 
         // While screen is covered, reset the player to last spawn point.
@@ -329,11 +361,11 @@ public class UIManager : MonoBehaviour
         // Fade out the detection screen
         yield return new WaitForSeconds(detectionScreenDelay * 2f);
         for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * detectionScreenSpeed) {
-            detectedScreen.color = new Color(0.2f, 0f, 0f, alpha);
+            detectedScreenImg.color = new Color(0.2f, 0f, 0f, alpha);
             detectedTxt.alpha = alpha;
             yield return new WaitForEndOfFrame();
         }
-        detectedScreen.color = new Color(0f, 0f, 0f, 0f);
+        detectedScreenImg.color = new Color(0f, 0f, 0f, 0f);
         detectedTxt.alpha = 0f;
         PlayerController.singleton.SetPlayerInput(true);
         Time.timeScale = 1f;

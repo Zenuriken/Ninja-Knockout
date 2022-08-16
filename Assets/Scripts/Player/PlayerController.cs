@@ -344,7 +344,7 @@ public class PlayerController : MonoBehaviour
             HidePlayer();
 
             if (escapePressed) {
-                UIManager.singleton.RemoveTutorialScreen();
+                UIManager.singleton.RemoveTutorialPopUp();
             }
 
 
