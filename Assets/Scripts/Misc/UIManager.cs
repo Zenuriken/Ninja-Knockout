@@ -76,7 +76,8 @@ public class UIManager : MonoBehaviour
     #endregion
 
     private bool isBlackingOutScreen;
-    private bool isShowingTutorial;
+    private bool isShowingTutorialPopUp;
+    private bool isShowingTutorialPrompt;
     private bool hasDetectionScreen;
     private RawImage currHealthSprite;
     private RawImage currShurikenSprite;
@@ -214,7 +215,7 @@ public class UIManager : MonoBehaviour
 
     // Changes the texture displayed for the tutorial prompt.
     public void ShowTutorialPopUp(string name) {
-        isShowingTutorial = true;
+        isShowingTutorialPopUp = true;
         if (name == "Move") {
             currTutorial.texture = tutorialPopUps[0];
         } else if (name == "Jump") {
@@ -241,27 +242,40 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 0f;
     }
 
+    // Exits whatever Pop Up or prompt is being displayed.
+    public void ExitPopUp() {
+        if (isShowingTutorialPopUp) {
+            RemoveTutorialPopUp();
+        } else if (isShowingTutorialPrompt) {
+            ShowTutorialPrompt(false)
+;        }
+    }
+
+
     // Removes the tutorial pop up if it's currently being displayed.
     public void RemoveTutorialPopUp() {
-        if(isShowingTutorial) {
-            currTutorial.texture = null;
-            currTutorial.color = new Color(0f, 0f, 0f, 0f);
-            tutorialBackground.SetActive(false);
-            isShowingTutorial = false;
-            Time.timeScale = 1f;
-        }
+        currTutorial.texture = null;
+        currTutorial.color = new Color(0f, 0f, 0f, 0f);
+        tutorialBackground.SetActive(false);
+        isShowingTutorialPopUp = false;
+        Time.timeScale = 1f;
     }
 
     // Shows the prompt asking if tutorial pop ups should be enabled.
     public void ShowTutorialPrompt(bool state) {
+        isShowingTutorialPrompt = state;
         tutorialPrompt.SetActive(state); 
         tutorialBackground.SetActive(state);
-        title.SetActive(state);
     }
 
     // Sets the tutorialEnabled bool to the given state.
     public void SetTutorialEnabled(bool state) {
         tutorialEnabled = state;
+    }
+
+    // Sets the Title UI
+    public void SetTitle(bool state) {
+        title.SetActive(state);
     }
 
     // Returns whether the tutorial is enabled.

@@ -316,6 +316,9 @@ public class PlayerController : MonoBehaviour
         if (!hasDied) {
             // Get Player Input
             escapePressed = Input.GetKeyDown(removePopUp);
+            if (escapePressed) {
+                UIManager.singleton.ExitPopUp();
+            }
 
             if (playerInputEnabled) {
                 xInput = Input.GetAxisRaw("Horizontal");
@@ -342,11 +345,6 @@ public class PlayerController : MonoBehaviour
                 Attack();
             }
             HidePlayer();
-
-            if (escapePressed) {
-                UIManager.singleton.RemoveTutorialPopUp();
-            }
-
 
             if (titleScreenModeEnabled) {
                 playerRB.velocity = new Vector2(speed, playerRB.velocity.y);
