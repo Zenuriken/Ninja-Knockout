@@ -137,10 +137,12 @@ public class UIManager : MonoBehaviour
     }
     
     #region Public Function
+    // Increases the player's score by amount.
     public void IncreaseScoreBy(int amount) {
         score += amount;
     }
 
+    // Updates the shurikens remaining UI.
     public void UpdateShurikenNum(int newNum) {
         shurikensRemaining = newNum;
         if (shurikensRemaining <= 0) {
@@ -152,6 +154,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // Updates the player's health UI.
     public void UpdateHealth(int newHealth) {
         health = newHealth;
         if (health <= 0) {
@@ -163,44 +166,53 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // Fades the screen
     public void FadeScreen() {
         if (!isBlackingOutScreen) {
             StartCoroutine("BlackOut");
         }
     }
 
+    // Fades the screen to black.
     public void FadeOutScreen() {
         StartCoroutine("FadeOut");
     }
 
+    // Fades the screen back into view.
     public void FadeInScreen() {
         StartCoroutine("FadeIn");
     }
 
+    // Saves the last game state of the player.
     public void SetSpawnLocation(Vector2 location) {
         spawnLocation = location;
         spawnHealth = health;
         spawnShurikens = shurikensRemaining;
     }
 
+    // Fades in detection screen if detection is not allowed.
     public void PlayerDetected() {
         if (!detectionAllowed && health > 0) {
             StartCoroutine("DetectionScreen");
         }
     }
 
+    // Activates the black movie bars UI for cutscenes.
     public void DropBars(bool state) {
         blackBars.SetActive(state);
     }
 
+    // Hides the Player status UI.
     public void HidePlayerStatus(bool state) {
         playerStatus.SetActive(!state);
     }
 
+    // Toggles whether enemy detection is allowed.
     public void SetDetectionAllowed(bool state) {
         detectionAllowed = state;
     }
 
+    // Changes the texture displayed for the tutorial prompt.
     public void ShowTutorialPopUp(string name) {
         isShowingTutorial = true;
         if (name == "Move") {
@@ -223,15 +235,13 @@ public class UIManager : MonoBehaviour
             currTutorial.texture = tutorialPopUps[8];
         } else if (name == "Hide") {
             currTutorial.texture = tutorialPopUps[9];
-        } else {
-            currTutorial.texture = null;
-            currTutorial.color = new Color(0f, 0f, 0f, 0f);
         }
         currTutorial.color = new Color(1f, 1f, 1f, 1f);
         tutorialBackground.SetActive(true);
         Time.timeScale = 0f;
     }
 
+    // Removes the tutorial pop up if it's currently being displayed.
     public void RemoveTutorialPopUp() {
         if(isShowingTutorial) {
             currTutorial.texture = null;
@@ -242,20 +252,24 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // Shows the prompt asking if tutorial pop ups should be enabled.
     public void ShowTutorialPrompt(bool state) {
         tutorialPrompt.SetActive(state); 
         tutorialBackground.SetActive(state);
         title.SetActive(state);
     }
 
+    // Sets the tutorialEnabled bool to the given state.
     public void SetTutorialEnabled(bool state) {
         tutorialEnabled = state;
     }
 
+    // Returns whether the tutorial is enabled.
     public bool TutorialIsEnabled() {
         return tutorialEnabled;
     }
 
+    // Disables the Title Buttons UI
     public void DisableTitleButtons() {
         titleButtons.SetActive(false);
     }

@@ -1230,10 +1230,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
+  m_BlockingObjects: 1
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 32
 --- !u!223 &709896932
 Canvas:
   m_ObjectHideFlags: 0
@@ -2654,6 +2654,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 1286364402}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: DisableTitleButtons
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!1 &1281560360
 GameObject:
   m_ObjectHideFlags: 0
@@ -3973,7 +3985,7 @@ MonoBehaviour:
   tutorialPopUp: {fileID: 7603045851365170769}
   fadeOutScreen: {fileID: 2126976581}
   detectionScreen: {fileID: 597362808}
-  fadeAwaySpeed: 0
+  fadeAwaySpeed: 1
   deathFadeAwaySpeed: 0.5
   fadeAwayDelay: 0.5
   detectionScreenSpeed: 3
@@ -4073,7 +4085,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!1 &7603045851365170769
 GameObject:
