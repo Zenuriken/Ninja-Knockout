@@ -33,6 +33,7 @@ public class SceneController : MonoBehaviour
         MusicManager.singleton.Stop("Adventure");
         MusicManager.singleton.FadeInAudio("Traveler");
         PlayerController.singleton.Reset();
-        UIManager.singleton.StartCoroutine("FadeIn");
+        yield return UIManager.singleton.StartCoroutine("FadeIn");
+        PlayerController.singleton.SetPlayerInput(true);
     }
 }

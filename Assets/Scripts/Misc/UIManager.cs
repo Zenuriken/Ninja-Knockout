@@ -129,6 +129,10 @@ public class UIManager : MonoBehaviour
             playerStatus.SetActive(false);
             titleButtons.SetActive(true);
             title.SetActive(true);
+            Button yesTutorialBttn = tutorialPrompt.transform.GetChild(1).GetComponent<Button>();
+            Button noTutorialBttn = tutorialPrompt.transform.GetChild(2).GetComponent<Button>();
+            yesTutorialBttn.onClick.AddListener(SceneController.singleton.LoadTutorialScene);
+            noTutorialBttn.onClick.AddListener(SceneController.singleton.LoadTutorialScene);
         } else if (sceneName == "Tutorial") {
             playerStatus.SetActive(true);
             titleButtons.SetActive(false);
@@ -287,7 +291,10 @@ public class UIManager : MonoBehaviour
         titleButtons.SetActive(false);
     }
 
-    // Updates the gold collected UI text
+    // Returns whether the screen is currently fading.
+    public bool IsFading() {
+        return isFading;
+    }
     
     #endregion
 
