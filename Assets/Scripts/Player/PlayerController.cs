@@ -251,8 +251,8 @@ public class PlayerController : MonoBehaviour {
 
     // Private Respawn Variables
     private Vector2 spawnLocation;
-    private int spawnHealth;
-    private int spawnShurikens;
+    // private int spawnHealth;
+    // private int spawnShurikens;
     #endregion
 
     /**********************************************************************************/
@@ -1064,13 +1064,14 @@ public class PlayerController : MonoBehaviour {
         playerInputEnabled = state;
     }
 
-    public void SetNumShurikens(int num) {
-        numShurikens = num;
-        UIManager.singleton.UpdateShurikenNum(numShurikens);
-    }
+    // public void SetNumShurikens(int num) {
+    //     numShurikens = num;
+    //     UIManager.singleton.UpdateShurikenNum(numShurikens);
+    // }
 
     // Reset the player to the beginning of the level.
     public void Reset() {
+        playerInputEnabled = false;
         titleScreenModeEnabled = false;
         alertedNum = 0;
         playerRB.velocity = Vector2.zero;
@@ -1078,39 +1079,32 @@ public class PlayerController : MonoBehaviour {
         numShurikens = startingShurikens;
         Health healthScript = this.GetComponent<Health>();
         healthScript.ResetHealth();
-        UIManager.singleton.UpdateHealth(healthScript.GetHealth());
         UIManager.singleton.UpdateShurikenNum(numShurikens);
-        SetPlayerInput(true);
     }
 
     // Respawns the player to the last saved game state.
     public void Respawn() {
+        playerInputEnabled = false;
         titleScreenModeEnabled = false;
         alertedNum = 0;
         playerRB.velocity = Vector2.zero;
         playerRB.position = spawnLocation;
-        numShurikens = spawnShurikens;
-        Health healthScript = this.GetComponent<Health>();
-        healthScript.SetPlayerHealth(spawnHealth);
-        UIManager.singleton.UpdateHealth(healthScript.GetHealth());
-        UIManager.singleton.UpdateShurikenNum(numShurikens);
-        SetPlayerInput(true);
     }
 
-    public void ResetAlertedNum() {
-        alertedNum = 0;
-    }
+    // public void ResetAlertedNum() {
+    //     alertedNum = 0;
+    // }
 
-    public int GetNumShurikens() {
-        return numShurikens;
-    }
+    // public int GetNumShurikens() {
+    //     return numShurikens;
+    // }
 
     // Saves the last game state of the player.
     public void SetSpawnLocation(Vector2 location) {
         spawnLocation = location;
-        Health healthScript = this.GetComponent<Health>();
-        spawnHealth = healthScript.GetHealth();
-        spawnShurikens = numShurikens;
+        // Health healthScript = this.GetComponent<Health>();
+        // spawnHealth = healthScript.GetHealth();
+        // spawnShurikens = numShurikens;
     }
     #endregion
 

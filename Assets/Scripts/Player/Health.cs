@@ -48,15 +48,25 @@ public class Health : MonoBehaviour
     }
 
     // Controls the player's death animation.
-    private void Death() {
+    IEnumerator Death() {
         hasDied = true;
         // 7 = Player Layer, 9 = Enemy Layer
         Physics2D.IgnoreLayerCollision(7, 9, true);
         Physics2D.IgnoreLayerCollision(0, 9, true);
         playerRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
         playerScript.SetHasDied(true);
-        UIManager.singleton.FadeOutScreen();
-        UIManager.singleton.FadeInScreen();
+        yield return UIManager.singleton.StartCoroutine("FadeOut");
+        playerScript.Reset();
+        yield return UIManager.singleton.StartCoroutine("FadeIn");
+        playerScript.SetPlayerInput(true);
+    }
+
+    // Respawns the player when falling out of bounds.
+    IEnumerator OutOfBoundsRespawn() {
+        yield return UIManager.singleton.StartCoroutine("FadeOut");
+        playerScript.Respawn();
+        yield return UIManager.singleton.StartCoroutine("FadeIn");
+        playerScript.SetPlayerInput(true);
     }
 
     #region Coroutines
@@ -114,7 +124,7 @@ public class Health : MonoBehaviour
 
             // Kill the player
             if (currHealth <= 0) {
-                Death();
+                StartCoroutine("Death");
                 return;
             }
 
@@ -134,17 +144,16 @@ public class Health : MonoBehaviour
     public void TakeEnvironDmg(int x) {
         currHealth -= x;
         UIManager.singleton.UpdateHealth(currHealth);
-        UIManager.singleton.FadeOutScreen();
-        UIManager.singleton.FadeInScreen();
-        playerScript.SetPlayerInput(false);
 
         // Kill the player
         if (currHealth <= 0) {
             StartCoroutine("Death");
             return;
-        } else {
-            sounds.Play("Grunt");
-        } 
+        }
+
+        // Respawn the player
+        sounds.Play("Grunt");
+        StartCoroutine("OutOfBoundsRespawn");
     }
 
     // Sets the players health to the specified number

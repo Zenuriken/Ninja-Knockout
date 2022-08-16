@@ -27,13 +27,12 @@ public class SceneController : MonoBehaviour
 
 
     IEnumerator LoadInTutorial() {
-        UIManager.singleton.FadeOutScreen();
         MusicManager.singleton.FadeOutAudio("Adventure");
-        yield return new WaitForSeconds(3f);
+        yield return UIManager.singleton.StartCoroutine("FadeOut");
         SceneManager.LoadScene("Tutorial");
         MusicManager.singleton.Stop("Adventure");
         MusicManager.singleton.FadeInAudio("Traveler");
         PlayerController.singleton.Reset();
-        UIManager.singleton.FadeInScreen();
+        UIManager.singleton.StartCoroutine("FadeIn");
     }
 }
