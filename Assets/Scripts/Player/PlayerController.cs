@@ -369,9 +369,9 @@ public class PlayerController : MonoBehaviour {
             // Regular movement
             if (!isDashing && !isWallJumping && !isAttacking) {
                 playerRB.velocity = new Vector2(xInput * speed, playerRB.velocity.y);
-                if (isGrounded && Mathf.Abs(playerRB.velocity.x) > 0 && !isSneaking) {
-                    CreateDust(0);
-                }
+                // if (isGrounded && Mathf.Abs(playerRB.velocity.x) > 0 && !isSneaking) {
+                //     CreateDust(0);
+                // }
             } else if (isAttacking) {
                 playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
             }
@@ -574,6 +574,8 @@ public class PlayerController : MonoBehaviour {
         if (lastGroundStatus == false && isGrounded == true && FallDistanceMet(this.transform.position) && raycastHit2D.collider.tag == "Platform") {
             CreateDust(0);
             sounds.Play("Landing");
+        } else if (isGrounded && raycastHit2D.collider.tag == "Platform" && Mathf.Abs(playerRB.velocity.x) > 0.05f && !isSneaking) {
+            CreateDust(0);
         }
         return;
     }
