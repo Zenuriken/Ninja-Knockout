@@ -237,6 +237,8 @@ public class PlayerController : MonoBehaviour {
     private TrailRenderer dashTrail;
     private TrailRenderer doubleJumpTrail;
     private SoundManager sounds;
+    private Health healthScript;
+    private GameObject highLight;
 
     private float xInput;
     private float gravity;
@@ -272,6 +274,7 @@ public class PlayerController : MonoBehaviour {
             boxCollider2D = GetComponent<Collider2D>();
             playerAnim = GetComponent<Animator>();
             playerSprite = GetComponent<SpriteRenderer>();
+            healthScript = GetComponent<Health>();
             sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
             dashTrail = this.transform.GetChild(2).GetChild(1).GetComponent<TrailRenderer>();
             doubleJumpTrail = this.transform.GetChild(2).GetChild(2).GetComponent<TrailRenderer>();
@@ -287,6 +290,8 @@ public class PlayerController : MonoBehaviour {
             wallFirePointTrans = this.transform.GetChild(5).transform;
             wallSkillShotTrans = wallFirePointTrans.GetChild(0).transform;
             wallSkillShotSprite = wallSkillShotTrans.GetComponent<SpriteRenderer>();
+
+            highLight = this.transform.GetChild(7).gameObject;
         }
         // point0 = this.transform.GetChild(1).GetChild(1).transform;
         // point1 = this.transform.GetChild(1).GetChild(2).transform;
@@ -1073,11 +1078,6 @@ public class PlayerController : MonoBehaviour {
         playerInputEnabled = state;
     }
 
-    // public void SetNumShurikens(int num) {
-    //     numShurikens = num;
-    //     UIManager.singleton.UpdateShurikenNum(numShurikens);
-    // }
-
     // Reset the player to the beginning of the level.
     public void Reset() {
         playerInputEnabled = false;
@@ -1086,7 +1086,6 @@ public class PlayerController : MonoBehaviour {
         playerRB.velocity = Vector2.zero;
         playerRB.position = Vector2.zero;
         numShurikens = startingShurikens;
-        Health healthScript = this.GetComponent<Health>();
         healthScript.ResetHealth();
         UIManager.singleton.UpdateShurikenNum(numShurikens);
     }
@@ -1100,20 +1099,20 @@ public class PlayerController : MonoBehaviour {
         playerRB.position = spawnLocation;
     }
 
-    // public void ResetAlertedNum() {
-    //     alertedNum = 0;
-    // }
-
-    // public int GetNumShurikens() {
-    //     return numShurikens;
-    // }
-
     // Saves the last game state of the player.
     public void SetSpawnLocation(Vector2 location) {
         spawnLocation = location;
-        // Health healthScript = this.GetComponent<Health>();
-        // spawnHealth = healthScript.GetHealth();
-        // spawnShurikens = numShurikens;
+    }
+
+    public void IncreaseHealthBy(int num) {
+        if (healthScript.CanPickUpHealth()) {
+            sounds.Play("HealthRegen");
+            healthScript.IncreasePlayerHealth(num);
+        }
+    }
+
+    public void SetHealthParticles(bool state) {
+        highLight.SetActive(state);
     }
     #endregion
 

@@ -14,6 +14,8 @@ public class UIManager : MonoBehaviour
     private int health;
     private int shurikensRemaining;
     private int gold;
+    private int lastTutorialPopUp;
+    private List<string> shownTutorials; 
 
     #region UI Lists
     [Header("UI Lists")]
@@ -52,6 +54,8 @@ public class UIManager : MonoBehaviour
     private GameObject fadeOutScreen;
     [SerializeField]
     private GameObject detectionScreen;
+    [SerializeField]
+    private GameObject UISounds;
     [Space(5)]
     #endregion
 
@@ -93,6 +97,8 @@ public class UIManager : MonoBehaviour
     private TMP_Text detectedTxt;
     private TMP_Text goldTxt;
     private float pickUpTime;
+
+    private SoundManager sounds;
     
 
     private void Awake() {
@@ -112,6 +118,9 @@ public class UIManager : MonoBehaviour
 
             goldSprite = playerStatus.transform.GetChild(5).GetComponent<RawImage>();
             goldTxt = goldSprite.transform.GetChild(0).GetComponent<TMP_Text>();
+
+            sounds = UISounds.GetComponent<SoundManager>();
+            shownTutorials = new List<string>();
         }
     }
 
@@ -244,6 +253,9 @@ public class UIManager : MonoBehaviour
         currTutorial.color = new Color(1f, 1f, 1f, 1f);
         tutorialBackground.SetActive(true);
         Time.timeScale = 0f;
+        shownTutorials.Add(name);
+        PlayerController.singleton.SetPlayerInput(false);
+        sounds.Play("TutorialPopUp");
     }
 
     // Exits whatever Pop Up or prompt is being displayed.
@@ -262,6 +274,7 @@ public class UIManager : MonoBehaviour
         tutorialBackground.SetActive(false);
         isShowingTutorialPopUp = false;
         Time.timeScale = 1f;
+        PlayerController.singleton.SetPlayerInput(true);
     }
 
     // Shows the prompt asking if tutorial pop ups should be enabled.
@@ -294,6 +307,16 @@ public class UIManager : MonoBehaviour
     // Returns whether the screen is currently fading.
     public bool IsFading() {
         return isFading;
+    }
+
+    // Returns whether the currTutorialNumber is less than or greater than the tutorial popup that wants to show
+    public bool ShouldShow(string name) {
+        return !shownTutorials.Contains(name);
+    }
+
+    // Returns whether the screen currently has detection screen.
+    public bool HasDetectionScreen() {
+        return hasDetectionScreen;
     }
     
     #endregion
@@ -342,7 +365,9 @@ public class UIManager : MonoBehaviour
 
         // While screen is covered, reset the player to last spawn point.
         PlayerController.singleton.Respawn();
+        SceneController.singleton.UpdateCampFireList();
         SceneManager.LoadScene("Tutorial");
+        
 
         // Fade out the detection screen
         yield return new WaitForSeconds(detectionScreenDelay * 2.5f);
@@ -355,6 +380,7 @@ public class UIManager : MonoBehaviour
         detectedTxt.alpha = 0f;
         PlayerController.singleton.SetPlayerInput(true);
         Time.timeScale = 1f;
+        hasDetectionScreen = false;
     }
 
     // Fades the Gold UI after picking up gold.

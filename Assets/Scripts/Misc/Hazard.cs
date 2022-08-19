@@ -6,7 +6,7 @@ public class Hazard : MonoBehaviour
 {
     Health healthScript;
 
-    private void Awake() {
+    private void Start() {
         healthScript = PlayerController.singleton.GetComponent<Health>();
     }
     

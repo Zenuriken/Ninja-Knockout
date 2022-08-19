@@ -8,7 +8,7 @@ public class TutorialPopUp : MonoBehaviour
     public string tutorialName;
 
     private void OnTriggerStay2D(Collider2D other) {
-        if (other.gameObject.tag == "Player" && !hasActivated && UIManager.singleton.TutorialIsEnabled() && !UIManager.singleton.IsFading()) {
+        if (other.gameObject.tag == "Player" && !hasActivated && UIManager.singleton.TutorialIsEnabled() && !UIManager.singleton.IsFading() && UIManager.singleton.ShouldShow(tutorialName)) {
             UIManager.singleton.ShowTutorialPopUp(tutorialName);
             hasActivated = true;
         }

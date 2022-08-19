@@ -67,7 +67,7 @@ public class AStar : MonoBehaviour
 
     private void Start() {
         platformTilemap = GameObject.Find("Tilemap_Platform").GetComponent<Tilemap>();
-        playerScript = GameObject.Find("Player").GetComponent<PlayerController>();
+        playerScript = PlayerController.singleton;
         playerTrans = playerScript.transform;
     }
 

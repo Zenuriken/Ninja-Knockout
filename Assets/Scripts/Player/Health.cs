@@ -152,8 +152,10 @@ public class Health : MonoBehaviour
         }
 
         // Respawn the player
-        sounds.Play("Grunt");
-        StartCoroutine("OutOfBoundsRespawn");
+        if (!UIManager.singleton.HasDetectionScreen()) {
+            sounds.Play("Grunt");
+            StartCoroutine("OutOfBoundsRespawn");
+        }
     }
 
     // Sets the players health to the specified number
@@ -162,7 +164,7 @@ public class Health : MonoBehaviour
         UIManager.singleton.UpdateHealth(currHealth);
     }
 
-    // Sets the players health to the specified number
+    // Increases the players health by the specified number
     public void IncreasePlayerHealth(int num) {
         currHealth += num;
         UIManager.singleton.UpdateHealth(currHealth);
