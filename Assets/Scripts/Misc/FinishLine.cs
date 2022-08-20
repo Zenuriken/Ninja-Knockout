@@ -9,8 +9,15 @@ public class FinishLine : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.tag == "Player" && !hasActivated) {
-            SceneManager.LoadScene("TitleScreen");
+            PlayerController.singleton.SetTitleScreenMode(true);
+            PlayerController.singleton.SetPlayerInput(false);
+            //SceneManager.LoadScene("TitleScreen");
+            UIManager.singleton.HidePlayerStatus(true);
+            UIManager.singleton.DropBars(true);
+            CameraController.singleton.SetFollowEnabled(false);
+            CameraController.singleton.StartCoroutine("SwitchTime");
             hasActivated = true;
+
         }
     }
 }

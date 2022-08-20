@@ -249,6 +249,8 @@ public class UIManager : MonoBehaviour
             currTutorial.texture = tutorialPopUps[8];
         } else if (name == "Hide") {
             currTutorial.texture = tutorialPopUps[9];
+        } else if (name == "CampFire") {
+            currTutorial.texture = tutorialPopUps[10];
         }
         currTutorial.color = new Color(1f, 1f, 1f, 1f);
         tutorialBackground.SetActive(true);
@@ -367,7 +369,7 @@ public class UIManager : MonoBehaviour
         PlayerController.singleton.Respawn();
         SceneController.singleton.UpdateCampFireList();
         SceneManager.LoadScene("Tutorial");
-        
+
 
         // Fade out the detection screen
         yield return new WaitForSeconds(detectionScreenDelay * 2.5f);

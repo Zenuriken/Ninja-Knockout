@@ -3463,6 +3463,7 @@ MonoBehaviour:
   tutorialPopUp: {fileID: 9084137596781811304}
   fadeOutScreen: {fileID: 1698462789520367228}
   detectionScreen: {fileID: 1698462791050494017}
+  UISounds: {fileID: 5577641853774690152}
   fadeAwaySpeed: 1
   deathFadeAwaySpeed: 0.5
   goldUIFadeSpeed: 0.4

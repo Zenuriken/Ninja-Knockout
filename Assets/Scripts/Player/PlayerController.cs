@@ -1078,6 +1078,10 @@ public class PlayerController : MonoBehaviour {
         playerInputEnabled = state;
     }
 
+    public void SetTitleScreenMode(bool state) {
+        titleScreenModeEnabled = state;
+    }
+
     // Reset the player to the beginning of the level.
     public void Reset() {
         playerInputEnabled = false;
