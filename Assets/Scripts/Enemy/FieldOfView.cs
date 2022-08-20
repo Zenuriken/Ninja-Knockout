@@ -101,7 +101,10 @@ public class FieldOfView : MonoBehaviour
             }
             mesh.colors = colors;            
 
-            Vector3 dirOfPlayer = playerTrans.position - origin;
+            Vector3 dirOfPlayer = Vector3.zero;
+            if (playerTrans != null) {
+                dirOfPlayer = playerTrans.position - origin;
+            }
             float endingAngle = startingAngle - fov;
             if (endingAngle < 0) {
                 endingAngle += 360;

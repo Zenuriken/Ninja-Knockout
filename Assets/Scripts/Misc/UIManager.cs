@@ -56,6 +56,8 @@ public class UIManager : MonoBehaviour
     private GameObject detectionScreen;
     [SerializeField]
     private GameObject UISounds;
+    [SerializeField]
+    private GameObject dialogue;
     [Space(5)]
     #endregion
 
@@ -82,6 +84,12 @@ public class UIManager : MonoBehaviour
     [Space(5)]
     #endregion
 
+    // #region Level Variables
+    // [Header("Level Variables")]
+    // [SerializeField]
+    // [Tooltip("Number of enemies in this level")]
+    // private float 
+
     private bool isFading;
     private bool isBlackingOutScreen;
     private bool isShowingTutorialPopUp;
@@ -99,7 +107,13 @@ public class UIManager : MonoBehaviour
     private float pickUpTime;
 
     private SoundManager sounds;
-    
+
+    private GameObject enemies;
+    private GameObject breakables;
+    private int totalEnemies;
+    private int enemiesKilled;
+    private int totalSupplies;
+    private int suppliesLooted;
 
     private void Awake() {
         if (singleton != null && singleton != this) { 
@@ -146,6 +160,12 @@ public class UIManager : MonoBehaviour
             playerStatus.SetActive(true);
             titleButtons.SetActive(false);
             title.SetActive(false);
+
+            enemies = GameObject.Find("Enemies");
+            breakables = GameObject.Find("Breakables");
+
+            totalEnemies = enemies.transform.childCount;
+            totalSupplies = breakables.transform.childCount;
         }
         currTutorial.texture = null;
         currTutorial.color = new Color(0f, 0f, 0f, 0f);
@@ -322,8 +342,18 @@ public class UIManager : MonoBehaviour
     }
 
     // Plays the dialogue at the end of the tutorial.
-    public void StartTutorialEndCinematic() {
+    public IEnumerator StartTutorialEndCinematic() {
+        dialogue.SetActive(true);
+        enemiesKilled = totalEnemies - enemies.transform.childCount;
+        suppliesLooted = totalSupplies - breakables.transform.childCount;
+        Dialogue dialogueScript = dialogue.GetComponent<Dialogue>();
+        dialogueScript.InitializeVariables(enemiesKilled, suppliesLooted, enemies.transform.childCount);
+        dialogueScript.InitializeDialogue();
+        yield return dialogueScript.StartDialogue();
+    }
 
+    public void ClearFadeScreen() {
+        fadeOutScreenImg.color = new Color(0f, 0f, 0f, 0f);
     }
     
     #endregion
@@ -342,7 +372,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    IEnumerator FadeIn() {
+    public IEnumerator FadeIn() {
         if(!isFading) {
             isFading = true;
             float speed = deathFadeAwaySpeed;

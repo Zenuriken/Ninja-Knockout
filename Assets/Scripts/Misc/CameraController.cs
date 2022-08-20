@@ -82,7 +82,7 @@ public class CameraController : MonoBehaviour
     #region Update Functions
     // Update is called once per frame
     void LateUpdate() {
-        if (followEnabled) {
+        if (followEnabled && player != null) {
             Vector3 pos = this.transform.position;
             Vector3 targetPos = player.transform.position;
             playerDir = playerScript.GetPlayerDir();

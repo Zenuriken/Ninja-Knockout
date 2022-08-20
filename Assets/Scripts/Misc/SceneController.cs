@@ -80,18 +80,11 @@ public class SceneController : MonoBehaviour
         PlayerController.singleton.SetPlayerInput(true);
     }
 
-    // Initializes the camp fire dictionary
-    private void InitializeCampFireDict() {
-
-    }
-
-
     // Updates the camp fire dictionary with the activation status of all the campfires.
     public void UpdateCampFireList() {
         foreach (Transform child in campFires.transform) {
             campFireDict[child.name] = child.GetComponent<CampFire>().HasActivated();
         }
-        Debug.Log("Updated campFires");
     }
 
     // Sets the activation status of all the campfires in the scene.
@@ -100,6 +93,5 @@ public class SceneController : MonoBehaviour
             CampFire campFire = child.GetComponent<CampFire>();
             campFire.SetHasActivated(campFireDict[child.name]);
         }
-        Debug.Log("Set CampFires");
     }
 }

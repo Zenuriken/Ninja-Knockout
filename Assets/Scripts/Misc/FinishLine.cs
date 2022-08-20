@@ -20,16 +20,21 @@ public class FinishLine : MonoBehaviour
             //SceneManager.LoadScene("TitleScreen");
             UIManager.singleton.HidePlayerStatus(true);
             StartCoroutine("EndingCinematic");
-            //CameraController.singleton.SetFollowEnabled(false);
         }
     }
 
     IEnumerator EndingCinematic() {
         yield return new WaitForSeconds(2f);
-        UIManager.singleton.DropBars(true);
-        yield return cam.StartCoroutine("SwitchTime");
-        yield return new WaitForSeconds(1f);
+        // UIManager.singleton.DropBars(true);
+        // yield return cam.StartCoroutine("SwitchTime");
+        // yield return new WaitForSeconds(1f);
         yield return UIManager.singleton.FadeOut();
-        UIManager.singleton.StartTutorialEndCinematic();
+        // yield return new WaitForSeconds(1f);
+        // yield return UIManager.singleton.StartTutorialEndCinematic();
+        // yield return new WaitForSeconds(1f);
+        SceneManager.LoadScene("TitleScreen");
+        PlayerController.singleton.transform.position = Vector2.zero;
+        UIManager.singleton.DropBars(false);
+        UIManager.singleton.ClearFadeScreen();
     }
 }
