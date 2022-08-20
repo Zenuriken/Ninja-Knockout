@@ -153,7 +153,8 @@ public class PlayerController : MonoBehaviour {
     private KeyCode sneakKey = KeyCode.LeftControl;
     private KeyCode upKey = KeyCode.UpArrow;
     private KeyCode downKey = KeyCode.DownArrow;
-    private KeyCode removePopUp = KeyCode.Escape;
+    private KeyCode escapeKey = KeyCode.Escape;
+    private KeyCode enterKey = KeyCode.Return;
 
     // Player Input Variables
     private bool rightPressed;
@@ -168,7 +169,8 @@ public class PlayerController : MonoBehaviour {
     private bool sneakHolding;
     private bool upHolding;
     private bool downHolding;
-    private bool escapePressed;
+    private bool closePressed;
+    private bool continuePressed;
 
     // State Variables
     private bool isJumping;
@@ -324,8 +326,9 @@ public class PlayerController : MonoBehaviour {
 
         if (!hasDied) {
             // Get Player Input
-            escapePressed = Input.GetKeyDown(removePopUp);
-            if (escapePressed) {
+            closePressed = Input.GetKeyDown(escapeKey) || Input.GetKeyDown(enterKey);
+            continuePressed = Input.anyKeyDown;
+            if (closePressed) {
                 UIManager.singleton.ExitPopUp();
             }
 
@@ -1117,6 +1120,10 @@ public class PlayerController : MonoBehaviour {
 
     public void SetHealthParticles(bool state) {
         highLight.SetActive(state);
+    }
+
+    public bool HasPressedContinue() {
+        return continuePressed;
     }
     #endregion
 

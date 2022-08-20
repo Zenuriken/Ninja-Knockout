@@ -31,6 +31,12 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     [Tooltip("Determines whether the camera will follow the player.")]
     private bool followEnabled;
+    [SerializeField]
+    [Tooltip("How fast the moon and sun will rotate")]
+    private float rotationSpeed;
+    [SerializeField]
+    [Tooltip("The parent rotation object for switching the time of day.")]
+    private GameObject rotationObject;
     #endregion
 
     #region Private Variables
@@ -46,15 +52,6 @@ public class CameraController : MonoBehaviour
     #endregion
 
     #region Initializing Functions
-    private void Awake() {
-        if (singleton != null && singleton != this) { 
-            Destroy(this.gameObject); 
-        } 
-        else { 
-            singleton = this;
-            DontDestroyOnLoad(this.gameObject);
-        }
-    }
     // Start is called before the first frame update
     void Start()
     {
@@ -132,6 +129,9 @@ public class CameraController : MonoBehaviour
     }
 
     public IEnumerator SwitchTime() {
-        yield return new WaitForEndOfFrame();
+        for (float t = 0; t <= 180f; t += Time.deltaTime * rotationSpeed) {
+            rotationObject.transform.Rotate(0f, 0f, Time.deltaTime * rotationSpeed);
+            yield return new WaitForEndOfFrame();
+        }
     }
 }

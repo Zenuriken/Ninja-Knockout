@@ -320,6 +320,11 @@ public class UIManager : MonoBehaviour
     public bool HasDetectionScreen() {
         return hasDetectionScreen;
     }
+
+    // Plays the dialogue at the end of the tutorial.
+    public void StartTutorialEndCinematic() {
+
+    }
     
     #endregion
 
