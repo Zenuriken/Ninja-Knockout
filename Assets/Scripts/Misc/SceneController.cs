@@ -68,6 +68,17 @@ public class SceneController : MonoBehaviour
         Application.Quit();
     }
 
+    
+    public void LoadTitlescreen() {
+        StartCoroutine("LoadInTitleScreen");
+    }
+
+    IEnumerator LoadInTitleScreen() {
+        SceneManager.LoadScene("TitleScreen");
+        PlayerController.singleton.transform.position = Vector2.zero;
+        yield return UIManager.singleton.FadeIn();
+    }
+
 
     IEnumerator LoadInTutorial() {
         MusicManager.singleton.FadeOutAudio("Adventure");

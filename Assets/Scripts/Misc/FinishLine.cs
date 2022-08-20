@@ -19,22 +19,23 @@ public class FinishLine : MonoBehaviour
             PlayerController.singleton.SetPlayerInput(false);
             //SceneManager.LoadScene("TitleScreen");
             UIManager.singleton.HidePlayerStatus(true);
+            cam.SetFollowEnabled(false);
             StartCoroutine("EndingCinematic");
         }
     }
 
     IEnumerator EndingCinematic() {
+        MusicManager.singleton.FadeOutAudio("Traveler");
         yield return new WaitForSeconds(2f);
-        // UIManager.singleton.DropBars(true);
-        // yield return cam.StartCoroutine("SwitchTime");
-        // yield return new WaitForSeconds(1f);
+        MusicManager.singleton.Stop("Traveler");
+        UIManager.singleton.DropBars(true);
+        yield return cam.StartCoroutine("SwitchTime");
+        yield return new WaitForSeconds(1f);
         yield return UIManager.singleton.FadeOut();
-        // yield return new WaitForSeconds(1f);
-        // yield return UIManager.singleton.StartTutorialEndCinematic();
-        // yield return new WaitForSeconds(1f);
-        SceneManager.LoadScene("TitleScreen");
-        PlayerController.singleton.transform.position = Vector2.zero;
+        yield return new WaitForSeconds(1f);
         UIManager.singleton.DropBars(false);
-        UIManager.singleton.ClearFadeScreen();
+        yield return UIManager.singleton.StartTutorialEndCinematic();
+        yield return new WaitForSeconds(1f);
+        SceneController.singleton.LoadTitlescreen();
     }
 }

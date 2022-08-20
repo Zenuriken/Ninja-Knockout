@@ -350,6 +350,7 @@ public class UIManager : MonoBehaviour
         dialogueScript.InitializeVariables(enemiesKilled, suppliesLooted, enemies.transform.childCount);
         dialogueScript.InitializeDialogue();
         yield return dialogueScript.StartDialogue();
+        dialogue.SetActive(false);
     }
 
     public void ClearFadeScreen() {
@@ -369,6 +370,8 @@ public class UIManager : MonoBehaviour
             }
             fadeOutScreenImg.color = new Color(0f, 0f, 0f, 1f);
             isFading = false;
+        } else {
+            Debug.Log("Currently fading");
         }
     }
 

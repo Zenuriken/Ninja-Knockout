@@ -579,7 +579,7 @@ public class PlayerController : MonoBehaviour {
             dashCounter = 1;
         }
         // If the player has landed on the grounded.
-        if (lastGroundStatus == false && isGrounded == true && FallDistanceMet(this.transform.position) && raycastHit2D.collider.tag == "Platform") {
+        if (lastGroundStatus == false && isGrounded == true && FallDistanceMet(this.transform.position) && raycastHit2D.collider.tag == "Platform" && !titleScreenModeEnabled) {
             CreateDust(0);
             sounds.Play("Landing");
         } else if (isGrounded && raycastHit2D.collider.tag == "Platform" && Mathf.Abs(playerRB.velocity.x) > 0.05f && !isSneaking) {
