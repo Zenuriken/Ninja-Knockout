@@ -63,10 +63,10 @@ public class AStar : MonoBehaviour
         platformLayerMask = LayerMask.GetMask("Platform");
         RaycastHit2D raycastHit2D = Physics2D.Raycast(this.transform.position, Vector2.down, 100f, platformLayerMask);
         spawnPos = raycastHit2D.point;
+        platformTilemap = GameObject.Find("Tilemap_Platform").GetComponent<Tilemap>();
     }
 
     private void Start() {
-        platformTilemap = GameObject.Find("Tilemap_Platform").GetComponent<Tilemap>();
         playerScript = PlayerController.singleton;
         playerTrans = playerScript.transform;
     }

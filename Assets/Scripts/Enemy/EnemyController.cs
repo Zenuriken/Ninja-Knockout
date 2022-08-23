@@ -226,13 +226,13 @@ public class EnemyController : MonoBehaviour
 
         // Determines whether the enemy will begin patrolling left or right.
         float value = Random.Range(0, 100);
-        if (startingDir == 0) {
-            if (value < 50) {
-                startingDir = -1;
-            } else {
-                startingDir = 1;
-            }
-        }
+        // if (startingDir == 0) {
+        //     if (value < 50) {
+        //         startingDir = -1;
+        //     } else {
+        //         startingDir = 1;
+        //     }
+        // }
         value = Random.Range(0, 100);
         if (value < 50) {
             gruntSound = "MaleGrunt";

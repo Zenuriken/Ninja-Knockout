@@ -12,6 +12,7 @@ TagManager:
   - Lever
   - Destructible
   - OneWayPlatform
+  - TrapDoor
   layers:
   - Default
   - TransparentFX
@@ -19,7 +20,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Obstruction
   - Player
   - Platform
   - Enemy

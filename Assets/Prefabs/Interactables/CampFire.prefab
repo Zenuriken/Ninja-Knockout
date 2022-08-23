@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3517757255603669333
 Transform:
   m_ObjectHideFlags: 0
@@ -4907,7 +4907,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 0
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 25
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
@@ -19518,6 +19518,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lightUpSpeed: 1
   regenTime: 5
+  hasActivated: 0
 --- !u!1 &3517757256705640018
 GameObject:
   m_ObjectHideFlags: 0
@@ -19570,7 +19571,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 0
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 25
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0

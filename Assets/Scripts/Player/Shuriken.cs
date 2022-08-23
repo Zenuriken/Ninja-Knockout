@@ -78,17 +78,17 @@ public class Shuriken : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other) {
         if (isActive) {
             if (other.gameObject.tag == "Enemy") {
-            EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
-            if (!enemyScript.IsAlerted() && !enemyScript.IsDetectingPlayer()) {
-                enemyScript.TakeDmg(5);
-                sounds.Play("ShurikenStealthKill");
-            } else {
-                enemyScript.TakeDmg(1);
+                EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
+                if (!enemyScript.IsAlerted() && !enemyScript.IsDetectingPlayer()) {
+                    enemyScript.TakeDmg(5);
+                    sounds.Play("ShurikenStealthKill");
+                } else {
+                    enemyScript.TakeDmg(1);
+                }
             }
-        }
             if (other.gameObject.tag == "Enemy") {
                 StartCoroutine(Contact(true));
-            } else if (other.gameObject.tag == "Platform") {
+            } else if (other.gameObject.tag == "Platform" || other.gameObject.tag == "TrapDoor") {
                 StartCoroutine(Contact(false));
             }
         }

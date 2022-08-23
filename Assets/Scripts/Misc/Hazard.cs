@@ -14,6 +14,11 @@ public class Hazard : MonoBehaviour
         if (other.gameObject.tag == "Player") {
             ContactPoint2D contact = other.contacts[0];
             healthScript.TakeDmg(1, contact.point);
+        } else if (other.gameObject.tag == "Enemy") {
+            EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
+            if (!enemyScript.HasDied()) {
+                enemyScript.TakeDmg(100);
+            }
         }
     }
 }

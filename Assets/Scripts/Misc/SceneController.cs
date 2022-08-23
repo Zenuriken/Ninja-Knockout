@@ -76,11 +76,16 @@ public class SceneController : MonoBehaviour
     IEnumerator LoadInTitleScreen() {
         SceneManager.LoadScene("TitleScreen");
         PlayerController.singleton.transform.position = Vector2.zero;
+        MusicManager.singleton.FadeInAudio("Adventure");
         yield return UIManager.singleton.FadeIn();
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
 
     IEnumerator LoadInTutorial() {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         MusicManager.singleton.FadeOutAudio("Adventure");
         yield return UIManager.singleton.StartCoroutine("FadeOut");
         SceneManager.LoadScene("Tutorial");
