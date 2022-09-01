@@ -38,6 +38,8 @@ public class CampFire : MonoBehaviour
             isActive = true;
             isFullyLit = true;
             sounds.Play("CampFire");
+        } else {
+            fireParticles.SetActive(false);
         }
     }
 

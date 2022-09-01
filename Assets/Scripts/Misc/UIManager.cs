@@ -51,6 +51,8 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private GameObject tutorialPopUp;
     [SerializeField]
+    private GameObject enterPrompt;
+    [SerializeField]
     private GameObject fadeOutScreen;
     [SerializeField]
     private GameObject detectionScreen;
@@ -170,6 +172,7 @@ public class UIManager : MonoBehaviour
         currTutorial.texture = null;
         currTutorial.color = new Color(0f, 0f, 0f, 0f);
         tutorialBackground.SetActive(false);
+        enterPrompt.SetActive(false);
     }
 
     // called third
@@ -274,6 +277,7 @@ public class UIManager : MonoBehaviour
         }
         currTutorial.color = new Color(1f, 1f, 1f, 1f);
         tutorialBackground.SetActive(true);
+        enterPrompt.SetActive(true);
         Time.timeScale = 0f;
         shownTutorials.Add(name);
         PlayerController.singleton.SetPlayerInput(false);
@@ -294,6 +298,7 @@ public class UIManager : MonoBehaviour
         currTutorial.texture = null;
         currTutorial.color = new Color(0f, 0f, 0f, 0f);
         tutorialBackground.SetActive(false);
+        enterPrompt.SetActive(false);
         isShowingTutorialPopUp = false;
         Time.timeScale = 1f;
         PlayerController.singleton.SetPlayerInput(true);

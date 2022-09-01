@@ -6851,6 +6851,10 @@ PrefabInstance:
       propertyPath: m_Volume
       value: 0.25
       objectReference: {fileID: 0}
+    - target: {fileID: 689403666, guid: 603822988ff65574d8e8d99fe917fa02, type: 3}
+      propertyPath: m_PlayOnAwake
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1220472362, guid: 603822988ff65574d8e8d99fe917fa02, type: 3}
       propertyPath: m_Volume
       value: 0.25
