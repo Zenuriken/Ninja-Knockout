@@ -63,7 +63,6 @@ public class AStar : MonoBehaviour
         platformLayerMask = LayerMask.GetMask("Platform");
         RaycastHit2D raycastHit2D = Physics2D.Raycast(this.transform.position, Vector2.down, 100f, platformLayerMask);
         spawnPos = raycastHit2D.point;
-        Debug.Log("SpawnPos: " + spawnPos.ToString());
         platformTilemap = GameObject.Find("Tilemap_Platform").GetComponent<Tilemap>();
     }
 
@@ -384,8 +383,7 @@ public class AStar : MonoBehaviour
         Vector3Int goalPos = platformTilemap.WorldToCell(new Vector2(playerTrans.position.x, playerTrans.position.y - 1f));
 
         if (isReturningToPatrolPos) {
-            goalPos = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y + 1f));
-            Debug.Log("startpos walkable?: " + IsWalkable(goalPos));
+            goalPos = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y + 0.5f));
         }
 
         if (IsWalkable(startPos) && IsWalkable(goalPos)) {
@@ -395,7 +393,7 @@ public class AStar : MonoBehaviour
             Node startingNode = new Node(startPos, null, 0f);
             frontier.Enqueue(0f, startingNode);
             // Number of nodes we will traverse before we quit searching.
-            int counter = 10000;
+            int counter = 1000;
 
             while (frontier.Count() > 0 && counter > 0) {
                 Node currNode = frontier.Dequeue();
