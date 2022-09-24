@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering.Universal;
+
 
 public class Drop : MonoBehaviour
 {
@@ -22,7 +22,7 @@ public class Drop : MonoBehaviour
     private bool isCoin;
 
     private float timeExisted;
-    private Light2D light;
+    private UnityEngine.Rendering.Universal.Light2D light;
     private Rigidbody2D rb;
     private Collider2D col;
     private AudioSource pickUpSound;
@@ -35,7 +35,7 @@ public class Drop : MonoBehaviour
     void Start()
     {
         if (!isCoin) {
-            light = this.GetComponentInChildren<Light2D>();
+            light = this.GetComponentInChildren<UnityEngine.Rendering.Universal.Light2D>();
         }
         rb = this.GetComponent<Rigidbody2D>();
         col = this.GetComponent<CircleCollider2D>();

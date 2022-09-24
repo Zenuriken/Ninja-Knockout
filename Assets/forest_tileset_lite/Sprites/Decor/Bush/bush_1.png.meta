@@ -81,6 +81,7 @@ TextureImporter:
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -556,6 +557,26 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      bush_1_12: -1509515534801337004
+      bush_1_2: -5867623052389053342
+      bush_1_4: -7630358527265289830
+      bush_1_18: -2979495874730572336
+      bush_1_13: -1052928145277963094
+      bush_1_1: 6443926599609642144
+      bush_1_5: 8349707748277190037
+      bush_1_16: 3166376709195597627
+      bush_1_8: 3197764791722636151
+      bush_1_11: -4780922865390944422
+      bush_1_3: 8763604583418853164
+      bush_1_9: -7246673546777127897
+      bush_1_10: 1450546534921474824
+      bush_1_17: 7292691335274542483
+      bush_1_6: -9014512101607779488
+      bush_1_0: -4936142861167156310
+      bush_1_15: -2385844949280377075
+      bush_1_14: -8103315307156715236
+      bush_1_7: -7717769137102889859
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

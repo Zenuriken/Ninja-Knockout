@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering.Universal;
+
 
 public class CampFire : MonoBehaviour
 {
@@ -21,13 +21,13 @@ public class CampFire : MonoBehaviour
     private GameObject fireParticles;
     private SoundManager sounds;
     private AudioSource fireSound;
-    private Light2D highLight;
+    private UnityEngine.Rendering.Universal.Light2D highLight;
 
     private Health healthScript;
 
     private void Start() {
         fireParticles = this.transform.GetChild(0).gameObject;
-        highLight = this.transform.GetChild(1).GetComponent<Light2D>();
+        highLight = this.transform.GetChild(1).GetComponent<UnityEngine.Rendering.Universal.Light2D>();
         sounds = this.transform.GetChild(2).GetComponent<SoundManager>();
         healthScript = PlayerController.singleton.GetComponent<Health>();
 
