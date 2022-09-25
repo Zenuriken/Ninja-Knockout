@@ -24,12 +24,14 @@ public class CampFire : MonoBehaviour
     private UnityEngine.Rendering.Universal.Light2D highLight;
 
     private Health healthScript;
+    private Vector2 pos;
 
     private void Start() {
         fireParticles = this.transform.GetChild(0).gameObject;
         highLight = this.transform.GetChild(1).GetComponent<UnityEngine.Rendering.Universal.Light2D>();
         sounds = this.transform.GetChild(2).GetComponent<SoundManager>();
         healthScript = PlayerController.singleton.GetComponent<Health>();
+        pos = this.transform.position;
 
         if (hasActivated) {
             fireParticles.SetActive(true);
@@ -46,6 +48,8 @@ public class CampFire : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.tag == "Player" && !isActive) {
             StartCoroutine("LightUp");
+            PlayerController.singleton.SetCampFirePos(new Vector2(pos.x - 2f, pos.y + 1f));
+            PlayerController.singleton.SetSpawnLocation(new Vector2(pos.x - 2f, pos.y + 1f));
         }
     }
 

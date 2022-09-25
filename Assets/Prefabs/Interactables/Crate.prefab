@@ -11,6 +11,16 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: d54f26beb79dd724e8033e6283a1b4f1, type: 2}
+    - target: {fileID: 9028812071499583388, guid: ccca0b46d1820ef4ba27a55676e29cf9,
+        type: 3}
+      propertyPath: m_ApplyToSortingLayers.Array.data[0]
+      value: -552407101
+      objectReference: {fileID: 0}
+    - target: {fileID: 9028812071499583388, guid: ccca0b46d1820ef4ba27a55676e29cf9,
+        type: 3}
+      propertyPath: m_ApplyToSortingLayers.Array.data[1]
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9028812071720061480, guid: ccca0b46d1820ef4ba27a55676e29cf9,
         type: 3}
       propertyPath: m_Sprite

@@ -178,7 +178,7 @@ public class Health : MonoBehaviour
         playerRB.constraints = RigidbodyConstraints2D.FreezeRotation;
         playerScript.SetHasDied(false);
         playerSprite.color = new Color(1f, 1f, 1f, 1f);
-        currHealth = maxHealth;
+        currHealth = 1;
         UIManager.singleton.UpdateHealth(currHealth);
     }
 

@@ -256,6 +256,7 @@ public class PlayerController : MonoBehaviour {
 
     // Private Respawn Variables
     private Vector2 spawnLocation;
+    private Vector2 lastCampFirePos;
     // private int spawnHealth;
     // private int spawnShurikens;
     #endregion
@@ -1085,13 +1086,17 @@ public class PlayerController : MonoBehaviour {
         titleScreenModeEnabled = state;
     }
 
-    // Reset the player to the beginning of the level.
+    public void SetCampFirePos(Vector2 pos) {
+        lastCampFirePos = pos;
+    }
+
+    // Reset the player to the last campfire position.
     public void Reset() {
         playerInputEnabled = false;
         titleScreenModeEnabled = false;
         alertedNum = 0;
         playerRB.velocity = Vector2.zero;
-        playerRB.position = Vector2.zero;
+        playerRB.position = lastCampFirePos;
         numShurikens = startingShurikens;
         healthScript.ResetHealth();
         UIManager.singleton.UpdateShurikenNum(numShurikens);
