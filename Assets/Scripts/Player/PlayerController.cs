@@ -1091,14 +1091,18 @@ public class PlayerController : MonoBehaviour {
     }
 
     // Reset the player to the last campfire position.
-    public void Reset() {
+    public void Reset(bool justStarted) {
         playerInputEnabled = false;
         titleScreenModeEnabled = false;
         alertedNum = 0;
         playerRB.velocity = Vector2.zero;
-        playerRB.position = lastCampFirePos;
+        if (justStarted) {
+            playerRB.position = Vector2.zero;
+        } else {
+            playerRB.position = lastCampFirePos;
+        }
         numShurikens = startingShurikens;
-        healthScript.ResetHealth();
+        healthScript.ResetHealth(justStarted);
         UIManager.singleton.UpdateShurikenNum(numShurikens);
     }
 

@@ -56,7 +56,7 @@ public class Health : MonoBehaviour
         playerRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
         playerScript.SetHasDied(true);
         yield return UIManager.singleton.StartCoroutine("FadeOut");
-        playerScript.Reset();
+        playerScript.Reset(false);
         yield return UIManager.singleton.StartCoroutine("FadeIn");
         playerScript.SetPlayerInput(true);
     }
@@ -145,6 +145,8 @@ public class Health : MonoBehaviour
         currHealth -= x;
         UIManager.singleton.UpdateHealth(currHealth);
 
+        PlayerController.singleton.SetPlayerInput(false);
+
         // Kill the player
         if (currHealth <= 0) {
             StartCoroutine("Death");
@@ -170,7 +172,7 @@ public class Health : MonoBehaviour
         UIManager.singleton.UpdateHealth(currHealth);
     }
 
-    public void ResetHealth() {
+    public void ResetHealth(bool justStarted) {
         hasDied = false;
         // 7 = Player Layer, 9 = Enemy Layer
         Physics2D.IgnoreLayerCollision(7, 9, false);
@@ -178,7 +180,11 @@ public class Health : MonoBehaviour
         playerRB.constraints = RigidbodyConstraints2D.FreezeRotation;
         playerScript.SetHasDied(false);
         playerSprite.color = new Color(1f, 1f, 1f, 1f);
-        currHealth = 1;
+        if (justStarted) {
+            currHealth = maxHealth;
+        } else {
+           currHealth = 1; 
+        }
         UIManager.singleton.UpdateHealth(currHealth);
     }
 

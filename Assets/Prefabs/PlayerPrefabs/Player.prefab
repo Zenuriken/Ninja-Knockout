@@ -22097,7 +22097,7 @@ MonoBehaviour:
   holdTime: 0.25
   skillShotSpeed: 100
   maxShurikens: 2
-  startingShurikens: 2
+  startingShurikens: 0
   shurikenRadius: 0.335
   groundDust: {fileID: 1235888323}
   wallClimbDust: {fileID: 2141654167}
