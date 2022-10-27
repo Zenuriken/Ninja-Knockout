@@ -33,10 +33,13 @@ public class CameraController : MonoBehaviour
     private bool followEnabled;
     [SerializeField]
     [Tooltip("How fast the moon and sun will rotate")]
-    private float rotationSpeed;
+    private float switchSpeed;
     [SerializeField]
-    [Tooltip("The parent rotation object for switching the time of day.")]
-    private GameObject rotationObject;
+    [Tooltip("The moon.")]
+    private GameObject moon;
+    [SerializeField]
+    [Tooltip("The sun.")]
+    private GameObject sun;
     #endregion
 
     #region Private Variables
@@ -128,10 +131,15 @@ public class CameraController : MonoBehaviour
         followEnabled = state;
     }
 
-    public IEnumerator SwitchTime() {
-        for (float t = 0; t <= 180f; t += Time.deltaTime * rotationSpeed) {
-            rotationObject.transform.Rotate(0f, 0f, Time.deltaTime * rotationSpeed);
-            yield return new WaitForEndOfFrame();
-        }
-    }
+    // public IEnumerator SwitchTime() {
+    //     // for (float t = 0; t <= 180f; t += Time.deltaTime * rotationSpeed) {
+    //     //     rotationObject.transform.Rotate(0f, 0f, Time.deltaTime * rotationSpeed);
+    //     //     yield return new WaitForEndOfFrame();
+    //     // }
+    //     for (float t = 32f; t >= 0f; t -= Time.deltaTime * switchSpeed) {
+    //         moon.transform.localPosition = new Vector3(0, t, 5);
+    //         sun.transform.localPosition = new Vector3(0, -t * 2, 5);
+    //         yield return new WaitForEndOfFrame();
+    //     }
+    // }
 }

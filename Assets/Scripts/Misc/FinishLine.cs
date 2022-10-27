@@ -25,11 +25,11 @@ public class FinishLine : MonoBehaviour
     }
 
     IEnumerator EndingCinematic() {
-        MusicManager.singleton.FadeOutAudio("Traveler");
-        yield return new WaitForSeconds(2f);
-        MusicManager.singleton.Stop("Traveler");
         UIManager.singleton.DropBars(true);
-        yield return cam.StartCoroutine("SwitchTime");
+        MusicManager.singleton.FadeOutAudio("Traveler");
+        yield return new WaitForSeconds(3f);
+        UIManager.singleton.DropBars(true);
+        //yield return cam.StartCoroutine("SwitchTime");
         yield return new WaitForSeconds(1f);
         yield return UIManager.singleton.FadeOut();
         yield return new WaitForSeconds(1f);

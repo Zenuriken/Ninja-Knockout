@@ -303,7 +303,7 @@ MonoBehaviour:
   deflectedOnceColor:
     serializedVersion: 2
     key0: {r: 1, g: 0.7899933, b: 0.48490566, a: 1}
-    key1: {r: 0, g: 0, b: 0, a: 0}
+    key1: {r: 1, g: 0.7882353, b: 0.4862745, a: 0}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
@@ -332,7 +332,7 @@ MonoBehaviour:
   deflectedTwiceColor:
     serializedVersion: 2
     key0: {r: 0.9811321, g: 0.42947665, b: 0.46737686, a: 1}
-    key1: {r: 0, g: 0, b: 0, a: 0}
+    key1: {r: 0.98039216, g: 0.43137255, b: 0.46666667, a: 0}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
@@ -449,7 +449,7 @@ TrailRenderer:
     colorGradient:
       serializedVersion: 2
       key0: {r: 0.76470596, g: 0.76470596, b: 0.76470596, a: 1}
-      key1: {r: 0, g: 0, b: 0, a: 0}
+      key1: {r: 0.7647059, g: 0.7647059, b: 0.7647059, a: 0}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}

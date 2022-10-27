@@ -1724,7 +1724,7 @@ MonoBehaviour:
   m_Intensity: 8
   m_LightVolumeIntensity: 0
   m_LightVolumeIntensityEnabled: 0
-  m_ApplyToSortingLayers: 00000000c3ef12df
+  m_ApplyToSortingLayers: c3ef12df
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -1913,8 +1913,9 @@ MonoBehaviour:
   leftXLimit: -29
   rightXLimit: 900
   followEnabled: 0
-  rotationSpeed: 35
-  rotationObject: {fileID: 6634908949174953305}
+  switchSpeed: 5
+  moon: {fileID: 1307196342}
+  sun: {fileID: 3049477474209615490}
 --- !u!114 &1434034811
 MonoBehaviour:
   m_ObjectHideFlags: 0

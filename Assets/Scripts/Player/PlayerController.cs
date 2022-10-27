@@ -150,7 +150,7 @@ public class PlayerController : MonoBehaviour {
     private KeyCode dashKey = KeyCode.C;
     private KeyCode fireKey = KeyCode.Space;
     private KeyCode meleeKey = KeyCode.X;
-    private KeyCode sneakKey = KeyCode.LeftControl;
+    private KeyCode sneakKey = KeyCode.LeftShift;
     private KeyCode upKey = KeyCode.UpArrow;
     private KeyCode downKey = KeyCode.DownArrow;
     private KeyCode escapeKey = KeyCode.Escape;
@@ -1104,6 +1104,15 @@ public class PlayerController : MonoBehaviour {
         numShurikens = startingShurikens;
         healthScript.ResetHealth(justStarted);
         UIManager.singleton.UpdateShurikenNum(numShurikens);
+
+        skillShotSprite.enabled = false;
+        wallSkillShotSprite.enabled = false;
+        numCovered = 0;
+
+        if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
+            lastEnemyContact.SetHighLight(false);
+            lastEnemyContact = null;
+        }
     }
 
     // Respawns the player to the last saved game state.
@@ -1113,6 +1122,15 @@ public class PlayerController : MonoBehaviour {
         alertedNum = 0;
         playerRB.velocity = Vector2.zero;
         playerRB.position = spawnLocation;
+
+        skillShotSprite.enabled = false;
+        wallSkillShotSprite.enabled = false;
+        numCovered = 0;
+
+        if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
+            lastEnemyContact.SetHighLight(false);
+            lastEnemyContact = null;
+        }
     }
 
     // Saves the last game state of the player.

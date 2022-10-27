@@ -41,7 +41,7 @@ public class Lever : MonoBehaviour
             switchSound.Play();
             trapDoorSound.Play();
         }
-        Debug.Log("IsOn: " + isOn);
+        //Debug.Log("IsOn: " + isOn);
     }
 
     public void SetHighLight(bool status) {
