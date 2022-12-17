@@ -100,18 +100,6 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 3
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -120,7 +108,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 129
+        y: 1
         width: 128
         height: 128
       alignment: 0
@@ -130,8 +118,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7ad19634b44c409418e841f9afbb7f5a
-      internalID: 71017415
+      spriteID: 60af457e18717544ca8e0f249374f092
+      internalID: -1335892134
       vertices: []
       indices: 
       edges: []
@@ -141,27 +129,6 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 128
-        y: 129
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 05d0e21e940efd24ea9a6d0518fe8da9
-      internalID: -827380562
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: top_grass_big_2
-      rect:
-        serializedVersion: 2
-        x: 0
         y: 1
         width: 128
         height: 128
@@ -172,29 +139,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d5659b0e4ce698542b0c07e258710786
-      internalID: 488276970
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: top_grass_big_3
-      rect:
-        serializedVersion: 2
-        x: 128
-        y: 1
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 85bfcb50703f8d346ad05716f7a13cb8
-      internalID: 1094139566
+      spriteID: 2e6bd9b07099892499e06aec5564a788
+      internalID: -393660139
       vertices: []
       indices: 
       edges: []
@@ -210,10 +156,8 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      top_grass_big_3: 1094139566
-      top_grass_big_1: -827380562
-      top_grass_big_0: 71017415
-      top_grass_big_2: 488276970
+      top_grass_big_1: -393660139
+      top_grass_big_0: -1335892134
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
