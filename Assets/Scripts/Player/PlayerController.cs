@@ -367,7 +367,8 @@ public class PlayerController : MonoBehaviour {
             }
         }
         UpdateSprite();
-        //Debug.Log("alerted num: " + alertedNum);
+        //Debug.Log("alerted num: " + alertedNum);\
+        Debug.Log("Jump Counter: " + jumpCounter);
     }
     #endregion
 
@@ -393,7 +394,7 @@ public class PlayerController : MonoBehaviour {
                 jumpCounter -= 1;
                 lastJump = Time.time;
 
-                if (!isGrounded) {
+                if (!isGrounded && jumpCounter == 0) {
                     sounds.Play("DoubleJumping");
                     doubleJumpTrail.emitting = true;
                     doubleJumpTrail.time = 0.25f;
@@ -846,52 +847,6 @@ public class PlayerController : MonoBehaviour {
         float dist = Mathf.Sqrt(Mathf.Pow(lastJumpPos.x - pos.x, 2) + Mathf.Pow(lastJumpPos.y - pos.y, 2));
         return Mathf.Sqrt(Mathf.Pow(lastJumpPos.x - pos.x, 2) + Mathf.Pow(lastJumpPos.y - pos.y, 2)) >= fallSoundDist && !isStunned;
     }
-
-    // Makes the trail for the melee attack.
-    // IEnumerator MeleeTrail() {
-    //     Vector3 newPos = new Vector3(0f, 0f, 0f);
-    //     Vector3 p0 = point0.position;
-    //     Vector3 p1 = point1.position;
-    //     Vector3 p2 = point2.position;
-
-    //     //GameObject meleeBall = GameObject.Instantiate(meleeBallPrefab, meleePointRectTrans, false);
-    //     GameObject meleeBall = GameObject.Instantiate(meleeBallPrefab, p0, Quaternion.identity);
-    //     TrailRenderer meleeTrail = meleeBall.GetComponent<TrailRenderer>();
-    //     //Rigidbody2D meleeBallRB = meleeBall.GetCOmponent<Rigidbody2D>();
-    //     meleeTrail.emitting = true;
-    //     meleeTrail.time = meleeTrailTime;
-
-    //     float lastTValue = 0f;
-    //     // Uses Bezier Curves to interpolate the ball's position along three points.
-    //     for (float t = 0; t <= 1.0f; t += Time.deltaTime * meleeBallSpeed) {
-    //         lastTValue = t;
-    //         if (hitPlatform) {
-    //             meleeTrail.emitting = false;
-    //             Destroy(meleeBall);
-    //             yield break;
-    //         }
-    //         newPos = Mathf.Pow(1 - t, 2) * p0 + 2 * (1 - t) * t * p1 + Mathf.Pow(t, 2) * p2;
-    //         meleeBall.transform.position = newPos;
-    //         yield return new WaitForEndOfFrame();
-    //     }
-
-    //     // Sets the last position of the melee ball if it did not reach the full swing.
-    //     if (lastTValue < 1.0f) {
-    //         meleeBall.transform.position = p2;
-    //         yield return new WaitForEndOfFrame();
-    //     }
-
-    //     //meleeBall.transform.parent = null;
-    //     StartCoroutine(ReduceTrail(meleeTrail, true));
-    // }
-
-    // Knocks the player back when attacking an enemy or platform.
-    // IEnumerator KnockBack(Vector2 dir) {
-    //     yield return new WaitForSeconds(0.001f);
-    //     playerRB.velocity = new Vector2(0f, 0f);
-    //     playerRB.AddForce(dir * knockBackForce, ForceMode2D.Impulse);
-    //     yield return new WaitForSeconds(knockBackDur);
-    // }
 
     // Spawns the shuriken at the fire point of the player.
     private IEnumerator SpawnShuriken(Vector2 shootDir, Vector3 spawnPos) {
