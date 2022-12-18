@@ -368,7 +368,7 @@ public class PlayerController : MonoBehaviour {
         }
         UpdateSprite();
         //Debug.Log("alerted num: " + alertedNum);\
-        Debug.Log("Jump Counter: " + jumpCounter);
+        //Debug.Log("Jump Counter: " + jumpCounter);
     }
     #endregion
 

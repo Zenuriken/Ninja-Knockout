@@ -30,6 +30,12 @@ public class FieldOfView : MonoBehaviour
     private Gradient detectedGradient;
 
     private Gradient curGradient;
+
+
+    public float detectionTime;
+
+    private float currDetectTimer;
+
     
     // Start is called before the first frame update
     void Start()
@@ -114,12 +120,19 @@ public class FieldOfView : MonoBehaviour
                 (startingAngle == 200f && playerAngle <= startingAngle && playerAngle >= endingAngle)) {
                 RaycastHit2D playerRaycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(playerAngle), viewDistance, playerAndPlatformLayerMask);
                 if (playerRaycastHit2D.collider != null && playerRaycastHit2D.collider.name == "Player" && !playerScript.IsHiding()) {
-                    enemyScript.SetAlertStatus(true);
+                    if (currDetectTimer >= detectionTime) {
+                        enemyScript.SetAlertStatus(true);
+                    } else {
+                        currDetectTimer += Time.deltaTime;
+                    }
+                } else {
+                    currDetectTimer = 0f;
                 }
             }
         } else {
             mesh.Clear();
             curGradient = undetectedGradient;
+            currDetectTimer = 0f;
         }
     }
 
