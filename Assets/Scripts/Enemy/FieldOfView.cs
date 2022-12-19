@@ -114,6 +114,8 @@ public class FieldOfView : MonoBehaviour
                 endingAngle += 360;
             }
             float playerAngle = GetAngleFromVectorFloat(dirOfPlayer);
+
+            // If the player is in viewing angle.
             if ((startingAngle == 15f && playerAngle <= startingAngle + 360f && playerAngle >= endingAngle) ||
                 (startingAngle == 200f && playerAngle <= startingAngle && playerAngle >= endingAngle)) {
                 RaycastHit2D playerRaycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(playerAngle), viewDistance, playerAndPlatformLayerMask);
@@ -121,7 +123,8 @@ public class FieldOfView : MonoBehaviour
                     if (currDetectTimer >= detectionTime) {
                         enemyScript.SetAlertStatus(true);
                     } else {
-                        currDetectTimer += Time.deltaTime;
+                        float distProp = Vector2.Distance((Vector2)playerScript.transform.position, (Vector2)origin) / viewDistance;
+                        currDetectTimer += (1f / distProp) * Time.deltaTime;
                     }
                 } else {
                     currDetectTimer = 0f;
