@@ -23,18 +23,16 @@ public class FieldOfView : MonoBehaviour
     private MeshRenderer meshRenderer;
 
     [SerializeField]
-    [Tooltip("The undetected gradient of the FOV.")]
-    private Gradient undetectedGradient;
-    [SerializeField]
-    [Tooltip("The player detected gradient of the FOV.")]
-    private Gradient detectedGradient;
+    [Tooltip("The gradient of the FOV.")]
+    private Gradient gradient;
 
-    private Gradient curGradient;
-
+    private GradientColorKey[] colorKeys;
 
     public float detectionTime;
 
     private float currDetectTimer;
+
+    private bool seesPlayer;
 
     
     // Start is called before the first frame update
@@ -47,12 +45,12 @@ public class FieldOfView : MonoBehaviour
         meshRenderer = this.GetComponent<MeshRenderer>();
         playerTrans = GameObject.Find("Player").transform;
         playerScript = playerTrans.GetComponent<PlayerController>();
-        curGradient = undetectedGradient;
     }
 
     // Update is called once per frame
     void LateUpdate()
     {
+        // If the enemy is not allerted and hasn't died, update the line of sight.
         if (!enemyScript.IsAlerted() && !enemyScript.HasDied()) {
             float angle = startingAngle;
             float angleIncrease = fov / rayCount;
@@ -103,7 +101,7 @@ public class FieldOfView : MonoBehaviour
             for (var i = 0; i < uv.Length; i++) {
                 float distance = GetDistance((Vector2) mesh.vertices[i], (Vector2) mesh.vertices[0]);
                 float proportion = distance / viewDistance;
-                colors[i] = curGradient.Evaluate(proportion);
+                colors[i] = gradient.Evaluate(proportion);
             }
             mesh.colors = colors;            
 
@@ -128,11 +126,21 @@ public class FieldOfView : MonoBehaviour
                 } else {
                     currDetectTimer = 0f;
                 }
+            } else {
+                currDetectTimer = 0f;
             }
+
+            if (!seesPlayer) {
+                float prop = currDetectTimer / detectionTime;
+                SetColorKeys(prop);
+            }
+
+        // When the player is detected.
         } else {
             mesh.Clear();
-            curGradient = undetectedGradient;
             currDetectTimer = 0f;
+            SetColorKeys(0f);
+            seesPlayer = false;
         }
     }
 
@@ -141,6 +149,14 @@ public class FieldOfView : MonoBehaviour
         return Mathf.Sqrt(Mathf.Pow(p0.x - p1.x, 2f) + Mathf.Pow(p0.y - p1.y, 2f));
     }
 
+
+    // Sets the gradient to a color from Yellow -> Red based on proportion.
+    private void SetColorKeys(float prop) {
+        colorKeys = gradient.colorKeys;
+        colorKeys[0].color = new Color(1f, 1f - prop, 0f, 0.2941f);
+        colorKeys[1].color = new Color(1f, 1f - prop, 0f, 0f);
+        gradient.colorKeys = colorKeys;
+    }
 
     public Vector3 GetVectorFromAngle(float angle) {
         // angle = 0 -> 360
@@ -174,6 +190,7 @@ public class FieldOfView : MonoBehaviour
     }
 
     public void SetMeshRendererToAlertGrad() {
-        curGradient = detectedGradient;
+        seesPlayer = true;
+        SetColorKeys(1f);
     }
 }
