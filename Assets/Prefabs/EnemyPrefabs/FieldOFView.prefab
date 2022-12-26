@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 9060919203479435261}
   - component: {fileID: -5802634321393423391}
   - component: {fileID: -9080252145764544627}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: FieldOFView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -103,6 +103,7 @@ MonoBehaviour:
   fov: 30
   rayCount: 15
   viewDistance: 15
+  detectionTime: 1
   gradient:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 0, a: 0.29411766}
@@ -132,7 +133,6 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
-  detectionTime: 1
 --- !u!50 &-5802634321393423391
 Rigidbody2D:
   serializedVersion: 4

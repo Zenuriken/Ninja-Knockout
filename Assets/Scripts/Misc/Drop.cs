@@ -22,7 +22,7 @@ public class Drop : MonoBehaviour
     private bool isCoin;
 
     private float timeExisted;
-    private UnityEngine.Rendering.Universal.Light2D light;
+    private UnityEngine.Rendering.Universal.Light2D light2D;
     private Rigidbody2D rb;
     private Collider2D col;
     private AudioSource pickUpSound;
@@ -35,7 +35,7 @@ public class Drop : MonoBehaviour
     void Start()
     {
         if (!isCoin) {
-            light = this.GetComponentInChildren<UnityEngine.Rendering.Universal.Light2D>();
+            light2D = this.GetComponentInChildren<UnityEngine.Rendering.Universal.Light2D>();
         }
         rb = this.GetComponent<Rigidbody2D>();
         col = this.GetComponent<CircleCollider2D>();
@@ -56,12 +56,12 @@ public class Drop : MonoBehaviour
     IEnumerator FadeIn() {
         if (isShuriken) {
            for (float t = 0f; t <= 0.7f; t += Time.deltaTime * fadeInSpeed) {
-                light.color = new Color(0.5f, 0.5f, 0.5f, t);
+                light2D.color = new Color(0.5f, 0.5f, 0.5f, t);
                 yield return new WaitForEndOfFrame();
             } 
         } else if (isHealth) {
             for (float t = 0f; t <= 0.7f; t += Time.deltaTime * fadeInSpeed) {
-                light.color = new Color(1f, 0.792f, 0.059f, t);
+                light2D.color = new Color(1f, 0.792f, 0.059f, t);
                 yield return new WaitForEndOfFrame();
             }
         }
@@ -83,14 +83,14 @@ public class Drop : MonoBehaviour
                 pickUpSound.Play();
                 canPick = false;
                 sprite.enabled = false;
-                light.enabled = false;
+                light2D.enabled = false;
                 Invoke("Destroy", 2f);
             } else if (isHealth && healthScript.CanPickUpHealth()) {
                 healthScript.IncreasePlayerHealth(1);
                 pickUpSound.Play();
                 canPick = false;
                 sprite.enabled = false;
-                light.enabled = false;
+                light2D.enabled = false;
                 Invoke("Destroy", 2f);
             } else if (isCoin) {
                 pickUpSound.Play();

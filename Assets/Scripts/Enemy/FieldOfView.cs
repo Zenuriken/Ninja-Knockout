@@ -40,7 +40,7 @@ public class FieldOfView : MonoBehaviour
     }
 
     // Update is called once per frame
-    void LateUpdate()
+    void FixedUpdate()
     {
         // If the enemy is not allerted and hasn't died, update the line of sight.
         if (!enemyScript.IsAlerted() && !enemyScript.HasDied()) {
@@ -49,7 +49,6 @@ public class FieldOfView : MonoBehaviour
             if (currDetectTimer >= detectionTime && !playerScript.IsHiding()) {
                 seesPlayer = true;
                 SetColorKeys(1f);
-                polyCol.enabled = false;
                 enemyScript.SetAlertStatus(true);
             }
         // When the player is detected, reset detecting variables.
@@ -58,10 +57,9 @@ public class FieldOfView : MonoBehaviour
             currDetectTimer = 0f;
             SetColorKeys(0f);
             seesPlayer = false;
-            polyCol.enabled = true;
+            polyCol.enabled = false;
         }
     }
-
 
     #region Private Functions
     // Updates the shape, color, and collider of the LineOfSight.
@@ -109,6 +107,7 @@ public class FieldOfView : MonoBehaviour
         mesh.bounds = new Bounds(origin, Vector3.one * 1000f);
 
         // Assign vertices of Polygon Collider.
+        polyCol.enabled = true;
         polyCol.SetPath(0, vertices_2D);
 
         // Calculate the gradient color based on current detection time.
@@ -155,6 +154,7 @@ public class FieldOfView : MonoBehaviour
 
     // Increase the detection timer if in contact with the player.
     private void OnTriggerStay2D(Collider2D other) {
+        Debug.Log("TRIGGER");
         if (other.gameObject.tag == "Player" && !playerScript.IsHiding()) {
             float distProp = Vector2.Distance((Vector2)playerScript.transform.position, (Vector2)origin) / viewDistance;
             currDetectTimer += (1f / distProp) * Time.deltaTime;
