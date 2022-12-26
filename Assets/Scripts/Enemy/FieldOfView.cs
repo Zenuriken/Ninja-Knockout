@@ -44,22 +44,21 @@ public class FieldOfView : MonoBehaviour
     {
         // If the enemy is not allerted and hasn't died, update the line of sight.
         if (!enemyScript.IsAlerted() && !enemyScript.HasDied()) {
-
             UpdateLineOfSightShape();
-           
             // If the detection time is met, set the enemy to alerted.
             if (currDetectTimer >= detectionTime && !playerScript.IsHiding()) {
                 seesPlayer = true;
                 SetColorKeys(1f);
+                polyCol.enabled = false;
                 enemyScript.SetAlertStatus(true);
             }
-
         // When the player is detected, reset detecting variables.
         } else {
             mesh.Clear();
             currDetectTimer = 0f;
             SetColorKeys(0f);
             seesPlayer = false;
+            polyCol.enabled = true;
         }
     }
 
