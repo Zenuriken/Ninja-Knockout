@@ -40,7 +40,7 @@ public class FieldOfView : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void LateUpdate()
     {
         // If the enemy is not allerted and hasn't died, update the line of sight.
         if (!enemyScript.IsAlerted() && !enemyScript.HasDied()) {
@@ -107,7 +107,9 @@ public class FieldOfView : MonoBehaviour
         mesh.bounds = new Bounds(origin, Vector3.one * 1000f);
 
         // Assign vertices of Polygon Collider.
-        polyCol.enabled = true;
+        if (!polyCol.enabled) {
+            polyCol.enabled = true;
+        }
         polyCol.SetPath(0, vertices_2D);
 
         // Calculate the gradient color based on current detection time.
