@@ -474,7 +474,7 @@ public class EnemyController : MonoBehaviour
     // Play's alerted sound and also turns line of sight to red.
     IEnumerator PlayerDetected() {
         isDetectingPlayer = true;
-        fov.SetMeshRendererToAlertGrad();
+        //fov.SetMeshRendererToAlertGrad();
         FacePlayer();
         exclamationMark.Play();
         sounds.Play("Alerted");
