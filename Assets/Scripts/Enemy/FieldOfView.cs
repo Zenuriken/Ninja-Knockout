@@ -154,9 +154,15 @@ public class FieldOfView : MonoBehaviour
         return n;
     }
 
+    // Creates question mark above enemy's head when seeing player.
+    private void OnTriggerEnter2D(Collider2D other) {
+        if (other.gameObject.tag == "Player" && !playerScript.IsHiding() && !seesPlayer && !enemyScript.IsAlerted()) {
+            enemyScript.CreateQuestionMark();
+        }
+    }
+
     // Increase the detection timer if in contact with the player.
     private void OnTriggerStay2D(Collider2D other) {
-        Debug.Log("TRIGGER");
         if (other.gameObject.tag == "Player" && !playerScript.IsHiding()) {
             float distProp = Vector2.Distance((Vector2)playerScript.transform.position, (Vector2)origin) / viewDistance;
             currDetectTimer += (1f / distProp) * Time.deltaTime;

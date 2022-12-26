@@ -476,6 +476,7 @@ public class EnemyController : MonoBehaviour
         isDetectingPlayer = true;
         //fov.SetMeshRendererToAlertGrad();
         FacePlayer();
+        questionMark.Clear();
         exclamationMark.Play();
         sounds.Play("Alerted");
         isReturningToPatrolPos = false;
@@ -497,8 +498,10 @@ public class EnemyController : MonoBehaviour
         groundDust.Play();
     }
 
-    void CreateQuestionMark() {
-        questionMark.Play();
+    public void CreateQuestionMark() {
+        if (!exclamationMark.isPlaying) {
+            questionMark.Play();
+        }
     }
     #endregion
 
