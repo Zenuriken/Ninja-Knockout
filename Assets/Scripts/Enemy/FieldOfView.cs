@@ -13,6 +13,8 @@ public class FieldOfView : MonoBehaviour
     private MeshRenderer meshRenderer;
     private Mesh mesh;
     private Vector3 origin;
+    private Vector3 lastOrigin;
+    private float lastDetectTimer;
     private float currDetectTimer;
     private bool seesPlayer;
 
@@ -44,7 +46,12 @@ public class FieldOfView : MonoBehaviour
     {
         // If the enemy is not allerted and hasn't died, update the line of sight.
         if (!enemyScript.IsAlerted() && !enemyScript.HasDied()) {
-            UpdateLineOfSightShape();
+            if (!lastOrigin.Equals(origin)) {
+                Debug.Log("Origin: " + origin + ", Time: " + Time.time);
+                UpdateFOVShape();
+            }
+            UpdateFOVColor();
+
             // If the detection time is met, set the enemy to alerted.
             if (currDetectTimer >= detectionTime && !playerScript.IsHiding()) {
                 seesPlayer = true;
@@ -59,11 +66,22 @@ public class FieldOfView : MonoBehaviour
             seesPlayer = false;
             polyCol.enabled = false;
         }
+
+        lastOrigin = origin;
+        //lastDetectTimer = currDetectTimer;
     }
 
     #region Private Functions
-    // Updates the shape, color, and collider of the LineOfSight.
-    private void UpdateLineOfSightShape() {
+    // // Defines a static shape for the FOV collider.
+    // private void SetPolyCollider() {
+
+    // }
+
+
+
+
+    // Updates the shape of the FOV.
+    private void UpdateFOVShape() {
         // Initialize values.
         float angle = startingAngle;
         float angleIncrease = fov / rayCount;
@@ -110,8 +128,14 @@ public class FieldOfView : MonoBehaviour
         if (!polyCol.enabled) {
             polyCol.enabled = true;
         }
-        polyCol.SetPath(0, vertices_2D);
 
+        // Update Polygon collider vertices if the enemy has moved.
+        //Debug.Log("Mesh vertex 0: " + vertices_2D[0] + ", Time: " + Time.time);
+        polyCol.SetPath(0, vertices_2D);
+    }
+
+    // Sets the color of the FOV.
+    private void UpdateFOVColor() {
         // Calculate the gradient color based on current detection time.
         if (!seesPlayer) {
             float prop = currDetectTimer / detectionTime;
@@ -119,9 +143,9 @@ public class FieldOfView : MonoBehaviour
         }
 
         // Assign the color gradient of the LineOfSight.
-        var colors = new Color[uv.Length];
+        var colors = new Color[mesh.uv.Length];
         // Instead if vertex.y we use uv.x
-        for (var i = 0; i < uv.Length; i++) {
+        for (var i = 0; i < mesh.uv.Length; i++) {
             float distance = Vector2.Distance((Vector2) mesh.vertices[i], (Vector2) mesh.vertices[0]);
             float proportion = distance / viewDistance;
             colors[i] = gradient.Evaluate(proportion);
