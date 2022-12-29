@@ -82,11 +82,11 @@ public class CampFire : MonoBehaviour
         sounds.Play("CampFire");
         fireParticles.SetActive(true);
         highLight.gameObject.SetActive(true);
-        for (float i = 0f; i <= 5f; i += Time.deltaTime * lightUpSpeed) {
+        isFullyLit = true;
+        for (float i = 1f; i <= 5f; i += Time.deltaTime * lightUpSpeed) {
             highLight.intensity = i;
             yield return new WaitForEndOfFrame();
         }
-        isFullyLit = true;
     }
 
 

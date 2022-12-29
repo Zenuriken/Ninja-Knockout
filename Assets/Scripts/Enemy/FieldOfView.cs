@@ -47,7 +47,6 @@ public class FieldOfView : MonoBehaviour
         // If the enemy is not allerted and hasn't died, update the line of sight.
         if (!enemyScript.IsAlerted() && !enemyScript.HasDied()) {
             if (!lastOrigin.Equals(origin)) {
-                Debug.Log("Origin: " + origin + ", Time: " + Time.time);
                 UpdateFOVShape();
             }
             UpdateFOVColor();
@@ -72,14 +71,6 @@ public class FieldOfView : MonoBehaviour
     }
 
     #region Private Functions
-    // // Defines a static shape for the FOV collider.
-    // private void SetPolyCollider() {
-
-    // }
-
-
-
-
     // Updates the shape of the FOV.
     private void UpdateFOVShape() {
         // Initialize values.
@@ -130,7 +121,6 @@ public class FieldOfView : MonoBehaviour
         }
 
         // Update Polygon collider vertices if the enemy has moved.
-        //Debug.Log("Mesh vertex 0: " + vertices_2D[0] + ", Time: " + Time.time);
         polyCol.SetPath(0, vertices_2D);
     }
 

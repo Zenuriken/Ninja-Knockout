@@ -347,6 +347,16 @@ public class PlayerController : MonoBehaviour {
                 downHolding = Input.GetKey(downKey);
             } else {
                 xInput = 0f;
+                jumpPressed = false;
+                jumpHolding = false;
+                jumpReleased = false;
+                dashPressed = false;
+                sneakHolding = false;
+                meleePressed = false;
+                fireReleased = false;
+                fireHolding = false;
+                upHolding = false;
+                downHolding = false;
             }
             IsGrounded();
             IsAgainstWall();
