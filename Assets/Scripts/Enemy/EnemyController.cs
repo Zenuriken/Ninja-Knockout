@@ -501,6 +501,8 @@ public class EnemyController : MonoBehaviour
     public void CreateQuestionMark() {
         if (!exclamationMark.isPlaying) {
             questionMark.Play();
+        } else {
+            questionMark.Clear();
         }
     }
     #endregion
