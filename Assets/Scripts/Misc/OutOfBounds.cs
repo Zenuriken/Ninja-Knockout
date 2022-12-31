@@ -8,6 +8,11 @@ public class OutOfBounds : MonoBehaviour
         if (other.gameObject.tag == "Player") {
             Health playerHealthScript = other.gameObject.GetComponent<Health>();
             playerHealthScript.TakeEnvironDmg(1);
+        } else if (other.gameObject.tag == "Enemy") {
+            EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
+            if (!enemyScript.HasDied()) {
+                enemyScript.TakeDmg(100);
+            }
         }
     }
 }
