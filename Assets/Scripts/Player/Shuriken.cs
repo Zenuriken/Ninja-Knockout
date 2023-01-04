@@ -57,7 +57,7 @@ public class Shuriken : MonoBehaviour
         player = GameObject.Find("Player");
         playerScript = player.GetComponent<PlayerController>();
         meleeScript = player.transform.GetChild(1).GetComponent<Melee>();
-
+        Debug.Log("Launched");
         isActive = true;
     }
 

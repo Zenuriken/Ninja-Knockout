@@ -324,11 +324,14 @@ public class PlayerController : MonoBehaviour {
             IsAgainstWall();
             SetDirection();
             Move();
-            if (isWallClimbing) {
-                WallClimbAttack();
-            } else {
-                Attack();
-            }
+            Melee();
+            Throw();
+
+            // if (isWallClimbing) {
+            //     WallClimbAttack();
+            // } else {
+            //     Attack();
+            // }
             HidePlayer();
             if (titleScreenModeEnabled) {
                 playerRB.velocity = new Vector2(speed, playerRB.velocity.y);
@@ -619,72 +622,7 @@ public class PlayerController : MonoBehaviour {
 
     #region Attack Functions
     // Main attack function.
-    private void Attack() {
-        if (CanAttack() && numShurikens > 0 && !isDashing && !isWallClimbing && !isWallJumping) {
-            if (fireHolding && HoldTimeMet()) {
-                skillShotSprite.enabled = true;
-                wallSkillShotSprite.enabled = false;
-                if (upHolding) {
-                    angleRaw += skillShotSpeed * Time.deltaTime;
-                } else if (downHolding) {
-                    angleRaw -= skillShotSpeed * Time.deltaTime;
-                }
-                angleRaw = Mathf.Clamp(angleRaw, -60f, 60f);
-                if (lastDir == 1) {
-                    angleAdjusted = angleRaw;
-                } else {
-                    angleAdjusted = 180f - angleRaw;
-                }
-                skillShotTrans.rotation = Quaternion.Euler(0, 0, angleAdjusted - 90f);
-
-                Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
-                RaycastHit2D raycastHit2D = Physics2D.CircleCast(firePointTrans.position, shurikenRadius, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask, 0f, 0f);
-                //Debug.DrawRay(firePointTrans.position, GetVectorFromAngle(angleAdjusted) * 50f, Color.red);
-                //RaycastHit2D raycastHit2D = Physics2D.Raycast(firePointTrans.position, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask);
-                // If the raycast hits an enemy.
-                // if (raycastHit2D.collider != null) {
-                //     skillShotting = true;
-                //     pos = raycastHit2D.point;
-                // } else {
-                //     skillShotting = false;
-                // }
-                if (raycastHit2D.collider != null && raycastHit2D.collider.tag == "Enemy") {
-                    EnemyController enemyScript = raycastHit2D.collider.GetComponent<EnemyController>();
-                    // If the previous hit wasn't this enemy.
-                    if (enemyScript != lastEnemyContact) {
-                        // If the last hit was an enemy and that enemy hasn't died, set it to false.
-                        if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
-                            lastEnemyContact.SetHighLight(false);
-                        }
-                        lastEnemyContact = enemyScript;
-                    }
-                    if (!enemyScript.HasDied()) {
-                        enemyScript.SetHighLight(true);
-                    }
-                    // If the raycast was null, and the last raycast hit an enmy and that enemy hasn't died.
-                } else if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
-                    lastEnemyContact.SetHighLight(false);
-                }
-            } else if (fireHolding) {
-                currHoldTime += Time.deltaTime;
-            }
-
-            if (fireReleased && HoldTimeMet()) {
-                Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
-                StartCoroutine(SpawnShuriken(shootDir, firePointTrans.position));
-                currHoldTime = 0f;
-                angleRaw = 0f;
-                skillShotSprite.enabled = false;
-            } else if (fireReleased) {
-                Vector2 shootDir = new Vector2(lastDir, 0f);
-                StartCoroutine(SpawnShuriken(shootDir, firePointTrans.position));
-                currHoldTime = 0f;
-                angleRaw = 0f;
-                skillShotSprite.enabled = false;
-            }
-
-        }
-
+    private void Melee() {
         if (meleePressed && CanAttack() && isGrounded && !isDashing && !isWallClimbing && !isWallJumping) {
             skillShotSprite.enabled = false;
             if (isGrounded) {
@@ -693,7 +631,6 @@ public class PlayerController : MonoBehaviour {
             meleeActive = true;
             meleeCounter += 1;
             lastAttackDir = lastDir;
-            //StartCoroutine("MeleeTrail");
             Invoke("SetMeleeActiveFalse", 0.18f);
         }
 
@@ -753,10 +690,10 @@ public class PlayerController : MonoBehaviour {
                 }
             }
 
-            if (contact) {
-                Vector2 dir = new Vector2(-lastDir, 0f);
-                //StartCoroutine(KnockBack(dir));
-            }
+            // if (contact) {
+            //     Vector2 dir = new Vector2(-lastDir, 0f);
+            //     //StartCoroutine(KnockBack(dir));
+            // }
 
             if (sparks) {
                 CreateSparks();
@@ -764,29 +701,46 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    // Controls the Shuriken attack when wallClimbing
-    private void WallClimbAttack() {
+
+    private void Throw() {
         if (CanAttack() && numShurikens > 0 && !isDashing) {
+            Transform currTrans;
+            Transform currFirePointTrans;
+            SpriteRenderer currSprite;
+            SpriteRenderer otherSprite;
+            int scalar;
+            if (!isWallClimbing && !isWallJumping) {
+                currTrans = skillShotTrans;
+                currSprite = skillShotSprite;
+                otherSprite = wallSkillShotSprite;
+                currFirePointTrans = firePointTrans;
+                scalar = 1;
+            } else {
+                currTrans = wallSkillShotTrans;
+                currSprite = wallSkillShotSprite;
+                otherSprite = skillShotSprite;
+                currFirePointTrans = wallFirePointTrans;
+                scalar = -1;
+            }
             if (fireHolding && HoldTimeMet()) {
-                wallSkillShotSprite.enabled = true;
-                skillShotSprite.enabled = false;
+                currSprite.enabled = true;
+                otherSprite.enabled = false;
                 if (upHolding) {
                     angleRaw += skillShotSpeed * Time.deltaTime;
                 } else if (downHolding) {
                     angleRaw -= skillShotSpeed * Time.deltaTime;
                 }
                 angleRaw = Mathf.Clamp(angleRaw, -60f, 60f);
-                if (lastDir == -1) {
+                if (lastDir == scalar) {
                     angleAdjusted = angleRaw;
                 } else {
                     angleAdjusted = 180f - angleRaw;
                 }
-                wallSkillShotTrans.rotation = Quaternion.Euler(0, 0, angleAdjusted - 90f);
+                currTrans.rotation = Quaternion.Euler(0, 0, angleAdjusted - 90f);
 
                 Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
-                RaycastHit2D raycastHit2D = Physics2D.Raycast(wallSkillShotTrans.position, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask);
-                // If the raycast hits an enemy.
-
+                RaycastHit2D raycastHit2D = Physics2D.CircleCast(currFirePointTrans.position, shurikenRadius, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask, 0f, 0f);
+            
                 if (raycastHit2D.collider != null && raycastHit2D.collider.tag == "Enemy") {
                     EnemyController enemyScript = raycastHit2D.collider.GetComponent<EnemyController>();
                     // If the previous hit wasn't this enemy.
@@ -808,19 +762,23 @@ public class PlayerController : MonoBehaviour {
                 currHoldTime += Time.deltaTime;
             }
 
-            if (fireReleased && HoldTimeMet()) {
-                Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
-                StartCoroutine(SpawnShuriken(shootDir, wallFirePointTrans.position));
+            if (fireReleased) {
+                Vector2 shootDir = (fireReleased && HoldTimeMet()) ? GetVectorFromAngle(angleAdjusted) : new Vector2(scalar * lastDir, 0f);
+                StartCoroutine(SpawnShuriken(shootDir, currFirePointTrans.position));
                 currHoldTime = 0f;
                 angleRaw = 0f;
-                wallSkillShotSprite.enabled = false;
-            } else if (fireReleased) {
-                Vector2 shootDir = new Vector2(-lastDir, 0f);
-                StartCoroutine(SpawnShuriken(shootDir, wallFirePointTrans.position));
-                currHoldTime = 0f;
-                angleRaw = 0f;
-                wallSkillShotSprite.enabled = false;
+                currSprite.enabled = false;
             }
+
+
+            // if (fireReleased && CanAttack() && numShurikens > 0 && !isDashing && !isWallJumping) {
+            // isAttacking = true;
+            // playerAnim.SetBool("isThrowing", true);
+            // lastAttack = Time.time;
+            // numShurikens -= 1;
+            // UIManager.singleton.UpdateShurikenNum(numShurikens);
+            // Invoke("SetIsThrowingFalse", 0.5f);
+        // }
         }
     }
 
@@ -869,7 +827,6 @@ public class PlayerController : MonoBehaviour {
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
-        Debug.Log(playerRB.velocity);
         playerAnim.SetBool("isMoving", Mathf.Abs(playerRB.velocity.x) > 0.05f);
         playerAnim.SetBool("isJumping", playerRB.velocity.y > 0.05);
         playerAnim.SetBool("isFalling", playerRB.velocity.y < -0.05);

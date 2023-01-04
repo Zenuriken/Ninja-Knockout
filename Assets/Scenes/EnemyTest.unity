@@ -743,7 +743,7 @@ TilemapRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_ChunkSize: {x: 32, y: 32, z: 32}
-  m_ChunkCullingBounds: {x: 0.00390625, y: 0.00390625, z: 0}
+  m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
   m_MaxFrameAge: 16
   m_SortOrder: 0
@@ -4702,6 +4702,11 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1698462789860130109, guid: fe7712f79eaba76409440cfe0e06014c,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1698462790366254283, guid: fe7712f79eaba76409440cfe0e06014c,
         type: 3}
       propertyPath: tutorialEnabled
@@ -4711,6 +4716,31 @@ PrefabInstance:
         type: 3}
       propertyPath: detectionAllowed
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698462790467021908, guid: fe7712f79eaba76409440cfe0e06014c,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698462790704208457, guid: fe7712f79eaba76409440cfe0e06014c,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698462791367949756, guid: fe7712f79eaba76409440cfe0e06014c,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698462791371613938, guid: fe7712f79eaba76409440cfe0e06014c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4164699672102626315, guid: fe7712f79eaba76409440cfe0e06014c,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5036789657922204914, guid: fe7712f79eaba76409440cfe0e06014c,
         type: 3}
@@ -4820,6 +4850,11 @@ PrefabInstance:
     - target: {fileID: 5036789657922204918, guid: fe7712f79eaba76409440cfe0e06014c,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5577641852524296018, guid: fe7712f79eaba76409440cfe0e06014c,
+        type: 3}
+      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -4997,6 +5032,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
+      propertyPath: maxShurikens
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
+        type: 3}
+      propertyPath: startingShurikens
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969649, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
