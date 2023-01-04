@@ -271,7 +271,6 @@ public class PlayerController : MonoBehaviour {
         } else {
             singleton = this;
             DontDestroyOnLoad(this.gameObject);
-
             // Getting Player Components
             playerRB = GetComponent<Rigidbody2D>();
             boxCollider2D = GetComponent<Collider2D>();
@@ -281,24 +280,15 @@ public class PlayerController : MonoBehaviour {
             sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
             dashTrail = this.transform.GetChild(2).GetChild(1).GetComponent<TrailRenderer>();
             doubleJumpTrail = this.transform.GetChild(2).GetChild(2).GetComponent<TrailRenderer>();
-            platformLayerMask = LayerMask.GetMask("Platform");
-            allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
-            enemyAndPlatformLayerMask = LayerMask.GetMask("Enemy", "Platform", "OneWayPlatform");
             meleeScript = this.transform.GetChild(1).GetComponent<Melee>();
-
             firePointTrans = this.transform.GetChild(0).transform;
             skillShotTrans = firePointTrans.GetChild(0).transform;
             skillShotSprite = skillShotTrans.GetComponent<SpriteRenderer>();
-
             wallFirePointTrans = this.transform.GetChild(5).transform;
             wallSkillShotTrans = wallFirePointTrans.GetChild(0).transform;
             wallSkillShotSprite = wallSkillShotTrans.GetComponent<SpriteRenderer>();
-
             highLight = this.transform.GetChild(7).gameObject;
         }
-        // point0 = this.transform.GetChild(1).GetChild(1).transform;
-        // point1 = this.transform.GetChild(1).GetChild(2).transform;
-        // point2 = this.transform.GetChild(1).GetChild(3).transform;
     }
 
     // Start is called before the first frame update
@@ -312,6 +302,9 @@ public class PlayerController : MonoBehaviour {
         dashTrail.emitting = false;
         doubleJumpTrail.emitting = false;
         numShurikens = startingShurikens;
+        platformLayerMask = LayerMask.GetMask("Platform");
+        allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
+        enemyAndPlatformLayerMask = LayerMask.GetMask("Enemy", "Platform", "OneWayPlatform");
         if (!titleScreenModeEnabled) {
             UIManager.singleton.UpdateShurikenNum(numShurikens);
             UIManager.singleton.InitializeShurikenBackground(maxShurikens);
@@ -326,38 +319,7 @@ public class PlayerController : MonoBehaviour {
         playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
 
         if (!hasDied) {
-            // Get Player Input
-            closePressed = Input.GetKeyDown(escapeKey) || Input.GetKeyDown(enterKey);
-            continuePressed = Input.anyKeyDown;
-            if (closePressed) {
-                UIManager.singleton.ExitPopUp();
-            }
-
-            if (playerInputEnabled) {
-                xInput = Input.GetAxisRaw("Horizontal");
-                jumpPressed = Input.GetKeyDown(jumpKey);
-                jumpHolding = Input.GetKey(jumpKey);
-                jumpReleased = Input.GetKeyUp(jumpKey);
-                dashPressed = Input.GetKeyDown(dashKey);
-                sneakHolding = Input.GetKey(sneakKey);
-                meleePressed = Input.GetKeyDown(meleeKey);
-                fireReleased = Input.GetKeyUp(fireKey);
-                fireHolding = Input.GetKey(fireKey);
-                upHolding = Input.GetKey(upKey);
-                downHolding = Input.GetKey(downKey);
-            } else {
-                xInput = 0f;
-                jumpPressed = false;
-                jumpHolding = false;
-                jumpReleased = false;
-                dashPressed = false;
-                sneakHolding = false;
-                meleePressed = false;
-                fireReleased = false;
-                fireHolding = false;
-                upHolding = false;
-                downHolding = false;
-            }
+            GetPlayerInput();
             IsGrounded();
             IsAgainstWall();
             SetDirection();
@@ -368,7 +330,6 @@ public class PlayerController : MonoBehaviour {
                 Attack();
             }
             HidePlayer();
-
             if (titleScreenModeEnabled) {
                 playerRB.velocity = new Vector2(speed, playerRB.velocity.y);
                 if (isGrounded) {
@@ -377,8 +338,6 @@ public class PlayerController : MonoBehaviour {
             }
         }
         UpdateSprite();
-        //Debug.Log("alerted num: " + alertedNum);\
-        //Debug.Log("Jump Counter: " + jumpCounter);
     }
     #endregion
 
@@ -581,6 +540,40 @@ public class PlayerController : MonoBehaviour {
     #endregion
 
     #region State Functions
+    // Gets the Player Input
+    private void GetPlayerInput() {
+        closePressed = Input.GetKeyDown(escapeKey) || Input.GetKeyDown(enterKey);
+        continuePressed = Input.anyKeyDown;
+        if (closePressed) {
+            UIManager.singleton.ExitPopUp();
+        }
+        if (playerInputEnabled) {
+            xInput = Input.GetAxisRaw("Horizontal");
+            jumpPressed = Input.GetKeyDown(jumpKey);
+            jumpHolding = Input.GetKey(jumpKey);
+            jumpReleased = Input.GetKeyUp(jumpKey);
+            dashPressed = Input.GetKeyDown(dashKey);
+            sneakHolding = Input.GetKey(sneakKey);
+            meleePressed = Input.GetKeyDown(meleeKey);
+            fireReleased = Input.GetKeyUp(fireKey);
+            fireHolding = Input.GetKey(fireKey);
+            upHolding = Input.GetKey(upKey);
+            downHolding = Input.GetKey(downKey);
+        } else {
+            xInput = 0f;
+            jumpPressed = false;
+            jumpHolding = false;
+            jumpReleased = false;
+            dashPressed = false;
+            sneakHolding = false;
+            meleePressed = false;
+            fireReleased = false;
+            fireHolding = false;
+            upHolding = false;
+            downHolding = false;
+        }
+    }
+
     // Determines if the player is standing on ground.
     private void IsGrounded() {
         bool lastGroundStatus = isGrounded;
@@ -876,35 +869,17 @@ public class PlayerController : MonoBehaviour {
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
-        if (Mathf.Abs(playerRB.velocity.x) > 0f) {
-            playerAnim.SetBool("isMoving", true);
-        } else {
-            playerAnim.SetBool("isMoving", false);
-        }
-
-        if (playerRB.velocity.y > 0.001) {
-            playerAnim.SetBool("isJumping", true);
-        } else {
-            playerAnim.SetBool("isJumping", false);
-        }
-
-        if (playerRB.velocity.y < -0.001) {
-            playerAnim.SetBool("isFalling", true);
-        } else {
-            playerAnim.SetBool("isFalling", false);
-        }
-
-        if (isGrounded) {
-            playerAnim.SetBool("isGrounded", true);
-        } else {
-            playerAnim.SetBool("isGrounded", false);
-        }
-
-        if (isAgainstWall) {
-            playerAnim.SetBool("isAgainstWall", true);
-        } else {
-            playerAnim.SetBool("isAgainstWall", false);
-        }
+        Debug.Log(playerRB.velocity);
+        playerAnim.SetBool("isMoving", Mathf.Abs(playerRB.velocity.x) > 0.05f);
+        playerAnim.SetBool("isJumping", playerRB.velocity.y > 0.05);
+        playerAnim.SetBool("isFalling", playerRB.velocity.y < -0.05);
+        playerAnim.SetBool("isGrounded", isGrounded);
+        playerAnim.SetBool("isAgainstWall", isAgainstWall);
+        playerAnim.SetBool("isDashing", isDashing);
+        playerAnim.SetBool("isWallJumping", isWallJumping);
+        playerAnim.SetBool("isSneaking", isSneaking);
+        playerAnim.SetBool("isStunned", isStunned);
+        playerAnim.SetBool("hasDied", hasDied);
 
         if (fireReleased && CanAttack() && numShurikens > 0 && !isDashing && !isWallJumping) {
             isAttacking = true;
@@ -921,36 +896,6 @@ public class PlayerController : MonoBehaviour {
             lastAttack = Time.time;
             sounds.Play("Meleeing");
             Invoke("SetIsMeleeingFalse", 0.5f);
-        }
-
-        if (isDashing) {
-            playerAnim.SetBool("isDashing", true);
-        } else {
-            playerAnim.SetBool("isDashing", false);
-        }
-
-        if (isWallJumping) {
-            playerAnim.SetBool("isWallJumping", true);
-        } else {
-            playerAnim.SetBool("isWallJumping", false);
-        }
-
-        if (isSneaking) {
-            playerAnim.SetBool("isSneaking", true);
-        } else {
-            playerAnim.SetBool("isSneaking", false);
-        }
-
-        if (isStunned) {
-            playerAnim.SetBool("isStunned", true);
-        } else {
-            playerAnim.SetBool("isStunned", false);
-        }
-
-        if (hasDied) {
-            playerAnim.SetBool("hasDied", true);
-        } else {
-            playerAnim.SetBool("hasDied", false);
         }
     }
 
