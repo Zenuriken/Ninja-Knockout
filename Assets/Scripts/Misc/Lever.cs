@@ -71,11 +71,20 @@ public class Lever : MonoBehaviour
     private void SetPlatformTiles() {
         tileList = new Vector3Int[4];
         Vector3Int leftTile = platformTilemap.WorldToCell(leftDoor.position);
+        Vector3Int rightTile = platformTilemap.WorldToCell(rightDoor.position);
+        // If the doors are horizontal.
         if (isHorizontal) {
             for (int i = 0; i < 4; i++) {
                 Vector3Int t = new Vector3Int(leftTile.x + i + 1, leftTile.y, leftTile.z);
                 tileList[i] = t;
             }
+        // If the doors open to the left (leftDoor on top).
+        } else if (leftTile.y > rightTile.y) {
+            for (int i = 0; i < 4; i++) {
+                Vector3Int t = new Vector3Int(leftTile.x, leftTile.y + - i - 1, leftTile.z);
+                tileList[i] = t;
+            }
+        // If the doors open to the right (leftDoor on bottom).
         } else {
             for (int i = 0; i < 4; i++) {
                 Vector3Int t = new Vector3Int(leftTile.x, leftTile.y + i + 1, leftTile.z);
@@ -100,5 +109,11 @@ public class Lever : MonoBehaviour
     // Checks to see if enemy has already been damaged by player's current meleeCounter.
     public bool HasBeenDamaged(int counter) {
         return this.meleeCounter == counter;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other) {
+        if (other.gameObject.tag == "Projectile") {
+            Switch();
+        }
     }
 }
