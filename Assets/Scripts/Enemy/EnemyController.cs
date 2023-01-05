@@ -159,6 +159,7 @@ public class EnemyController : MonoBehaviour
     private LayerMask allPlatformsLayerMask;
     private LayerMask playerAndPlatformLayerMask;
     private Vector2 adjustedPos;
+    private float shurikenRadius = 0.335f;
     private int damageCounter;
     private float lastIdle;
     private float lastAttack;
@@ -190,7 +191,7 @@ public class EnemyController : MonoBehaviour
     private bool playedBodySplat;
     private bool bodySplatDelayPast;
     private bool isDetectingPlayer;
-    private bool isPlayingMeleeNoise;
+    //private bool isPlayingMeleeNoise;
     private bool isInPlayerMeleeRange;
     private bool beganCalculatingPath;
 
@@ -611,17 +612,26 @@ public class EnemyController : MonoBehaviour
     #region Attack Functions
     private void Attack() {
         playerIsInMeleeRange = meleeEnemyScript.IsTouchingMeleeTrigger();
-        playerIsInThrowingRange = alertedSightScript.IsTouchingAlertedTrigger();
+        playerIsInThrowingRange = alertedSightScript.IsTouchingAlertedTrigger() && IsWithinVectorBounds();
         if (playerIsInMeleeRange && isGrounded && CanAttack()) {
             isMeleeing = true;
+            lastAttack = Time.time;
+            sounds.Play("Meleeing");
+            Invoke("SetIsMeleeingFalse", 0.5f);
             playerHealthScript.TakeDmg(dmg, this.transform.position);
         } else if (playerIsInThrowingRange && isGrounded && CanAttack() && unreachable) {
             Vector2 dir = (playerScript.transform.position - firePointTrans.position).normalized;
-            RaycastHit2D raycastHit2D = Physics2D.Raycast(this.transform.position, dir, 15f, playerAndPlatformLayerMask);
-            if (raycastHit2D && raycastHit2D.collider.name == "Player" ){//&& IsWithinVectorBounds(dir)) {
-                StartCoroutine(Throw(dir));
-            }
+            RaycastHit2D raycastHit2D = Physics2D.CircleCast(firePointTrans.position, shurikenRadius, dir, 15f, playerAndPlatformLayerMask, 0f, 0f);
+            Debug.DrawLine(firePointTrans.position, (Vector3)raycastHit2D.point);
+            if (raycastHit2D.collider != null && raycastHit2D.collider.tag == "Player") StartCoroutine(Throw(dir));
         }
+    }
+
+    private bool IsWithinVectorBounds() {
+        Vector2 dir = (playerScript.transform.position - firePointTrans.position).normalized;
+        float dot = (dir.x >= 0) ? Vector2.Dot(dir, Vector2.right) : Vector2.Dot(dir, Vector2.left);
+        Debug.Log("Dot value: " + dot);
+        return Mathf.Abs(dot) >= 0.5f; // 0.5 is the dot product value for 60 degrees
     }
 
     private bool CanAttack() {
@@ -635,83 +645,27 @@ public class EnemyController : MonoBehaviour
         } else {
             transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
+        lastAttack = Time.time;
+        Invoke("SetIsThrowingFalse", 0.5f);
         yield return new WaitForSeconds(spawnDelay);
         GameObject shuriken = Instantiate(shurikenPrefab, firePointTrans.position, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
         shurikenScript.SetShurikenVelocity(dir);
     }
-
-    // private bool IsWithinVectorBounds(Vector2 dir) {
-    //     float dot;
-    //     if (dir.x >= 0) {
-    //         dot = Vector2.Dot(dir, Vector2.right);
-    //     } else {
-    //         dot = Vector2.Dot(dir, Vector2.left);
-    //     }
-    //     return dot >= 0.5f; // 0.5 is the dot product value for 60 degrees
-    // }
     #endregion
 
     #region Sprite Rendering Functions
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
-        if (Mathf.Abs(enemyRB.velocity.x) > 0.05f) {
-            enemyAnim.SetBool("isMoving", true);
-        } else {
-            enemyAnim.SetBool("isMoving", false);
-        }
-
-        if (enemyRB.velocity.y > 0.05f) {
-            enemyAnim.SetBool("isJumping", true);
-        } else {
-            enemyAnim.SetBool("isJumping", false);
-        }
-        
-        if (enemyRB.velocity.y < -0.05f) {
-            enemyAnim.SetBool("isFalling", true);
-        } else {
-            enemyAnim.SetBool("isFalling", false);
-        }
-
-        if (isGrounded) {
-            enemyAnim.SetBool("isGrounded", true);
-        } else {
-            enemyAnim.SetBool("isGrounded", false);
-        }
-
-        if(isAlerted) {
-            enemyAnim.SetBool("isAlerted", true);
-        } else {
-            enemyAnim.SetBool("isAlerted", false);
-        }
-
-        if(hasDied) {
-            enemyAnim.SetBool("hasDied", true);
-        } else {
-            enemyAnim.SetBool("hasDied", false);
-        }
-
-        if (isThrowing) {
-            enemyAnim.SetBool("isThrowing", true);
-            lastAttack = Time.time;
-            Invoke("SetIsThrowingFalse", 0.5f);
-        }
-
-        if (isMeleeing) {
-            enemyAnim.SetBool("isMeleeing", true);
-            lastAttack = Time.time;
-            if (!isPlayingMeleeNoise) {
-                sounds.Play("Meleeing");
-                isPlayingMeleeNoise = true;
-            }
-            Invoke("SetIsMeleeingFalse", 0.5f);
-        }
-
-        if (isStunned) {
-            enemyAnim.SetBool("isStunned", true);
-        } else {
-            enemyAnim.SetBool("isStunned", false);
-        }
+        enemyAnim.SetBool("isMoving", Mathf.Abs(enemyRB.velocity.x) > 0.05f);
+        enemyAnim.SetBool("isJumping", enemyRB.velocity.y > 0.05f);
+        enemyAnim.SetBool("isFalling", enemyRB.velocity.y < -0.05f);
+        enemyAnim.SetBool("isGrounded", isGrounded);
+        enemyAnim.SetBool("isStunned", isStunned);
+        enemyAnim.SetBool("hasDied", hasDied);
+        enemyAnim.SetBool("isThrowing", isThrowing);
+        enemyAnim.SetBool("isMeleeing", isMeleeing);
+        enemyAnim.SetBool("isAlerted", isAlerted);
     }
 
     private void SetIsThrowingFalse() {
@@ -722,7 +676,7 @@ public class EnemyController : MonoBehaviour
     private void SetIsMeleeingFalse() {
         enemyAnim.SetBool("isMeleeing", false);
         isMeleeing = false;
-        isPlayingMeleeNoise = false;
+        //isPlayingMeleeNoise = false;
     }
     #endregion
 

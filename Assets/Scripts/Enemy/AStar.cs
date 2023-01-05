@@ -478,7 +478,7 @@ public class AStar : MonoBehaviour
         return null;
     }
 
-    // Returns the enemy's adjusted position.
+    // Returns the enemy's adjusted position: The cell coordinate on top of the platform they are standing on.
     public Vector2 GetAdjustedPosition() {
         Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
         //Debug.Log(AdjustPos(pos));
