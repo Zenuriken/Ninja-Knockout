@@ -200,7 +200,7 @@ public class PlayerController : MonoBehaviour {
     private float lastDash;
 
     // Private shooting variables
-    private EnemyController lastEnemyContact;
+    private HighLight lastTarget;
     private Transform firePointTrans;
     private Transform skillShotTrans;
     private SpriteRenderer skillShotSprite;
@@ -235,7 +235,7 @@ public class PlayerController : MonoBehaviour {
     private Collider2D boxCollider2D;
     private LayerMask platformLayerMask;
     private LayerMask allPlatformsLayerMask;
-    private LayerMask enemyAndPlatformLayerMask;
+    private LayerMask enemyPlatformLeverLayerMask;
     private TrailRenderer dashTrail;
     private TrailRenderer doubleJumpTrail;
     private SoundManager sounds;
@@ -302,7 +302,7 @@ public class PlayerController : MonoBehaviour {
         numShurikens = startingShurikens;
         platformLayerMask = LayerMask.GetMask("Platform");
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
-        enemyAndPlatformLayerMask = LayerMask.GetMask("Enemy", "Platform", "OneWayPlatform");
+        enemyPlatformLeverLayerMask = LayerMask.GetMask("Enemy", "Platform", "OneWayPlatform", "Lever");
         if (!titleScreenModeEnabled) {
             UIManager.singleton.UpdateShurikenNum(numShurikens);
             UIManager.singleton.InitializeShurikenBackground(maxShurikens);
@@ -703,21 +703,13 @@ public class PlayerController : MonoBehaviour {
             currTrans.rotation = Quaternion.Euler(0, 0, angleAdjusted - 90f);
 
             Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
-            RaycastHit2D raycastHit2D = Physics2D.CircleCast(currFirePointTrans.position, shurikenRadius, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask, 0f, 0f);
-        
-            if (raycastHit2D.collider != null && raycastHit2D.collider.tag == "Enemy") {
-                EnemyController enemyScript = raycastHit2D.collider.GetComponent<EnemyController>();
-                // If the previous hit wasn't this enemy.
-                if (enemyScript != lastEnemyContact) {
-                    // If the last hit was an enemy and that enemy hasn't died, set it to false.
-                    if (lastEnemyContact != null && !lastEnemyContact.HasDied()) lastEnemyContact.SetHighLight(false);
-                    lastEnemyContact = enemyScript;
-                }
-                if (!enemyScript.HasDied()) enemyScript.SetHighLight(true);
-                // If the raycast was null, and the last raycast hit an enmy and that enemy hasn't died.
-            } else if (lastEnemyContact != null && !lastEnemyContact.HasDied()) lastEnemyContact.SetHighLight(false);
-            
-        } else if (fireHolding) currHoldTime += Time.deltaTime;
+            RaycastHit2D raycastHit2D = Physics2D.CircleCast(currFirePointTrans.position, shurikenRadius, GetVectorFromAngle(angleAdjusted), 50f, enemyPlatformLeverLayerMask, 0f, 0f);
+            SetTargetHighlight(raycastHit2D);
+        } else if (fireHolding) {
+            currHoldTime += Time.deltaTime;
+        } else {
+            SetTargetHighlight(new RaycastHit2D());
+        } 
 
         // Releasing the fire button.
         if (fireReleased) {
@@ -734,6 +726,21 @@ public class PlayerController : MonoBehaviour {
             UIManager.singleton.UpdateShurikenNum(numShurikens);
             Invoke("SetIsThrowingFalse", 0.5f);
         }
+    }
+
+    // Sets the highlight for the skillshot raycast.
+    private void SetTargetHighlight(RaycastHit2D raycastHit2D) {
+        // If the raycast hits nothing or a platform, set last target's highlight to null.
+        if (raycastHit2D.collider == null || raycastHit2D.collider.tag == "Platform") {
+            if (lastTarget != null) lastTarget.SetHighLight(false);
+            lastTarget = null;
+            return;
+        }
+        // Set the target's highlight and disable the last target's highlight.
+        HighLight target = raycastHit2D.collider.GetComponent<HighLight>();        
+        if (!ReferenceEquals(lastTarget, target) && lastTarget != null) lastTarget.SetHighLight(false);
+        target.SetHighLight(true);
+        lastTarget = target;
     }
 
     // Sets meleeActive to false to end enemy damaging.
@@ -914,10 +921,10 @@ public class PlayerController : MonoBehaviour {
         wallSkillShotSprite.enabled = false;
         numCovered = 0;
 
-        if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
-            lastEnemyContact.SetHighLight(false);
-            lastEnemyContact = null;
-        }
+        // if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
+        //     lastEnemyContact.SetHighLight(false);
+        //     lastEnemyContact = null;
+        // }
     }
 
     // Respawns the player to the last saved game state.
@@ -932,10 +939,10 @@ public class PlayerController : MonoBehaviour {
         wallSkillShotSprite.enabled = false;
         numCovered = 0;
 
-        if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
-            lastEnemyContact.SetHighLight(false);
-            lastEnemyContact = null;
-        }
+        // if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
+        //     lastEnemyContact.SetHighLight(false);
+        //     lastEnemyContact = null;
+        // }
     }
 
     // Saves the last game state of the player.

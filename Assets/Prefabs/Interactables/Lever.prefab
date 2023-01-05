@@ -14,7 +14,8 @@ GameObject:
   - component: {fileID: 2724266885844992775}
   - component: {fileID: 2724266885844992774}
   - component: {fileID: 104878968}
-  m_Layer: 6
+  - component: {fileID: 1450516572483634498}
+  m_Layer: 15
   m_Name: Lever
   m_TagString: Lever
   m_Icon: {fileID: 0}
@@ -122,6 +123,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trapDoors: {fileID: 0}
+  tile: {fileID: 0}
+  isHorizontal: 0
 --- !u!61 &2724266885844992774
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -244,6 +247,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1450516572483634498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2724266885844992770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0120bb3cfd2f9764dbae9f035c2bcd17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highLight: {fileID: 2724266886863130854}
 --- !u!1 &2724266886863130854
 GameObject:
   m_ObjectHideFlags: 0

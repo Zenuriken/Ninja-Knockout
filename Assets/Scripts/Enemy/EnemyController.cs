@@ -784,9 +784,10 @@ public class EnemyController : MonoBehaviour
 
     // Sets the HighLight of the enemy
     public void SetHighLight(bool state) {
-        if (state || !isInPlayerMeleeRange) {
-            highLight.SetActive(state);
-        }
+        // if (state || !isInPlayerMeleeRange) {
+        //     highLight.SetActive(state);
+        // }
+        highLight.SetActive(state);
     }
 
     // Sets whether the enemy is within player melee range.
