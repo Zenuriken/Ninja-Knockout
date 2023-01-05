@@ -182,7 +182,6 @@ public class PlayerController : MonoBehaviour {
     private bool isStunned;
     private bool isGrounded;
     private bool isAgainstWall;
-    //private bool isCovered;
     private bool isHiding;
     private bool isDamaged;
     private bool hasDied;
@@ -192,10 +191,8 @@ public class PlayerController : MonoBehaviour {
     private bool isPlayingLeavingBushesNoise;
     private bool isPlayingWallJumpingNoise;
     private bool isPlayingStealthMeleeKill;
-
     private bool isThrowing;
     private bool isMeleeing;
-
     private int numCovered;
 
     // Private Dash Variables
@@ -260,8 +257,6 @@ public class PlayerController : MonoBehaviour {
     // Private Respawn Variables
     private Vector2 spawnLocation;
     private Vector2 lastCampFirePos;
-    // private int spawnHealth;
-    // private int spawnShurikens;
     #endregion
 
     /**********************************************************************************/
@@ -320,7 +315,7 @@ public class PlayerController : MonoBehaviour {
     void Update() {
         // Limits the velocity when falling
         playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
-        // Logic for 
+        // If the player is on the title screen.
         if (titleScreenModeEnabled) {
             playerRB.velocity = new Vector2(speed, playerRB.velocity.y);
             if (isGrounded) {
@@ -328,7 +323,7 @@ public class PlayerController : MonoBehaviour {
             }
             return;
         }
-    
+        // If the player is not on title screen.
         if (!hasDied) {
             GetPlayerInput();
             IsGrounded();
@@ -346,111 +341,107 @@ public class PlayerController : MonoBehaviour {
     #region Movement Functions
     // Controls the player's movement.
     void Move() {
-        if (!isStunned) {
-            // Regular movement
-            if (!isDashing && !isWallJumping && !isAttacking) {
-                playerRB.velocity = new Vector2(xInput * speed, playerRB.velocity.y);
-            } else if (isAttacking) {
-                playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
-            }
+        if (isStunned) return;
+        
+        // Regular movement
+        if (!isDashing && !isWallJumping && !isAttacking) {
+            playerRB.velocity = new Vector2(xInput * speed, playerRB.velocity.y);
+        } else if (isAttacking) {
+            playerRB.velocity = new Vector2(0f, playerRB.velocity.y);
+        }
 
-            // Tapping the jump button
-            if (jumpPressed && (isGrounded || jumpCounter > 0) && !isDashing && !isWallJumping && !isAgainstWall && !isAttacking && CanJump()) {
-                isJumping = true;
-                jumpDurTimer = jumpDur;
+        // Tapping the jump button
+        if (jumpPressed && (isGrounded || jumpCounter > 0) && !isDashing && !isWallJumping && !isAgainstWall && !isAttacking && CanJump()) {
+            isJumping = true;
+            jumpDurTimer = jumpDur;
+            playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
+            jumpCounter -= 1;
+            lastJump = Time.time;
+            if (!isGrounded && jumpCounter == 0) {
+                sounds.Play("DoubleJumping");
+                doubleJumpTrail.emitting = true;
+                doubleJumpTrail.time = 0.25f;
+                StartCoroutine(ReduceTrail(doubleJumpTrail, false));
+            } else {
+                sounds.Play("Jumping");
+            }
+        }
+
+        // Holding the jump button
+        if (jumpHolding && isJumping && !isDashing && !isWallJumping && !isAgainstWall) {
+            if (jumpDurTimer > 0) {
                 playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
-                jumpCounter -= 1;
-                lastJump = Time.time;
-                if (!isGrounded && jumpCounter == 0) {
-                    sounds.Play("DoubleJumping");
-                    doubleJumpTrail.emitting = true;
-                    doubleJumpTrail.time = 0.25f;
-                    StartCoroutine(ReduceTrail(doubleJumpTrail, false));
-                } else {
-                    sounds.Play("Jumping");
-                }
-            }
-
-            // Holding the jump button
-            if (jumpHolding && isJumping && !isDashing && !isWallJumping && !isAgainstWall) {
-                if (jumpDurTimer > 0) {
-                    playerRB.velocity = new Vector2(playerRB.velocity.x, jumpVel);
-                    jumpDurTimer -= Time.deltaTime;
-                } else {
-                    isJumping = false;
-                }
-            }
-
-            // Releasing the jump button
-            if (jumpReleased) {
+                jumpDurTimer -= Time.deltaTime;
+            } else {
                 isJumping = false;
             }
+        }
 
-            // Tapping the dash button.
-            if (dashEnabled && dashPressed && !isDashing && !isJumping && !isWallJumping && !isAttacking && (dashCounter > 0 || isGrounded) && CanDash()) {
-                lastDash = Time.time;
-                StartCoroutine("Dash");
-            }
+        // Releasing the jump button
+        if (jumpReleased) isJumping = false;
 
-            // Sneaking
-            if (sneakHolding && isGrounded) {
-                isSneaking = true;
-                speed = sneakSpeed;
-            } else if (!sneakHolding) {
-                speed = moveSpeed;
-                isSneaking = false;
-            }
+        // Tapping the dash button.
+        if (dashEnabled && dashPressed && !isDashing && !isJumping && !isWallJumping && !isAttacking && (dashCounter > 0 || isGrounded) && CanDash()) {
+            lastDash = Time.time;
+            StartCoroutine("Dash");
+        }
 
-            // Wall Climbing
-            if (!isDashing && isAgainstWall) {
-                playerRB.velocity = new Vector2(0f, -1f * wallFallSpeed);
-                if (!isGrounded) {
-                    isWallClimbing = true;
-                    currWallClimbTime += Time.deltaTime;
-                    if (!isPlayingWallClimbingNoise && WallClimbTimeMet()) {
-                        sounds.Play("WallClimbing");
-                        isPlayingWallClimbingNoise = true;
-                    }
-                    CreateDust(1);
-                } else {
-                    isWallClimbing = false;
-                    sounds.Stop("WallClimbing");
-                    currWallClimbTime = 0f;
-                    isPlayingWallClimbingNoise = false;
+        // Sneaking
+        if (sneakHolding && isGrounded) {
+            isSneaking = true;
+            speed = sneakSpeed;
+        } else if (!sneakHolding) {
+            speed = moveSpeed;
+            isSneaking = false;
+        }
+
+        // Wall Climbing
+        if (!isDashing && isAgainstWall) {
+            playerRB.velocity = new Vector2(0f, -1f * wallFallSpeed);
+            if (!isGrounded) {
+                isWallClimbing = true;
+                currWallClimbTime += Time.deltaTime;
+                if (!isPlayingWallClimbingNoise && WallClimbTimeMet()) {
+                    sounds.Play("WallClimbing");
+                    isPlayingWallClimbingNoise = true;
                 }
-                // Setting Wall Jumping to true
-                if (jumpPressed && CanJump()) {
-                    isWallJumping = true;
-                    sounds.Stop("WallClimbing");
-                    currWallClimbTime = 0f;
-                    isPlayingWallClimbingNoise = false;
-                    Invoke("SetWallJumpingFalse", wallJumpDur);
-                }
+                CreateDust(1);
             } else {
                 isWallClimbing = false;
                 sounds.Stop("WallClimbing");
                 currWallClimbTime = 0f;
                 isPlayingWallClimbingNoise = false;
             }
-
-            // Wall Jumping
-            if (isWallJumping) {
-                playerRB.velocity = new Vector2(-lastDir * moveSpeed, jumpVel);
-                lastJump = Time.time;
-                if (!isPlayingWallJumpingNoise) {
-                    sounds.Play("WallJumping");
-                    isPlayingWallJumpingNoise = true;
-                }
-            } else {
-                isPlayingWallJumpingNoise = false;
+            // Setting Wall Jumping to true
+            if (jumpPressed && CanJump()) {
+                isWallJumping = true;
+                sounds.Stop("WallClimbing");
+                currWallClimbTime = 0f;
+                isPlayingWallClimbingNoise = false;
+                Invoke("SetWallJumpingFalse", wallJumpDur);
             }
-
-            // Recording jump position and Y velocity for playing noise / creating dust.
-            if (lastYVel > 0.05f && this.playerRB.velocity.y < -0.05f) {
-                lastJumpPos = this.transform.position;
-            }
-            lastYVel = this.playerRB.velocity.y;
+        } else {
+            isWallClimbing = false;
+            sounds.Stop("WallClimbing");
+            currWallClimbTime = 0f;
+            isPlayingWallClimbingNoise = false;
         }
+
+        // Wall Jumping
+        if (isWallJumping) {
+            playerRB.velocity = new Vector2(-lastDir * moveSpeed, jumpVel);
+            lastJump = Time.time;
+            if (!isPlayingWallJumpingNoise) {
+                sounds.Play("WallJumping");
+                isPlayingWallJumpingNoise = true;
+            }
+        } else {
+            isPlayingWallJumpingNoise = false;
+        }
+
+        // Recording jump position and Y velocity for playing noise / creating dust.
+        if (lastYVel > 0.05f && this.playerRB.velocity.y < -0.05f) lastJumpPos = this.transform.position;
+        lastYVel = this.playerRB.velocity.y;
     }
 
     // Sets the variable: lastDir based on the xInput of the player.
@@ -461,16 +452,7 @@ public class PlayerController : MonoBehaviour {
             } else if (xInput < 0) {
                 lastDir = -1;
             }
-            FlipPlayer();
-        }
-    }
-
-    // Sets the direction of the player to where it's moving.
-    private void FlipPlayer() {
-        if (lastDir == 1) {
-            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-        } else if (lastDir == -1) {
-            transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            transform.localScale = new Vector3(lastDir * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
     }
 
@@ -485,9 +467,7 @@ public class PlayerController : MonoBehaviour {
             isDashing = true;
             dashCounter -= 1;
             playerRB.velocity = new Vector2(playerRB.velocity.x, 0f);
-            if (isGrounded) {
-                CreateDust(0);
-            }
+            if (isGrounded) CreateDust(0);
             playerRB.gravityScale = 0;
             dashTrail.emitting = true;
             dashTrail.time = 0.25f;
@@ -507,21 +487,21 @@ public class PlayerController : MonoBehaviour {
             yield return new WaitForSeconds(trailDur);
         }
         trail.emitting = false;
-        if (destroy) {
-            Destroy(trail.gameObject);
-        }
+        if (destroy) Destroy(trail.gameObject);
     }
 
+    // Creates dust around the player.
     void CreateDust(int s) {
         // Create ground dust
         if (s == 0) {
             groundDust.Play();
-            // Create wall dust on appropriate side.
+        // Create wall dust on appropriate side.
         } else if (s == 1) {
             wallClimbDust.Play();
         }
     }
 
+    // Creates sparks around the player's sword.
     void CreateSparks() {
         sparks.Play();
     }
@@ -542,9 +522,7 @@ public class PlayerController : MonoBehaviour {
     private void GetPlayerInput() {
         closePressed = Input.GetKeyDown(escapeKey) || Input.GetKeyDown(enterKey);
         continuePressed = Input.anyKeyDown;
-        if (closePressed) {
-            UIManager.singleton.ExitPopUp();
-        }
+        if (closePressed) UIManager.singleton.ExitPopUp();
         if (playerInputEnabled) {
             xInput = Input.GetAxisRaw("Horizontal");
             jumpPressed = Input.GetKeyDown(jumpKey);
@@ -620,9 +598,7 @@ public class PlayerController : MonoBehaviour {
     private void Melee() {
         if (meleePressed && CanAttack() && isGrounded && !isDashing && !isWallClimbing && !isWallJumping) {
             skillShotSprite.enabled = false;
-            if (isGrounded) {
-                CreateDust(0);
-            }
+            if (isGrounded) CreateDust(0);
             meleeActive = true;
             meleeCounter += 1;
             lastAttackDir = lastDir;
@@ -633,144 +609,130 @@ public class PlayerController : MonoBehaviour {
             Invoke("SetIsMeleeingFalse", 0.5f);
             Invoke("SetMeleeActiveFalse", 0.18f);
         }
+
         // Checking for collisions.
-        if (meleeActive) {
-            bool sparks = false;
-            List<Collider2D> enemyColliders = meleeScript.GetEnemyColliders();
-            foreach (Collider2D collider in enemyColliders) {
-                EnemyController enemy = collider.gameObject.GetComponent<EnemyController>();
-                if (!enemy.HasBeenDamaged(meleeCounter) && !enemy.HasDied()) {
-                    if (enemy.IsAlerted() || enemy.IsDetectingPlayer()) {
-                        enemy.TakeDmg(1);
-                    } else {
-                        enemy.TakeDmg(5);
-                        if (!isPlayingStealthMeleeKill) {
-                            sounds.Play("StealthMeleeKill");
-                            isPlayingStealthMeleeKill = true;
-                        }
+        if (!meleeActive) return;
+        
+        bool sparks = false;
+        List<Collider2D> enemyColliders = meleeScript.GetEnemyColliders();
+        foreach (Collider2D collider in enemyColliders) {
+            EnemyController enemy = collider.gameObject.GetComponent<EnemyController>();
+            if (!enemy.HasBeenDamaged(meleeCounter) && !enemy.HasDied()) {
+                if (enemy.IsAlerted() || enemy.IsDetectingPlayer()) {
+                    enemy.TakeDmg(1);
+                } else {
+                    enemy.TakeDmg(5);
+                    if (!isPlayingStealthMeleeKill) {
+                        sounds.Play("StealthMeleeKill");
+                        isPlayingStealthMeleeKill = true;
                     }
-                    enemy.SetDamagedCounter(meleeCounter);
                 }
-            }
-            // Checking projetile collisions.
-            List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
-            foreach (Collider2D collider in projectileColliders) {
-                Shuriken shuriken = collider.gameObject.GetComponent<Shuriken>();
-                if (!shuriken.HasBeenDeflected(meleeCounter)) {
-                    shuriken.Deflected();
-                    shuriken.SetDeflectedCounter(meleeCounter);
-                }
-                sparks = true;
-            }
-            // Checking platform collisions.
-            List<Collider2D> platformColliders = meleeScript.GetPlatformColliders();
-            if (platformColliders.Count > 0) {
-                sparks = true;
-            }
-            // Checking lever collisions.
-            List<Collider2D> leverColliders = meleeScript.GetLeverColliders();
-            foreach (Collider2D collider in leverColliders) {
-                Lever lever = collider.gameObject.GetComponent<Lever>();
-                if (!lever.HasBeenDamaged(meleeCounter)) {
-                    lever.Switch();
-                    lever.SetMeleeCounter(meleeCounter);
-                }
-            }
-            // Checking destrutible collisions.
-            List<Collider2D> destructibleColliders = meleeScript.GetDestructibleColliders();
-            foreach (Collider2D collider in destructibleColliders) {
-                Destructible obj = collider.gameObject.GetComponent<Destructible>();
-                if (!obj.HasBeenDamaged(meleeCounter) && obj.CanBreak()) {
-                    obj.Break();
-                    obj.SetMeleeCounter(meleeCounter);
-                }
-            }
-            // Check if sparks should apppear.
-            if (sparks) {
-                CreateSparks();
+                enemy.SetDamagedCounter(meleeCounter);
             }
         }
+        // Checking projetile collisions.
+        List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
+        foreach (Collider2D collider in projectileColliders) {
+            Shuriken shuriken = collider.gameObject.GetComponent<Shuriken>();
+            if (!shuriken.HasBeenDeflected(meleeCounter)) {
+                shuriken.Deflected();
+                shuriken.SetDeflectedCounter(meleeCounter);
+            }
+            sparks = true;
+        }
+        // Checking platform collisions.
+        List<Collider2D> platformColliders = meleeScript.GetPlatformColliders();
+        if (platformColliders.Count > 0) sparks = true;
+        // Checking lever collisions.
+        List<Collider2D> leverColliders = meleeScript.GetLeverColliders();
+        foreach (Collider2D collider in leverColliders) {
+            Lever lever = collider.gameObject.GetComponent<Lever>();
+            if (!lever.HasBeenDamaged(meleeCounter)) {
+                lever.Switch();
+                lever.SetMeleeCounter(meleeCounter);
+            }
+        }
+        // Checking destrutible collisions.
+        List<Collider2D> destructibleColliders = meleeScript.GetDestructibleColliders();
+        foreach (Collider2D collider in destructibleColliders) {
+            Destructible obj = collider.gameObject.GetComponent<Destructible>();
+            if (!obj.HasBeenDamaged(meleeCounter) && obj.CanBreak()) {
+                obj.Break();
+                obj.SetMeleeCounter(meleeCounter);
+            }
+        }
+        // Check if sparks should apppear.
+        if (sparks) CreateSparks();
     }
 
     // When the player aims or throws a shuriken while standing/wall climbing.
     private void Throw() {
-        if (CanAttack() && numShurikens > 0 && !isDashing) {
-            // Initialize variables.
-            Transform currTrans;
-            Transform currFirePointTrans;
-            SpriteRenderer currSprite;
-            SpriteRenderer otherSprite;
-            int scalar;
-            // Set variables based on wallClimb status.
-            if (!isWallClimbing && !isWallJumping) {
-                currTrans = skillShotTrans;
-                currSprite = skillShotSprite;
-                otherSprite = wallSkillShotSprite;
-                currFirePointTrans = firePointTrans;
-                scalar = 1;
-            } else {
-                currTrans = wallSkillShotTrans;
-                currSprite = wallSkillShotSprite;
-                otherSprite = skillShotSprite;
-                currFirePointTrans = wallFirePointTrans;
-                scalar = -1;
-            }
-            // Logic for aiming skillshot.
-            if (fireHolding && HoldTimeMet()) {
-                currSprite.enabled = true;
-                otherSprite.enabled = false;
-                if (upHolding) {
-                    angleRaw += skillShotSpeed * Time.deltaTime;
-                } else if (downHolding) {
-                    angleRaw -= skillShotSpeed * Time.deltaTime;
-                }
-                angleRaw = Mathf.Clamp(angleRaw, -60f, 60f);
-                if (lastDir == scalar) {
-                    angleAdjusted = angleRaw;
-                } else {
-                    angleAdjusted = 180f - angleRaw;
-                }
-                currTrans.rotation = Quaternion.Euler(0, 0, angleAdjusted - 90f);
+        if (!(CanAttack() && numShurikens > 0 && !isDashing)) return;
 
-                Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
-                RaycastHit2D raycastHit2D = Physics2D.CircleCast(currFirePointTrans.position, shurikenRadius, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask, 0f, 0f);
+        // Initialize variables.
+        Transform currTrans;
+        Transform currFirePointTrans;
+        SpriteRenderer currSprite;
+        SpriteRenderer otherSprite;
+        int scalar;
+        // Set variables based on wallClimb status.
+        if (!isWallClimbing && !isWallJumping) {
+            currTrans = skillShotTrans;
+            currSprite = skillShotSprite;
+            otherSprite = wallSkillShotSprite;
+            currFirePointTrans = firePointTrans;
+            scalar = 1;
+        } else {
+            currTrans = wallSkillShotTrans;
+            currSprite = wallSkillShotSprite;
+            otherSprite = skillShotSprite;
+            currFirePointTrans = wallFirePointTrans;
+            scalar = -1;
+        }
+        // Logic for aiming skillshot.
+        if (fireHolding && HoldTimeMet()) {
+            currSprite.enabled = true;
+            otherSprite.enabled = false;
+            if (upHolding) {
+                angleRaw += skillShotSpeed * Time.deltaTime;
+            } else if (downHolding) {
+                angleRaw -= skillShotSpeed * Time.deltaTime;
+            }
+            angleRaw = Mathf.Clamp(angleRaw, -60f, 60f);
+            angleAdjusted = (lastDir == scalar) ? angleRaw : 180f - angleRaw;  
+            currTrans.rotation = Quaternion.Euler(0, 0, angleAdjusted - 90f);
+
+            Vector2 shootDir = GetVectorFromAngle(angleAdjusted);
+            RaycastHit2D raycastHit2D = Physics2D.CircleCast(currFirePointTrans.position, shurikenRadius, GetVectorFromAngle(angleAdjusted), 50f, enemyAndPlatformLayerMask, 0f, 0f);
+        
+            if (raycastHit2D.collider != null && raycastHit2D.collider.tag == "Enemy") {
+                EnemyController enemyScript = raycastHit2D.collider.GetComponent<EnemyController>();
+                // If the previous hit wasn't this enemy.
+                if (enemyScript != lastEnemyContact) {
+                    // If the last hit was an enemy and that enemy hasn't died, set it to false.
+                    if (lastEnemyContact != null && !lastEnemyContact.HasDied()) lastEnemyContact.SetHighLight(false);
+                    lastEnemyContact = enemyScript;
+                }
+                if (!enemyScript.HasDied()) enemyScript.SetHighLight(true);
+                // If the raycast was null, and the last raycast hit an enmy and that enemy hasn't died.
+            } else if (lastEnemyContact != null && !lastEnemyContact.HasDied()) lastEnemyContact.SetHighLight(false);
             
-                if (raycastHit2D.collider != null && raycastHit2D.collider.tag == "Enemy") {
-                    EnemyController enemyScript = raycastHit2D.collider.GetComponent<EnemyController>();
-                    // If the previous hit wasn't this enemy.
-                    if (enemyScript != lastEnemyContact) {
-                        // If the last hit was an enemy and that enemy hasn't died, set it to false.
-                        if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
-                            lastEnemyContact.SetHighLight(false);
-                        }
-                        lastEnemyContact = enemyScript;
-                    }
-                    if (!enemyScript.HasDied()) {
-                        enemyScript.SetHighLight(true);
-                    }
-                    // If the raycast was null, and the last raycast hit an enmy and that enemy hasn't died.
-                } else if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
-                    lastEnemyContact.SetHighLight(false);
-                }
-            } else if (fireHolding) {
-                currHoldTime += Time.deltaTime;
-            }
+        } else if (fireHolding) currHoldTime += Time.deltaTime;
 
-            // Releasing the fire button.
-            if (fireReleased) {
-                Vector2 shootDir = (fireReleased && HoldTimeMet()) ? GetVectorFromAngle(angleAdjusted) : new Vector2(scalar * lastDir, 0f);
-                StartCoroutine(SpawnShuriken(shootDir, currFirePointTrans.position));
-                currHoldTime = 0f;
-                angleRaw = 0f;
-                currSprite.enabled = false;
-                isAttacking = true;
-                isThrowing = true;
-                isThrowing = true;
-                lastAttack = Time.time;
-                numShurikens -= 1;
-                UIManager.singleton.UpdateShurikenNum(numShurikens);
-                Invoke("SetIsThrowingFalse", 0.5f);
-            }
+        // Releasing the fire button.
+        if (fireReleased) {
+            Vector2 shootDir = (fireReleased && HoldTimeMet()) ? GetVectorFromAngle(angleAdjusted) : new Vector2(scalar * lastDir, 0f);
+            StartCoroutine(SpawnShuriken(shootDir, currFirePointTrans.position));
+            currHoldTime = 0f;
+            angleRaw = 0f;
+            currSprite.enabled = false;
+            isAttacking = true;
+            isThrowing = true;
+            isThrowing = true;
+            lastAttack = Time.time;
+            numShurikens -= 1;
+            UIManager.singleton.UpdateShurikenNum(numShurikens);
+            Invoke("SetIsThrowingFalse", 0.5f);
         }
     }
 
@@ -800,17 +762,13 @@ public class PlayerController : MonoBehaviour {
             return false;
         }
         float dist = Mathf.Sqrt(Mathf.Pow(lastJumpPos.x - pos.x, 2) + Mathf.Pow(lastJumpPos.y - pos.y, 2));
-        return Mathf.Sqrt(Mathf.Pow(lastJumpPos.x - pos.x, 2) + Mathf.Pow(lastJumpPos.y - pos.y, 2)) >= fallSoundDist && !isStunned;
+        return dist >= fallSoundDist && !isStunned;
     }
 
     // Spawns the shuriken at the fire point of the player.
     private IEnumerator SpawnShuriken(Vector2 shootDir, Vector3 spawnPos) {
         shootDir.Normalize();
-        if (shootDir.x >= 0f) {
-            lastAttackDir = 1;
-        } else {
-            lastAttackDir = -1;
-        }
+        lastAttackDir = (shootDir.x >= 0f) ? 1 : -1;
         yield return new WaitForSeconds(spawnDelay);
         GameObject shuriken = Object.Instantiate(shurikenPrefab, spawnPos, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
@@ -835,12 +793,14 @@ public class PlayerController : MonoBehaviour {
         playerAnim.SetBool("isMeleeing", isMeleeing);
     }
 
+    // Sets the throwing state to false.
     private void SetIsThrowingFalse() {
         playerAnim.SetBool("isThrowing", false);
         isAttacking = false;
         isThrowing = false;
     }
 
+    // Sets the melee state to false.
     private void SetIsMeleeingFalse() {
         playerAnim.SetBool("isMeleeing", false);
         isAttacking = false;
@@ -848,6 +808,7 @@ public class PlayerController : MonoBehaviour {
         isPlayingStealthMeleeKill = false;
     }
 
+    // Hides the player if crouching in front of cover.
     private void HidePlayer() {
         if (numCovered > 0 && isSneaking && alertedNum <= 0 && !isAttacking) {
             isHiding = true;
@@ -944,11 +905,7 @@ public class PlayerController : MonoBehaviour {
         titleScreenModeEnabled = false;
         alertedNum = 0;
         playerRB.velocity = Vector2.zero;
-        if (justStarted) {
-            playerRB.position = Vector2.zero;
-        } else {
-            playerRB.position = lastCampFirePos;
-        }
+        playerRB.position = (justStarted) ? Vector2.zero : lastCampFirePos;
         numShurikens = startingShurikens;
         healthScript.ResetHealth(justStarted);
         UIManager.singleton.UpdateShurikenNum(numShurikens);
@@ -986,6 +943,7 @@ public class PlayerController : MonoBehaviour {
         spawnLocation = location;
     }
 
+    // Increases Health by the specified amount.
     public void IncreaseHealthBy(int num) {
         if (healthScript.CanPickUpHealth()) {
             sounds.Play("HealthRegen");
@@ -993,22 +951,26 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    // Sets the healing particles to state.
     public void SetHealthParticles(bool state) {
         highLight.SetActive(state);
     }
 
+    // Returns whether the player has pressed continue.
     public bool HasPressedContinue() {
         return continuePressed;
     }
     #endregion
 
     #region Misc Functions
+    // Returns a vector pointing in the direction of the given angle (in degrees).
     public Vector2 GetVectorFromAngle(float angle) {
         // angle = 0 -> 360
         float angleRad = angle * (Mathf.PI / 180f);
         return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
     }
 
+    // Returns whether the player is set to title screen mode.
     public bool GetTitleScreenModeStatus() {
         return this.titleScreenModeEnabled;
     }
