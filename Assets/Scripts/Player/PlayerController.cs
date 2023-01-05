@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
-using System.IO.IsolatedStorage;
 
 public class PlayerController : MonoBehaviour {
     public static PlayerController singleton;
@@ -631,15 +629,15 @@ public class PlayerController : MonoBehaviour {
             }
         }
         // Checking projetile collisions.
-        List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
-        foreach (Collider2D collider in projectileColliders) {
-            Shuriken shuriken = collider.gameObject.GetComponent<Shuriken>();
-            if (!shuriken.HasBeenDeflected(meleeCounter)) {
-                shuriken.Deflected();
-                shuriken.SetDeflectedCounter(meleeCounter);
-            }
-            sparks = true;
-        }
+        // List<Collider2D> projectileColliders = meleeScript.GetProjectileColliders();
+        // foreach (Collider2D collider in projectileColliders) {
+        //     Shuriken shuriken = collider.gameObject.GetComponent<Shuriken>();
+        //     if (!shuriken.HasBeenDeflected(meleeCounter)) {
+        //         shuriken.Deflected();
+        //         shuriken.SetDeflectedCounter(meleeCounter);
+        //     }
+        //     sparks = true;
+        // }
         // Checking platform collisions.
         List<Collider2D> platformColliders = meleeScript.GetPlatformColliders();
         if (platformColliders.Count > 0) sparks = true;
@@ -921,10 +919,10 @@ public class PlayerController : MonoBehaviour {
         wallSkillShotSprite.enabled = false;
         numCovered = 0;
 
-        // if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
-        //     lastEnemyContact.SetHighLight(false);
-        //     lastEnemyContact = null;
-        // }
+        if (lastTarget != null) {
+            lastTarget.SetHighLight(false);
+            lastTarget = null;
+        }
     }
 
     // Respawns the player to the last saved game state.
@@ -939,10 +937,10 @@ public class PlayerController : MonoBehaviour {
         wallSkillShotSprite.enabled = false;
         numCovered = 0;
 
-        // if (lastEnemyContact != null && !lastEnemyContact.HasDied()) {
-        //     lastEnemyContact.SetHighLight(false);
-        //     lastEnemyContact = null;
-        // }
+        if (lastTarget != null) {
+            lastTarget.SetHighLight(false);
+            lastTarget = null;
+        }
     }
 
     // Saves the last game state of the player.

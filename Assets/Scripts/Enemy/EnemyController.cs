@@ -637,7 +637,7 @@ public class EnemyController : MonoBehaviour
         }
         yield return new WaitForSeconds(spawnDelay);
         GameObject shuriken = Instantiate(shurikenPrefab, firePointTrans.position, Quaternion.identity);
-        ShurikenEnemy shurikenScript = shuriken.GetComponent<ShurikenEnemy>();
+        Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
         shurikenScript.SetShurikenVelocity(dir);
     }
 

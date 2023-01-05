@@ -15819,7 +15819,7 @@ MonoBehaviour:
   knockBackDur: 0.5
   lineOfSightObj: {fileID: 9060919203479435263, guid: 1e9e8d0189c373e4684bdf6be8451e84,
     type: 3}
-  shurikenPrefab: {fileID: 7548271796289790293, guid: 5bd1ca7011a59e2419544ba835a64268,
+  shurikenPrefab: {fileID: 2571422860314671873, guid: 76bf74555c3057b46b266b4b34c4e68a,
     type: 3}
   shurikenDropPrefab: {fileID: 301443893935112129, guid: aecd5a24796c6d3428dd784cfe9112ed,
     type: 3}

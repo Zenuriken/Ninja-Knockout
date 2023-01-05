@@ -5,12 +5,6 @@ using UnityEngine;
 public class Shuriken : MonoBehaviour
 {
     [SerializeField]
-    [Tooltip("The color of the shuriken's trail after being deflected once.")]
-    private Gradient deflectedOnceColor;
-    [SerializeField]
-    [Tooltip("The color of the shuriken's trail after being deflected more than once.")]
-    private Gradient deflectedTwiceColor;
-    [SerializeField]
     [Tooltip("The delay before shuriken begins to fade.")]
     private float fadeAwayDelay;
     [SerializeField]
@@ -21,22 +15,14 @@ public class Shuriken : MonoBehaviour
     private Rigidbody2D rb;
     private CircleCollider2D col;
     private TrailRenderer trailRen;
-    private GameObject player;
-    private PlayerController playerScript;
-    private Melee meleeScript;
     private SpriteRenderer shurikenSprite;
     private ParticleSystem sparks;
     private Animator anim;
     private SoundManager sounds;
-
+    private Vector2 throwDir;
     private float shurikenSpeed = 20;
-    //private float destroyDelay = 0.0001f;
-    private float deflectedMultiplier = 0.5f;
-    private int numDeflections = 0;
     private float noContactDestroyTime = 5f;
     private float currflightTime;
-    private int deflectCounter;
-    private Vector2 throwDir;
     private bool isActive;
     private bool hasContact;
     #endregion
@@ -54,55 +40,51 @@ public class Shuriken : MonoBehaviour
     }
 
     private void Start() {
-        player = GameObject.Find("Player");
-        playerScript = player.GetComponent<PlayerController>();
-        meleeScript = player.transform.GetChild(1).GetComponent<Melee>();
         isActive = true;
     }
 
     private void Update() {
-        if(!hasContact) {
-            currflightTime += Time.deltaTime;
-        }
-
-        if (currflightTime >= noContactDestroyTime) {
-            meleeScript.RemoveProjFromList(col);
-            Destroy(this.gameObject);
-        }
+        // Increment flight time if the shuriken hasn't made contact.
+        if(!hasContact) currflightTime += Time.deltaTime;
+        // Destroy the shuriken after flying for specified time.
+        if (currflightTime >= noContactDestroyTime) Destroy(this.gameObject);
     }
     #endregion
 
     #region Collision Functions
-    // When the shuriken hits an enemy
+    // When the shuriken hits a platform/Entity.
     private void OnTriggerEnter2D(Collider2D other) {
-        if (isActive) {
-            if (other.gameObject.tag == "Enemy") {
-                EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
-                if (!enemyScript.IsAlerted() && !enemyScript.IsDetectingPlayer()) {
-                    enemyScript.TakeDmg(5);
-                    sounds.Play("ShurikenStealthKill");
-                } else {
-                    enemyScript.TakeDmg(1);
-                }
+        if (!isActive) return;
+        
+        if (other.gameObject.tag == "Platform" || other.gameObject.tag == "TrapDoor") {
+            StartCoroutine(Contact(false));
+        } else if (other.gameObject.tag == "Enemy") {
+            EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
+            if (!enemyScript.IsAlerted() && !enemyScript.IsDetectingPlayer()) {
+                enemyScript.TakeDmg(5);
+                sounds.Play("ShurikenStealthKill");
+            } else {
+                enemyScript.TakeDmg(1);
+                sounds.Play("ShurikenBodyHit");
             }
-            if (other.gameObject.tag == "Enemy") {
-                StartCoroutine(Contact(true));
-            } else if (other.gameObject.tag == "Platform" || other.gameObject.tag == "TrapDoor") {
-                StartCoroutine(Contact(false));
-            }
+            StartCoroutine(Contact(true));
+        } else if (other.gameObject.tag == "Player") {
+            Health playerHealth = PlayerController.singleton.GetComponent<Health>();
+            playerHealth.TakeDmg(1, this.transform.position);
+            sounds.Play("ShurikenBodyHit");
+            StartCoroutine(Contact(true));
         }
     }
 
     // Creates spark on contact and then destroys shuriken.
-    IEnumerator Contact(bool hitEnemy) {
+    IEnumerator Contact(bool hitEntity) {
         isActive = false;
         anim.enabled = false;
         hasContact = true;
-        meleeScript.RemoveProjFromList(col);
         rb.velocity = new Vector2(0f, 0f);
 
         sounds.Stop("Shuriken");
-        if (hitEnemy) {
+        if (hitEntity) {
             this.gameObject.layer = 12;
             shurikenSprite.enabled = false;
             trailRen.enabled = false;
@@ -139,34 +121,9 @@ public class Shuriken : MonoBehaviour
         } else {
             shurikenSprite.flipX = false;
             sparks.transform.rotation = Quaternion.Euler(0, 0, 90);
-        } 
-        rb.velocity = throwDir * shurikenSpeed * (1 + deflectedMultiplier * numDeflections);
-        //SoundManager.singleton.PlayShuriken();
-        sounds.Play("Shuriken");
-    }
-
-    // Sends the shuriken in the other direction when deflected.
-    public void Deflected() {
-        numDeflections += 1;
-        if (numDeflections == 1) {
-           // Change trail color orange
-           trailRen.colorGradient = deflectedOnceColor;
-        }  else if (numDeflections == 2) {
-            // Change trail color red
-            trailRen.colorGradient = deflectedTwiceColor;
-            deflectedMultiplier += 0.5f;
         }
-        SetShurikenVelocity(-throwDir);
-    }
-
-    // Checks to see if shuriken has already been deflected by player's current meleeCounter.
-    public bool HasBeenDeflected(int counter) {
-        return this.deflectCounter == counter;
-    }
-
-    // Assigns the player's melee counter to the shuriken after being deflected.
-    public void SetDeflectedCounter(int counter) {
-        this.deflectCounter = counter;
+        rb.velocity = throwDir * shurikenSpeed;
+        sounds.Play("Shuriken");
     }
     #endregion
 }
