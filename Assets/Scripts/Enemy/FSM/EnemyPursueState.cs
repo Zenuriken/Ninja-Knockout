@@ -8,12 +8,13 @@ public class EnemyPursueState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        Debug.Log("PURSUE");
     }
 
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
+        ctx.UpdatePursuePath();
+        ctx.FollowPath(ctx.PursueSpeed);
     }
 
     public override void ExitState() {
@@ -22,7 +23,7 @@ public class EnemyPursueState : EnemyState
 
     // Enemy should exit Patrol if alerted.
     public override void CheckSwitchStates() {
-        
+        if (!ctx.IsAlerted) SwitchState(factory.Patrol());
     }
 
     public override void InitializeSubState() {

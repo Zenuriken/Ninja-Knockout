@@ -4916,7 +4916,7 @@ MonoBehaviour:
     type: 3}
   isAlerted: 0
   patrolEnabled: 1
-  startingDir: -1
+  startingDir: 1
   dropChance: 100
 --- !u!1 &1649803688
 GameObject:
@@ -5227,12 +5227,12 @@ PrefabInstance:
     - target: {fileID: 6371837797275581661, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 19.96
+      value: -7.83
       objectReference: {fileID: 0}
     - target: {fileID: 6371837797275581661, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -8.47
+      value: -8.36
       objectReference: {fileID: 0}
     - target: {fileID: 6371837797275581661, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}

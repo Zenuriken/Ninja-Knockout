@@ -165,7 +165,7 @@ public class EnemyStateManager : MonoBehaviour
     private string deathSound;
 
     // Pathfinding Variables
-    private List<Vector2> pursuePath;
+    private List<Vector2> targetPath;
     private List<Vector2> newPath;
     private List<Vector2> patrolPath;
     private int currPathIndex;
@@ -191,7 +191,6 @@ public class EnemyStateManager : MonoBehaviour
     private bool isDetectingPlayer;
     private bool isInPlayerMeleeRange;
     private bool beganCalculatingPath;
-
     private bool isJumping;
     #endregion
 
@@ -202,6 +201,7 @@ public class EnemyStateManager : MonoBehaviour
 
     #region Initializaiton Functions
     void Awake() {
+        // Assign component values.
         alertedObj = this.transform.GetChild(0).gameObject;
         alertedSightScript = this.transform.GetChild(0).GetComponent<AlertedSight>();
         sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
@@ -218,6 +218,7 @@ public class EnemyStateManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // Set outside references.
         playerScript = PlayerController.singleton;
         playerHealthScript = playerScript.gameObject.GetComponent<Health>();
         meleeScript = playerScript.transform.GetChild(1).GetComponent<Melee>();
@@ -230,10 +231,10 @@ public class EnemyStateManager : MonoBehaviour
         gruntSound = (value < 50) ? "MaleGrunt" : "FemaleGrunt";
         deathSound = (value < 50) ? "MaleDeath" : "FemaleDeath";
 
+        // Initialize FOV.
         GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj, fieldOfViewParent.transform);
         fov = lineOfSight.GetComponent<FieldOfView>();
         fov.InitializeEnemyScript(this);
-
 
         // Starting state for the state machine
         states = new EnemyStateFactory(this);
@@ -245,12 +246,21 @@ public class EnemyStateManager : MonoBehaviour
     // Update is called once per frame
     void Update() {
         currentState.UpdateState();
-        IsGrounded();
+        SetGrounded();
         SetDirection();
+        SetAdjustedPos();
         UpdateSprite();
     }
 
     #region State Functions
+    // Sets whether the enemy is grounded.
+    private void SetGrounded() {
+        bool lastGroundStatus = isGrounded;
+        RaycastHit2D raycastHit2D = Physics2D.BoxCast(enemyCollider.bounds.center, new Vector2(0.6f, enemyCollider.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
+        isGrounded = raycastHit2D.collider != null;
+        if (!lastGroundStatus && isGrounded) isJumping = false;
+    }
+
     // Sets the direction of the enemy to where it's moving.
     private void SetDirection() {
         if (enemyRB.velocity.x > 0.05f) {
@@ -262,18 +272,12 @@ public class EnemyStateManager : MonoBehaviour
         }
     }
 
-    // Sets whether the enemy is grounded.
-    private void IsGrounded() {
-        bool lastGroundStatus = isGrounded;
-        RaycastHit2D raycastHit2D = Physics2D.BoxCast(enemyCollider.bounds.center, new Vector2(0.6f, enemyCollider.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
-        bool onGround = raycastHit2D.collider != null;
-        isGrounded = onGround;
-        if (lastGroundStatus == false && isGrounded == true) {
-            isJumping = false;
-        }
-        return;
+    // Sets the adjusted position of the enemy (the tile above the platform it stands on).
+    private void SetAdjustedPos() {
+        adjustedPos = astarScript.GetAdjustedPosition();
     }
 
+    // Creates question marks if the enemy doesn't have an exclamation mark.
     public void CreateQuestionMark() {
         if (!exclamationMark.isPlaying) {
             questionMark.Play();
@@ -282,119 +286,35 @@ public class EnemyStateManager : MonoBehaviour
         }
     }
 
-    // // The enemy's pursuing state.
-    // private void Pursue(float speed) {
-    //     // If there is no path or our current path index is greater than the length of our path, terminate.
-    //     if (pursuePath == null || currPathIndex >= pursuePath.Count) {
-    //         return;
-    //     // If we're jumping and we are one unit away from our jump target, stop jumping. This is to help prevent overshooting.
-    //     } else if (isJumping) {
-    //         enemyRB.velocity = jumpDir * jumpMultiplier;
-    //         if ((jumpDir.x >= 0 && adjustedPos.x == jumpTarget.x - 1) ||
-    //             (jumpDir.x < 0 && adjustedPos.x == jumpTarget.x + 1)) {
-    //             isJumping = false;
-    //         }
-    //         return;
-    //     }
+    // Moves the enemy according to the Pursue Path.
+    public void FollowPath(float speed) {
+        // If there is no path or our current path index is greater than the length of our path, terminate.
+        if (targetPath == null || currPathIndex >= targetPath.Count || isJumping) return;
 
-    //     Vector2 nextPos = pursuePath[currPathIndex];
-    //     Vector2 dir = (nextPos - adjustedPos);
+        Vector2 nextPos = targetPath[currPathIndex];
+        Vector2 dir = (nextPos - adjustedPos);
 
-    //     // Move Right
-    //     if (dir.x == 1 && dir.y == 0) {
-    //         enemyRB.velocity = new Vector2(speed, enemyRB.velocity.y);
-    //     }
-    //     // Move Left
-    //     else if (dir.x == -1 && dir.y == 0) {
-    //         enemyRB.velocity = new Vector2(-speed, enemyRB.velocity.y);
-    //     }
-    //     // Drop Right
-    //     else if (dir.x > 0 && dir.y <= 0) {
-    //         if (dir.x > 2 && !isJumping) {
-    //             isJumping = true;
-    //             jumpTarget = new Vector2(nextPos.x, nextPos.y + 1);
-    //             jumpDir = (jumpTarget - adjustedPos).normalized;
-    //             enemyRB.velocity = jumpDir * jumpMultiplier;
-    //         } else {
-    //             enemyRB.velocity = new Vector2(speed, enemyRB.velocity.y);
-    //         }
-    //     // Drop Left
-    //     } else if (dir.x < 0 && dir.y <= 0) {
-    //         if (dir.x < -2 && !isJumping) {
-    //             isJumping = true;
-    //             jumpTarget = new Vector2(nextPos.x, nextPos.y + 1);
-    //             jumpDir = (jumpTarget - adjustedPos).normalized;
-    //             enemyRB.velocity = jumpDir * jumpMultiplier;
-    //         } else {
-    //             enemyRB.velocity = new Vector2(-speed, enemyRB.velocity.y);
-    //         }
-    //     // Jump right
-    //     } else if (dir.x > 1 && dir.y > 0) {
-    //         if (!isJumping) {
-    //             isJumping = true;
-    //             float jumpOffset;
-    //             if (dir.y < 3) {
-    //                 jumpOffset = jumpOffset1;
-    //             } else if (dir.y < 4) {
-    //                 jumpOffset = jumpOffset2;
-    //             } else {
-    //                 jumpOffset = jumpOffset3;
-    //             }
-    //             jumpTarget = new Vector2(nextPos.x, nextPos.y + jumpOffset);
-    //             jumpDir = (jumpTarget - adjustedPos).normalized;
-    //             enemyRB.velocity = jumpDir * jumpMultiplier;
-    //         }
-    //     // Jump left
-    //     } else if (dir.x < -1 && dir.y > 0) {
-    //         if (!isJumping) {
-    //             isJumping = true;
-    //             float jumpOffset;
-    //             if (dir.y < 3) {
-    //                 jumpOffset = jumpOffset1;
-    //             } else if (dir.y < 4) {
-    //                 jumpOffset = jumpOffset2;
-    //             } else {
-    //                 jumpOffset = jumpOffset3;
-    //             }
-    //             jumpTarget = new Vector2(nextPos.x, nextPos.y + jumpOffset);
-    //             jumpDir = (jumpTarget - adjustedPos).normalized;
-    //             enemyRB.velocity = jumpDir * jumpMultiplier;
-    //         }
-    //     }
-    //     // Create dust when running on the ground.
-    //     if (Mathf.Abs(enemyRB.velocity.x) > 0.05f && isGrounded && speed == pursueSpeed) {
-    //         CreateDust();
-    //     }
+        // Move Right or Left.
+        if (dir.y == 0) {
+            enemyRB.velocity = new Vector2(Mathf.Sign(dir.x) * speed, enemyRB.velocity.y);
+        } else {
+            isJumping = true;
+            enemyRB.velocity = Vector2.zero;
+            Vector2 jumpForce = CalculateJumpForce(dir);
+            enemyRB.AddForce(jumpForce, ForceMode2D.Impulse);
+        }
 
-    //     // Set horizontal velocity when falling.
-    //     if (enemyRB.velocity.y < -0.05f) {
-    //         if (enemyRB.velocity.x < -0.05f) {
-    //             if (speed == patrolSpeed) {
-    //                 enemyRB.velocity = new Vector2(-patrolAirborneVelX, enemyRB.velocity.y);
-    //             } else {
-    //                 enemyRB.velocity = new Vector2(-pursueAirborneVelX, enemyRB.velocity.y);
-    //             }
-    //         } else if (enemyRB.velocity.x > 0.05f) {
-    //             if (speed == patrolSpeed) {
-    //                 enemyRB.velocity = new Vector2(patrolAirborneVelX, enemyRB.velocity.y);
-    //             } else {
-    //                 enemyRB.velocity = new Vector2(pursueAirborneVelX, enemyRB.velocity.y);
-    //             }
-    //         }
-    //     }
-
-    //     // Increment path counter if enemy has reached the current path node.
-    //     if (adjustedPos == pursuePath[currPathIndex]) {
-    //         //Debug.Log("reached current way point");
-    //         currPathIndex++;
-    //     }
-    // }
+        // Increment path counter if enemy has reached the current path node.
+        if (adjustedPos == targetPath[currPathIndex]) {
+            currPathIndex++;
+        }
+    }
 
     // Updates the enemy's pursue path.
-    private void UpdatePursuePath() {
+    public void UpdatePursuePath() {
         newPath = astarScript.CalculatePath();
         if (newPath != null) {
-            pursuePath = newPath;
+            targetPath = newPath;
             currPathIndex = 0;
             unreachable = false;
         } else {
@@ -407,6 +327,10 @@ public class EnemyStateManager : MonoBehaviour
             }
 
         }
+    }
+
+    public Vector2 CalculateJumpForce(Vector2 nextPos) {
+        return Vector2.up * 10f;
     }
 
     // Updates the player's sprites based on input/state.
@@ -425,23 +349,23 @@ public class EnemyStateManager : MonoBehaviour
 
 
     #region Getters/Setters
-
-    public EnemyState CurrentState {get{return currentState;} set{currentState = value;}}
-    public bool IsAlerted {get{return isAlerted;} set{isAlerted = value;}}
-    public AStar AstarScript {get{return astarScript;}}
-    public int MaxNodeDist {get{return maxNodeDist;}}
-    public GameObject AlertedObj {get{return alertedObj;}}
-    public Rigidbody2D EnemyRB {get{return enemyRB;}}
-    public int StartingDir {get{return startingDir;} set{startingDir = value;}}
-    public float PatrolSpeed {get{return patrolSpeed;}}
-    public float IdleDur {get{return idleDur;}}
-    public bool HasDied {get{return hasDied;} set{hasDied = value;}}
     public FieldOfView FOV {get{return fov;}}
-    public bool IsDetectingPlayer {get{return isDetectingPlayer;} set{isDetectingPlayer = value;}}
+    public SoundManager Sounds {get{return sounds;}}
+    public AStar AstarScript {get{return astarScript;}}
+    public EnemyState CurrentState {get{return currentState;} set{currentState = value;}}
     public ParticleSystem QuestionMarks {get{return questionMark;}}
     public ParticleSystem ExclamationMark {get{return exclamationMark;}}
-    public SoundManager Sounds {get{return sounds;}}
+    public GameObject AlertedObj {get{return alertedObj;}}
+    public Rigidbody2D EnemyRB {get{return enemyRB;}}
+    public int MaxNodeDist {get{return maxNodeDist;}}
+    public int StartingDir {get{return startingDir;} set{startingDir = value;}}
+    public float PursueSpeed {get{return pursueSpeed;}}
+    public float PatrolSpeed {get{return patrolSpeed;}}
+    public float IdleDur {get{return idleDur;}}
     public float AlertedDelay {get{return alertedDelay;}}
+    public bool IsDetectingPlayer {get{return isDetectingPlayer;} set{isDetectingPlayer = value;}}
+    public bool IsAlerted {get{return isAlerted;} set{isAlerted = value;}}
+    public bool HasDied {get{return hasDied;} set{hasDied = value;}}
     #endregion
 
 
