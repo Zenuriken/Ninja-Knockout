@@ -6,7 +6,7 @@ public class FieldOfView : MonoBehaviour
 {
     // Private variables.
     private PolygonCollider2D polyCol;
-    private EnemyController enemyScript;
+    private EnemyStateManager enemyScript;
     private PlayerController playerScript;
     private LayerMask platformsLayerMask;
     private GradientColorKey[] colorKeys;
@@ -45,7 +45,7 @@ public class FieldOfView : MonoBehaviour
     void LateUpdate()
     {
         // If the enemy is not allerted and hasn't died, update the line of sight.
-        if (!enemyScript.IsAlerted() && !enemyScript.HasDied()) {
+        if (!enemyScript.IsAlerted && !enemyScript.HasDied) {
             if (!lastOrigin.Equals(origin)) {
                 UpdateFOVShape();
             }
@@ -55,7 +55,7 @@ public class FieldOfView : MonoBehaviour
             if (currDetectTimer >= detectionTime && !playerScript.IsHiding()) {
                 seesPlayer = true;
                 SetColorKeys(1f);
-                enemyScript.SetAlertStatus(true);
+                enemyScript.IsDetectingPlayer = true;
             }
         // When the player is detected, reset detecting variables.
         } else {
@@ -170,7 +170,7 @@ public class FieldOfView : MonoBehaviour
 
     // Creates question mark above enemy's head when seeing player.
     private void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.tag == "Player" && !playerScript.IsHiding() && !seesPlayer && !enemyScript.IsAlerted()) {
+        if (other.gameObject.tag == "Player" && !playerScript.IsHiding() && !seesPlayer && !enemyScript.IsAlerted) {
             enemyScript.CreateQuestionMark();
         }
     }
@@ -203,7 +203,7 @@ public class FieldOfView : MonoBehaviour
     }
 
     // Sets the enemyScript reference for this FOV game object.
-    public void InitializeEnemyScript(EnemyController enemy) {
+    public void InitializeEnemyScript(EnemyStateManager enemy) {
         this.enemyScript = enemy; 
     }
     #endregion

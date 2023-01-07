@@ -144,7 +144,6 @@ public class EnemyController : MonoBehaviour
     private GameObject alertedObj;
     private Transform firePointTrans;
     private SpriteRenderer enemySprite;
-    private SpriteRenderer alertedSightSprite;
     private Animator enemyAnim;
     private CapsuleCollider2D enemyCollider;
     private Rigidbody2D enemyRB;
@@ -171,9 +170,6 @@ public class EnemyController : MonoBehaviour
     private List<Vector2> newPath;
     private List<Vector2> patrolPath;
     private int currPathIndex;
-    private float leftPatrolEnd;
-    private float rightPatrolEnd;
-
     private Vector2 jumpTarget;
     private Vector2 jumpDir;
 
@@ -191,7 +187,6 @@ public class EnemyController : MonoBehaviour
     private bool playedBodySplat;
     private bool bodySplatDelayPast;
     private bool isDetectingPlayer;
-    //private bool isPlayingMeleeNoise;
     private bool isInPlayerMeleeRange;
     private bool beganCalculatingPath;
 
@@ -201,10 +196,8 @@ public class EnemyController : MonoBehaviour
     #region Initializaiton Functions
     void Awake() {
         alertedObj = this.transform.GetChild(0).gameObject;
-        alertedSightSprite = alertedObj.GetComponent<SpriteRenderer>();
         alertedSightScript = this.transform.GetChild(0).GetComponent<AlertedSight>();
         sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
-
         enemySprite = this.GetComponent<SpriteRenderer>();
         enemyCollider = this.GetComponent<CapsuleCollider2D>();
         enemyRB = this.GetComponent<Rigidbody2D>();
@@ -225,16 +218,8 @@ public class EnemyController : MonoBehaviour
         playerAndPlatformLayerMask = LayerMask.GetMask("Player", "Platform", "OneWayPlatform");
         fieldOfViewParent = GameObject.Find("FieldOfViews");
 
-        // Determines whether the enemy will begin patrolling left or right.
+        // Determines whether the enemy will be male or female.
         float value = Random.Range(0, 100);
-        // if (startingDir == 0) {
-        //     if (value < 50) {
-        //         startingDir = -1;
-        //     } else {
-        //         startingDir = 1;
-        //     }
-        // }
-        value = Random.Range(0, 100);
         if (value < 50) {
             gruntSound = "MaleGrunt";
             deathSound = "MaleDeath";
@@ -245,18 +230,11 @@ public class EnemyController : MonoBehaviour
 
         GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj, fieldOfViewParent.transform);
         fov = lineOfSight.GetComponent<FieldOfView>();
-        fov.InitializeEnemyScript(this);
-
+        //fov.InitializeEnemyScript(this);
         adjustedPos = astarScript.GetAdjustedPosition();
         patrolPath = astarScript.CalculatePatrolPath(maxNodeDist);
-        leftPatrolEnd = adjustedPos.x - maxNodeDist;
-        rightPatrolEnd = adjustedPos.x + maxNodeDist;
-
         alertedObj.SetActive(false);
-        alertedSightSprite.enabled = false;
-
         SetDirection(true);
-
     }
     #endregion
 
@@ -491,7 +469,6 @@ public class EnemyController : MonoBehaviour
         UIManager.singleton.PlayerDetected();
         yield return new WaitForSeconds(alertedDelay);
         isAlerted = true;
-        alertedSightSprite.enabled = true;
         isDetectingPlayer = false;
     }
 
@@ -630,8 +607,7 @@ public class EnemyController : MonoBehaviour
     private bool IsWithinVectorBounds() {
         Vector2 dir = (playerScript.transform.position - firePointTrans.position).normalized;
         float dot = (dir.x >= 0) ? Vector2.Dot(dir, Vector2.right) : Vector2.Dot(dir, Vector2.left);
-        Debug.Log("Dot value: " + dot);
-        return Mathf.Abs(dot) >= 0.5f; // 0.5 is the dot product value for 60 degrees
+        return Mathf.Abs(dot) >= 0.25f; // 0.5 is the dot product value for 60 degrees
     }
 
     private bool CanAttack() {
@@ -719,7 +695,6 @@ public class EnemyController : MonoBehaviour
         } else if (!status) {
             isAlerted = status;
             alertedObj.SetActive(false);
-            alertedSightSprite.enabled = false;
         }
     }
 
