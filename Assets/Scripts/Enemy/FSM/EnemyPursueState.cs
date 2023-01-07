@@ -12,11 +12,12 @@ public class EnemyPursueState : EnemyState
     }
 
     public override void UpdateState() {
-
+        CheckSwitchStates();
+        if (ctx.CurrentState != this) return;
     }
 
     public override void ExitState() {
-
+        
     }
 
     // Enemy should exit Patrol if alerted.

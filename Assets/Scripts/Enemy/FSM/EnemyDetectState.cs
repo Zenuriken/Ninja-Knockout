@@ -18,7 +18,7 @@ public class EnemyDetectState : EnemyState
     }
 
     public override void ExitState() {
-
+        
     }
 
     public override void CheckSwitchStates() {

@@ -596,6 +596,12 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!198 &932252774 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 1407061483849676469, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+    type: 3}
+  m_PrefabInstance: {fileID: 6371837798783865671}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &983885693
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4859,6 +4865,59 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fe7712f79eaba76409440cfe0e06014c, type: 3}
+--- !u!1 &1448796899 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6371837796901407288, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+    type: 3}
+  m_PrefabInstance: {fileID: 6371837798783865671}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1448796908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1448796899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d69b906efa3df046a6ec122a3ac31e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxNodeDist: 6
+  idleDur: 4
+  patrolSpeed: 3
+  pursueSpeed: 10
+  jumpMultiplier: 25
+  pursueAirborneVelX: 6
+  patrolAirborneVelX: 8
+  alertedDelay: 1
+  groundDust: {fileID: 2082934073}
+  questionMark: {fileID: 2112599453}
+  exclamationMark: {fileID: 932252774}
+  jumpOffset1: 1
+  jumpOffset2: 2
+  jumpOffset3: 5
+  enemyHealth: 5
+  destroyDelay: 10
+  bodySplatDelay: 0.35
+  fadeAwayDelay: 5
+  fadeAwaySpeed: 0.5
+  enemyPoints: 10
+  attackRate: 2
+  dmg: 1
+  spawnDelay: 0.15
+  knockBackForce: 15
+  knockBackDur: 0.5
+  lineOfSightObj: {fileID: 9060919203479435263, guid: 1e9e8d0189c373e4684bdf6be8451e84,
+    type: 3}
+  shurikenPrefab: {fileID: 2571422860314671873, guid: 76bf74555c3057b46b266b4b34c4e68a,
+    type: 3}
+  shurikenDropPrefab: {fileID: 301443893935112129, guid: aecd5a24796c6d3428dd784cfe9112ed,
+    type: 3}
+  isAlerted: 0
+  patrolEnabled: 1
+  startingDir: -1
+  dropChance: 100
 --- !u!1 &1649803688
 GameObject:
   m_ObjectHideFlags: 0
@@ -5055,6 +5114,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 929b10b5838ed444b8ebdde8c09e2d3b, type: 3}
+--- !u!198 &2082934073 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 1236189714, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+    type: 3}
+  m_PrefabInstance: {fileID: 6371837798783865671}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &2112599453 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 1118731532, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+    type: 3}
+  m_PrefabInstance: {fileID: 6371837798783865671}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3973445010777185195
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5132,6 +5203,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 381119507, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 381119507, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: startingDir
       value: 1
       objectReference: {fileID: 0}
@@ -5198,6 +5273,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6740031919415749302, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
