@@ -330,6 +330,7 @@ public class EnemyStateManager : MonoBehaviour
     }
 
     public Vector2 CalculateJumpForce(Vector2 nextPos) {
+        
         return Vector2.up * 10f;
     }
 
