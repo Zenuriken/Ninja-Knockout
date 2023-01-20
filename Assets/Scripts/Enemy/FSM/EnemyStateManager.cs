@@ -314,7 +314,7 @@ public class EnemyStateManager : MonoBehaviour
     // Handles the logic for jumping to a location.
     private void Jump(Vector2 nextPos) {
         isJumping = true;
-        enemyRB.velocity = Vector2.zero;
+        // enemyRB.velocity = Vector2.zero;
         //enemyRB.bodyType = RigidbodyType2D.Kinematic;
         initialPos = new Vector3(this.transform.position.x, this.transform.position.y + heightOffset, 0);
         Vector3 targetPos = (Vector3)nextPos - initialPos;
@@ -324,9 +324,13 @@ public class EnemyStateManager : MonoBehaviour
         float v0;
         float time;
         CalculatePathWithHeight(targetPos, height, out v0, out angle, out time);
-        DrawPath(v0, angle, time, _Step);
-        StopAllCoroutines();
-        StartCoroutine(Coroutine_Movement(v0, angle, time, nextPos));
+
+        Vector2 dir = GetVectorFromAngle(angle * Mathf.Rad2Deg);
+        enemyRB.AddForce(dir * v0, ForceMode2D.Impulse);
+        Debug.Log("JUMPED");
+        // DrawPath(v0, angle, time, _Step);
+        // StopAllCoroutines();
+        // StartCoroutine(Coroutine_Movement(v0, angle, time, nextPos));
     }
 
     // Draws the path of a jump with the specified number of segments (steps).
@@ -354,7 +358,7 @@ public class EnemyStateManager : MonoBehaviour
     private void CalculatePathWithHeight(Vector3 targetPos, float h, out float v0, out float angle, out float time) {
         float xt = targetPos.x;
         float yt = targetPos.y;
-        float g = -Physics.gravity.y;
+        float g = -Physics.gravity.y * enemyRB.gravityScale;
         float b = Mathf.Sqrt(2 * g * h);
         float a = (-0.5f * g);
         float c = -yt;
@@ -363,6 +367,17 @@ public class EnemyStateManager : MonoBehaviour
         time = tplus > tmin ? tplus : tmin;
         angle = Mathf.Atan(b * time / xt);
         v0 = b / Mathf.Sin(angle);
+
+        float g_draw = -Physics.gravity.y;
+        float a_draw = (-0.5f * g_draw);
+        float b_draw = Mathf.Sqrt(2 * g_draw * h);
+        float c_draw = -yt;
+        float tplus_draw = QuadraticEquation(a_draw, b_draw, c_draw, 1);
+        float tmin_draw = QuadraticEquation(a_draw, b_draw, c_draw, -1);
+        float time_draw = tplus_draw > tmin_draw ? tplus_draw : tmin_draw;
+        float angle_draw = Mathf.Atan(b_draw * time_draw / xt);
+        float v0_draw = b_draw / Mathf.Sin(angle_draw);
+        DrawPath(v0_draw, angle_draw, time_draw, _Step);
     }
 
     // Controls the physics of moving the Enemy along a parabola when jumping.
@@ -379,6 +394,13 @@ public class EnemyStateManager : MonoBehaviour
         _Line.positionCount = 0;
         //enemyRB.bodyType = RigidbodyType2D.Dynamic;
         isJumping = false;
+    }
+
+    // Returns a vector pointing in the direction of the given angle (in degrees).
+    private Vector2 GetVectorFromAngle(float angle) {
+        // angle = 0 -> 360
+        float angleRad = angle * (Mathf.PI / 180f);
+        return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
     }
 
     // Updates the player's sprites based on input/state.
