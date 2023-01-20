@@ -485,34 +485,31 @@ public class AStar : MonoBehaviour
         return AdjustPos(pos);
     }
 
-    // Returns whether the enemy is currently stuck.
-    public bool IsStuck() {
+    // Returns 0 if the enemy is not stuck, -1 if they should move left, 1 if they should move right.
+    public int Unstuck() {
         Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
-        if (IsWalkable(pos)) {
-            return false;
-        }
+        if (IsWalkable(pos)) return 0;
         Vector3Int leftPos = new Vector3Int(pos.x - 1, pos.y, 0);
         Vector3Int rightPos = new Vector3Int(pos.x + 1, pos.y, 0);
-        if (IsWalkable(leftPos) || IsWalkable(rightPos)) {
-            return true;
-        }
-        return false;
+        if (IsWalkable(leftPos)) return -1;
+        if (IsWalkable(rightPos)) return 1;
+        return 0;
     }
 
-    // Returns the direction the enemy should move when stuck.
-    public Vector2 GetMoveDir() {
-        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
-        Vector3Int leftPos = new Vector3Int(pos.x - 1, pos.y, 0);
-        Vector3Int rightPos = new Vector3Int(pos.x + 1, pos.y, 0);
-        if (IsWalkable(rightPos)) {
-            return new Vector2(1f, 1f);
-        } else if (IsWalkable(leftPos)) {
-            return new Vector2(-1f, 1f);
-        } else {
-            Debug.Log("No walkable platforms found. Enemy stuck.");
-            return Vector2.zero;
-        }
-    }
+    // // Returns the direction the enemy should move when stuck.
+    // public Vector2 GetMoveDir() {
+    //     Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
+    //     Vector3Int leftPos = new Vector3Int(pos.x - 1, pos.y, 0);
+    //     Vector3Int rightPos = new Vector3Int(pos.x + 1, pos.y, 0);
+    //     if (IsWalkable(rightPos)) {
+    //         return new Vector2(1f, 1f);
+    //     } else if (IsWalkable(leftPos)) {
+    //         return new Vector2(-1f, 1f);
+    //     } else {
+    //         Debug.Log("No walkable platforms found. Enemy stuck.");
+    //         return Vector2.zero;
+    //     }
+    // }
 
     public void SetReturnToPatrolPos(bool state) {
         isReturningToPatrolPos = state;

@@ -6,70 +6,45 @@ public class EnemyStateManager : MonoBehaviour
 {
     #region Movement Variables
     [Header("Movement")]
-    [SerializeField]
-    [Tooltip("The number of tiles the enemy can stray from starting pos while in patrol mode.")]
+    [SerializeField][Tooltip("The number of tiles the enemy can stray from starting pos while in patrol mode.")]
     private int maxNodeDist;
-    [SerializeField]
-    [Tooltip("How long the enemy is in an idle state before patrolling.")]
+    [SerializeField][Tooltip("How long the enemy is in an idle state before patrolling.")]
     private float idleDur;
-    [SerializeField]
-    [Tooltip("The speed of the enemy when patrolling.")]
+    [SerializeField][Tooltip("The speed of the enemy when patrolling.")]
     private float patrolSpeed;
-    [SerializeField]
-    [Tooltip("The speed of the enemy when pursuing.")]
+    [SerializeField][Tooltip("The speed of the enemy when pursuing.")]
     private float pursueSpeed;
-    [SerializeField]
-    [Tooltip("The velocity multiplier for jumping.")]
-    private float jumpMultiplier;
-    [SerializeField]
-    [Tooltip("The horizontal airborne velocity of the enemy when pursuing.")]
-    private float pursueAirborneVelX;
-    [SerializeField]
-    [Tooltip("The horizontal airborne velocity of the enemy when patrolling.")]
-    private float patrolAirborneVelX;
-    [SerializeField]
-    [Tooltip("The delay before the enemy is alerted to the player's presence.")]
+    [SerializeField][Tooltip("The delay before the enemy is alerted to the player's presence.")]
     private float alertedDelay;
-    [SerializeField]
-    [Tooltip("Dust particle effect when on the ground.")]
+    [SerializeField][Tooltip("Dust particle effect when on the ground.")]
     private ParticleSystem groundDust;
-    [SerializeField]
-    [Tooltip("Question mark effect when pursuing player.")]
+    [SerializeField][Tooltip("Question mark effect when pursuing player.")]
     private ParticleSystem questionMark;
-    [SerializeField]
-    [Tooltip("Exclamation mark effect when alerted by the player.")]
+    [SerializeField][Tooltip("Exclamation mark effect when alerted by the player.")]
     private ParticleSystem exclamationMark;
-    [SerializeField]
-    [Tooltip("The vertical cell offset for jumping 1-2 cells high.")]
-    private float jumpOffset1;
-    [SerializeField]
-    [Tooltip("The vertical cell offset for jumping 3 cells high.")]
-    private float jumpOffset2;
-    [SerializeField]
-    [Tooltip("The vertical cell offset for jumping 4-5 cells high.")]
-    private float jumpOffset3;
+
+    [SerializeField][Tooltip("THe line renderer to display the jump path.")]
+    private LineRenderer _Line;
+    [SerializeField][Tooltip("The precision/resolution of the line renderer.")]
+    private float _Step;
+    [SerializeField][Tooltip("The multiplier for the time it takes to jump a path.")]
+    private float _JumpSpeedFactor;
     [Space(5)]
     #endregion
     
     #region Health Variables
     [Header("Health")]
-    [SerializeField]
-    [Tooltip("How much health this enemy has.")]
+    [SerializeField][Tooltip("How much health this enemy has.")]
     private int enemyHealth;
-    [SerializeField]
-    [Tooltip("The delay before the enemy is destroyed")]
+    [SerializeField][Tooltip("The delay before the enemy is destroyed")]
     private float destroyDelay;
-    [SerializeField]
-    [Tooltip("The delay before the body splat sound effect is played after death")]
+    [SerializeField][Tooltip("The delay before the body splat sound effect is played after death")]
     private float bodySplatDelay;
-    [SerializeField]
-    [Tooltip("The delay before the enemy's body starts to fade away.")]
+    [SerializeField][Tooltip("The delay before the enemy's body starts to fade away.")]
     private float fadeAwayDelay;
-    [SerializeField]
-    [Tooltip("The speed in which the enemy's body fades away.")]
+    [SerializeField][Tooltip("The speed in which the enemy's body fades away.")]
     private float fadeAwaySpeed;
-    [SerializeField]
-    [Tooltip("The amount this enemy's death will increse your score.")]
+    [SerializeField][Tooltip("The amount this enemy's death will increse your score.")]
     private int enemyPoints;
     [Space(5)]
     #endregion
@@ -161,6 +136,7 @@ public class EnemyStateManager : MonoBehaviour
     private int damageCounter;
     private float lastIdle;
     private float lastAttack;
+    private Vector2 lastPosition;
     private string gruntSound;
     private string deathSound;
 
@@ -171,6 +147,8 @@ public class EnemyStateManager : MonoBehaviour
     private int currPathIndex;
     private float leftPatrolEnd;
     private float rightPatrolEnd;
+    private float heightOffset = -1.55f;
+    private Vector3 initialPos;
 
     private Vector2 jumpTarget;
     private Vector2 jumpDir;
@@ -240,6 +218,7 @@ public class EnemyStateManager : MonoBehaviour
         states = new EnemyStateFactory(this);
         currentState = states.Patrol();
         currentState.EnterState(); 
+        Time.timeScale = 0.5f;
     }
     #endregion
     
@@ -288,8 +267,15 @@ public class EnemyStateManager : MonoBehaviour
 
     // Moves the enemy according to the Pursue Path.
     public void FollowPath(float speed) {
-        // If there is no path or our current path index is greater than the length of our path, terminate.
-        if (targetPath == null || currPathIndex >= targetPath.Count || isJumping) return;
+        // If there is no path or our current path index is greater than the length of our path, check if enemy is stuck. Otherwise, terminate.
+        if (targetPath == null || currPathIndex >= targetPath.Count) {
+            // Handles the case in which the enemy gets stuck on an edge.
+            int moveDir = astarScript.Unstuck();
+            if (moveDir != 0 && Mathf.Abs(enemyRB.velocity.x) < 0.05f && Mathf.Abs(enemyRB.velocity.y) < 0.05f) {
+                enemyRB.velocity = new Vector2(moveDir * pursueSpeed, enemyRB.velocity.y);
+            }
+            return;
+        }
 
         Vector2 nextPos = targetPath[currPathIndex];
         Vector2 dir = (nextPos - adjustedPos);
@@ -297,11 +283,8 @@ public class EnemyStateManager : MonoBehaviour
         // Move Right or Left.
         if (dir.y == 0) {
             enemyRB.velocity = new Vector2(Mathf.Sign(dir.x) * speed, enemyRB.velocity.y);
-        } else {
-            isJumping = true;
-            enemyRB.velocity = Vector2.zero;
-            Vector2 jumpForce = CalculateJumpForce(dir);
-            enemyRB.AddForce(jumpForce, ForceMode2D.Impulse);
+        } else if (!isJumping) {
+            Jump(nextPos);
         }
 
         // Increment path counter if enemy has reached the current path node.
@@ -317,21 +300,85 @@ public class EnemyStateManager : MonoBehaviour
             targetPath = newPath;
             currPathIndex = 0;
             unreachable = false;
-        } else {
-            unreachable = true;
-            if (!hasDied && playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
-                CreateQuestionMark();
-                if (!isReturningToPatrolPos) {
-                    StartCoroutine("ReturnToPatrols");
-                }
+            return;
+        }
+        unreachable = true;
+        if (!hasDied && playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
+            CreateQuestionMark();
+            if (!isReturningToPatrolPos) {
+                StartCoroutine("ReturnToPatrols");
             }
-
         }
     }
 
-    public Vector2 CalculateJumpForce(Vector2 nextPos) {
-        
-        return Vector2.up * 10f;
+    // Handles the logic for jumping to a location.
+    private void Jump(Vector2 nextPos) {
+        isJumping = true;
+        enemyRB.velocity = Vector2.zero;
+        //enemyRB.bodyType = RigidbodyType2D.Kinematic;
+        initialPos = new Vector3(this.transform.position.x, this.transform.position.y + heightOffset, 0);
+        Vector3 targetPos = (Vector3)nextPos - initialPos;
+        float height = targetPos.y + targetPos.magnitude / 10f;
+        height = Mathf.Max(0.01f, height);
+        float angle;
+        float v0;
+        float time;
+        CalculatePathWithHeight(targetPos, height, out v0, out angle, out time);
+        DrawPath(v0, angle, time, _Step);
+        StopAllCoroutines();
+        StartCoroutine(Coroutine_Movement(v0, angle, time, nextPos));
+    }
+
+    // Draws the path of a jump with the specified number of segments (steps).
+    private void DrawPath(float v0, float angle, float time, float step) {
+        step = Mathf.Max(0.01f, step);
+        _Line.positionCount = (int)(time / step) + 2;
+        int count = 0;
+        for (float i = 0; i < time; i += step) {
+            float x = v0 * i * Mathf.Cos(angle);
+            float y = v0 * i * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(i, 2);
+            _Line.SetPosition(count , initialPos + new Vector3(x, y, 0));
+            count++;
+        }
+        float xfinal = v0 * time * Mathf.Cos(angle);
+        float yfinal = v0 * time * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(time, 2);
+        _Line.SetPosition(count, initialPos + new Vector3(xfinal, yfinal, 0));
+    }
+
+    // Returns the quadratic formula.
+    private float QuadraticEquation(float a, float b, float c, float sign) {
+        return (-b + sign * Mathf.Sqrt(b * b -4 * a * c)) / (2 * a);
+    }
+
+    // Calculates and assigns the initial velocity and anlge of a jump path.
+    private void CalculatePathWithHeight(Vector3 targetPos, float h, out float v0, out float angle, out float time) {
+        float xt = targetPos.x;
+        float yt = targetPos.y;
+        float g = -Physics.gravity.y;
+        float b = Mathf.Sqrt(2 * g * h);
+        float a = (-0.5f * g);
+        float c = -yt;
+        float tplus = QuadraticEquation(a, b, c, 1);
+        float tmin = QuadraticEquation(a, b, c, -1);
+        time = tplus > tmin ? tplus : tmin;
+        angle = Mathf.Atan(b * time / xt);
+        v0 = b / Mathf.Sin(angle);
+    }
+
+    // Controls the physics of moving the Enemy along a parabola when jumping.
+	IEnumerator Coroutine_Movement(float v0, float angle, float time, Vector2 nextPos) {
+        float t = 0;
+        while (adjustedPos != nextPos) {
+            float x = v0 * t * Mathf.Cos(angle);
+            float y = v0 * t * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(t, 2);
+            transform.position = initialPos + new Vector3(x, y - heightOffset, 0);
+
+            t += Time.deltaTime * _JumpSpeedFactor;
+            yield return null;
+        }
+        _Line.positionCount = 0;
+        //enemyRB.bodyType = RigidbodyType2D.Dynamic;
+        isJumping = false;
     }
 
     // Updates the player's sprites based on input/state.

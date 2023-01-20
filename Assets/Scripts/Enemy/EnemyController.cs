@@ -279,12 +279,12 @@ public class EnemyController : MonoBehaviour
             Pursue(pursueSpeed);
         }
 
-        // Handles the case in which the enemy gets stuck on an edge.
-        if (isAlerted && astarScript.IsStuck() && Mathf.Abs(enemyRB.velocity.x) < 0.05 && Mathf.Abs(enemyRB.velocity.y) < 0.05) {
-            Debug.Log("unstuck enemy: " + Time.time);
-            Vector2 moveDir = astarScript.GetMoveDir();
-            enemyRB.velocity = new Vector2(moveDir.x * pursueSpeed, enemyRB.velocity.y);
-        }
+        // // Handles the case in which the enemy gets stuck on an edge.
+        // if (isAlerted && astarScript.IsStuck() && Mathf.Abs(enemyRB.velocity.x) < 0.05 && Mathf.Abs(enemyRB.velocity.y) < 0.05) {
+        //     Debug.Log("unstuck enemy: " + Time.time);
+        //     Vector2 moveDir = astarScript.GetMoveDir();
+        //     enemyRB.velocity = new Vector2(moveDir.x * pursueSpeed, enemyRB.velocity.y);
+        // }
     }
 
     // The enemy's patrolling state

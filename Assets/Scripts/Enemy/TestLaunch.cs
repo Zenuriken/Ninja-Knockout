@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TestLaunch : MonoBehaviour
@@ -9,14 +8,19 @@ public class TestLaunch : MonoBehaviour
     // [SerializeField] float _Height;
     [SerializeField] LineRenderer _Line;
     [SerializeField] float _Step;
+    [SerializeField] float _JumpSpeedFactor;
 
     private Vector3 _InitialPos;
     private Camera _cam;
     private float _HeightOffset = -1.55f;
 
+    private bool isJumping;
+    private Rigidbody2D enemyRB;
+
     private void Start() {
         _InitialPos = new Vector3(transform.position.x, transform.position.y + _HeightOffset, 0);
         _cam = Camera.main;
+        enemyRB = this.GetComponent<Rigidbody2D>();
     }
 
     private void Update() {
@@ -28,14 +32,16 @@ public class TestLaunch : MonoBehaviour
         float v0;
         float time;
         CalculatePathWithHeight(targetPos, height, out v0, out angle, out time);
-        
-        DrawPath(v0, angle, time, _Step);
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            StopAllCoroutines();
-            StartCoroutine(Coroutine_Movement(v0, angle, time));
+        if (Input.GetKeyDown(KeyCode.Space) && !isJumping) {
+            isJumping = true;
+            Vector2 dir = GetVectorFromAngle(angle * Mathf.Rad2Deg);
+            enemyRB.AddForce(dir * v0, ForceMode2D.Impulse);
+            // StopAllCoroutines();
+            // StartCoroutine(Coroutine_Movement(v0, angle, time));
         }
     }
 
+    // Draws the path of a jump with the specified number of segments (steps).
     private void DrawPath(float v0, float angle, float time, float step) {
         step = Mathf.Max(0.01f, step);
         _Line.positionCount = (int)(time / step) + 2;
@@ -51,59 +57,75 @@ public class TestLaunch : MonoBehaviour
         _Line.SetPosition(count, _InitialPos + new Vector3(xfinal, yfinal, 0));
     }
 
-    private void CalculatePath(Vector3 targetPos, float angle, out float v0, out float time) {
-        float xt = targetPos.x;
-        float yt = targetPos.y;
-        float g = -Physics.gravity.y;
+    // Calculates the path without regards to height.
+    // private void CalculatePath(Vector3 targetPos, float angle, out float v0, out float time) {
+    //     float xt = targetPos.x;
+    //     float yt = targetPos.y;
+    //     float g = -Physics.gravity.y;
 
-        float v1 = Mathf.Pow(xt, 2) * g;
-        float v2 = 2 * xt * Mathf.Sin(angle) * Mathf.Cos(angle);
-        float v3 = 2 * yt * Mathf.Pow(Mathf.Cos(angle), 2);
-        v0 = Mathf.Sqrt(v1 / (v2 - v3));
+    //     float v1 = Mathf.Pow(xt, 2) * g;
+    //     float v2 = 2 * xt * Mathf.Sin(angle) * Mathf.Cos(angle);
+    //     float v3 = 2 * yt * Mathf.Pow(Mathf.Cos(angle), 2);
+    //     v0 = Mathf.Sqrt(v1 / (v2 - v3));
+    //     time = xt / (v0 * Mathf.Cos(angle));
+    // }
 
-        time = xt / (v0 * Mathf.Cos(angle));
-
-    }
-
+    // Returns the quadratic formula.
     private float QuadraticEquation(float a, float b, float c, float sign) {
         return (-b + sign * Mathf.Sqrt(b * b -4 * a * c)) / (2 * a);
     }
 
+    // Calculates and assigns the initial velocity and anlge of a jump path.
     private void CalculatePathWithHeight(Vector3 targetPos, float h, out float v0, out float angle, out float time) {
         float xt = targetPos.x;
         float yt = targetPos.y;
-        float g = -Physics.gravity.y;
-
+        float g = -Physics.gravity.y * enemyRB.gravityScale;
         float b = Mathf.Sqrt(2 * g * h);
         float a = (-0.5f * g);
         float c = -yt;
-
         float tplus = QuadraticEquation(a, b, c, 1);
         float tmin = QuadraticEquation(a, b, c, -1);
         time = tplus > tmin ? tplus : tmin;
-
         angle = Mathf.Atan(b * time / xt);
-
         v0 = b / Mathf.Sin(angle);
 
-        float v1 = Mathf.Pow(xt, 2) * g;
-        float v2 = 2 * xt * Mathf.Sin(angle) * Mathf.Cos(angle);
-        float v3 = 2 * yt * Mathf.Pow(Mathf.Cos(angle), 2);
-        v0 = Mathf.Sqrt(v1 / (v2 - v3));
-
-        time = xt / (v0 * Mathf.Cos(angle));
+        float g_draw = -Physics.gravity.y;
+        float a_draw = (-0.5f * g_draw);
+        float b_draw = Mathf.Sqrt(2 * g_draw * h);
+        float c_draw = -yt;
+        float tplus_draw = QuadraticEquation(a_draw, b_draw, c_draw, 1);
+        float tmin_draw = QuadraticEquation(a_draw, b_draw, c_draw, -1);
+        float time_draw = tplus_draw > tmin_draw ? tplus_draw : tmin_draw;
+        float angle_draw = Mathf.Atan(b_draw * time_draw / xt);
+        float v0_draw = b_draw / Mathf.Sin(angle_draw);
+        DrawPath(v0_draw, angle_draw, time_draw, _Step);
     }
 
+    // Controls the physics of moving the Enemy along a parabola when jumping.
 	IEnumerator Coroutine_Movement(float v0, float angle, float time) {
         float t = 0;
+        enemyRB.gravityScale = 0;
         while (t < time) {
             float x = v0 * t * Mathf.Cos(angle);
             float y = v0 * t * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(t, 2);
-
+            Vector3 newPos = _InitialPos + new Vector3(x, y - _HeightOffset, 0);
+            
+            Vector2 dir = newPos - transform.position;
+            
+            
+            
+            
             transform.position = _InitialPos + new Vector3(x, y - _HeightOffset, 0);
-            t += Time.deltaTime;
+            t += Time.deltaTime * _JumpSpeedFactor;
             yield return null;
         }
+    }
+
+    // Returns a vector pointing in the direction of the given angle (in degrees).
+    public Vector2 GetVectorFromAngle(float angle) {
+        // angle = 0 -> 360
+        float angleRad = angle * (Mathf.PI / 180f);
+        return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
     }
     
     

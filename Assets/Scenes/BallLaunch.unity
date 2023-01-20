@@ -3860,3 +3860,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _Line: {fileID: 2071943054}
   _Step: 0.1
+  _JumpSpeedFactor: 3
