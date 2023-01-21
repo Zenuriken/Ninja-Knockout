@@ -9,7 +9,7 @@ public class TestLaunch : MonoBehaviour
     [SerializeField] LineRenderer _Line;
     [SerializeField] float _Step;
     [SerializeField] float _JumpSpeedFactor;
-
+    [SerializeField] float minHeight;
     private Vector3 _InitialPos;
     private Camera _cam;
     private float _HeightOffset = -1.55f;
@@ -18,7 +18,7 @@ public class TestLaunch : MonoBehaviour
     private Rigidbody2D enemyRB;
 
     private void Start() {
-        _InitialPos = new Vector3(transform.position.x, transform.position.y + _HeightOffset, 0);
+        _InitialPos = this.transform.position;//new Vector3(transform.position.x, transform.position.y + _HeightOffset, 0);
         _cam = Camera.main;
         enemyRB = this.GetComponent<Rigidbody2D>();
     }
@@ -26,8 +26,9 @@ public class TestLaunch : MonoBehaviour
     private void Update() {
         Vector3 targetPos = _cam.ScreenToWorldPoint(Input.mousePosition) - _InitialPos;
         targetPos.z = 0;
+        targetPos.y -= _HeightOffset;
         float height = targetPos.y + targetPos.magnitude / 10f;
-        height = Mathf.Max(0.01f, height);
+        height = Mathf.Max(minHeight, height);
         float angle;
         float v0;
         float time;

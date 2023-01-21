@@ -4893,7 +4893,7 @@ MonoBehaviour:
   exclamationMark: {fileID: 932252774}
   _Line: {fileID: 2100395667}
   _Step: 0.1
-  _JumpSpeedFactor: 3
+  _JumpSpeedFactor: 1
   enemyHealth: 5
   destroyDelay: 10
   bodySplatDelay: 0.35
@@ -5257,7 +5257,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2100395666}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7.83, y: 8.36, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

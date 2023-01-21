@@ -218,7 +218,7 @@ public class EnemyStateManager : MonoBehaviour
         states = new EnemyStateFactory(this);
         currentState = states.Patrol();
         currentState.EnterState(); 
-        Time.timeScale = 0.5f;
+        //Time.timeScale = 0.25f;
     }
     #endregion
     
@@ -283,7 +283,7 @@ public class EnemyStateManager : MonoBehaviour
         // Move Right or Left.
         if (dir.y == 0) {
             enemyRB.velocity = new Vector2(Mathf.Sign(dir.x) * speed, enemyRB.velocity.y);
-        } else if (!isJumping) {
+        } else if (!isJumping && isGrounded) {
             Jump(nextPos);
         }
 
@@ -316,16 +316,19 @@ public class EnemyStateManager : MonoBehaviour
         isJumping = true;
         // enemyRB.velocity = Vector2.zero;
         //enemyRB.bodyType = RigidbodyType2D.Kinematic;
-        initialPos = new Vector3(this.transform.position.x, this.transform.position.y + heightOffset, 0);
-        Vector3 targetPos = (Vector3)nextPos - initialPos;
+        enemyRB.velocity = Vector2.zero;
+        initialPos = this.transform.position;
+        initialPos.z = 0;
+        Vector3 targetPos = new Vector3(nextPos.x, nextPos.y - heightOffset, 0);
         float height = targetPos.y + targetPos.magnitude / 10f;
-        height = Mathf.Max(0.01f, height);
+        height = Mathf.Max(1f, height);
         float angle;
         float v0;
         float time;
         CalculatePathWithHeight(targetPos, height, out v0, out angle, out time);
 
         Vector2 dir = GetVectorFromAngle(angle * Mathf.Rad2Deg);
+        //dir.x = targetPos.x > initialPos.x ? dir.x : -1f * dir.x;
         enemyRB.AddForce(dir * v0, ForceMode2D.Impulse);
         Debug.Log("JUMPED");
         // DrawPath(v0, angle, time, _Step);
@@ -380,21 +383,21 @@ public class EnemyStateManager : MonoBehaviour
         DrawPath(v0_draw, angle_draw, time_draw, _Step);
     }
 
-    // Controls the physics of moving the Enemy along a parabola when jumping.
-	IEnumerator Coroutine_Movement(float v0, float angle, float time, Vector2 nextPos) {
-        float t = 0;
-        while (adjustedPos != nextPos) {
-            float x = v0 * t * Mathf.Cos(angle);
-            float y = v0 * t * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(t, 2);
-            transform.position = initialPos + new Vector3(x, y - heightOffset, 0);
+    // // Controls the physics of moving the Enemy along a parabola when jumping.
+	// IEnumerator Coroutine_Movement(float v0, float angle, float time, Vector2 nextPos) {
+    //     float t = 0;
+    //     while (adjustedPos != nextPos) {
+    //         float x = v0 * t * Mathf.Cos(angle);
+    //         float y = v0 * t * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(t, 2);
+    //         transform.position = initialPos + new Vector3(x, y - heightOffset, 0);
 
-            t += Time.deltaTime * _JumpSpeedFactor;
-            yield return null;
-        }
-        _Line.positionCount = 0;
-        //enemyRB.bodyType = RigidbodyType2D.Dynamic;
-        isJumping = false;
-    }
+    //         t += Time.deltaTime * _JumpSpeedFactor;
+    //         yield return null;
+    //     }
+    //     _Line.positionCount = 0;
+    //     //enemyRB.bodyType = RigidbodyType2D.Dynamic;
+    //     isJumping = false;
+    // }
 
     // Returns a vector pointing in the direction of the given angle (in degrees).
     private Vector2 GetVectorFromAngle(float angle) {
