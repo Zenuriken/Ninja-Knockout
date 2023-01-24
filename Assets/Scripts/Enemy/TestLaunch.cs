@@ -15,15 +15,23 @@ public class TestLaunch : MonoBehaviour
     private float _HeightOffset = -1.55f;
 
     private bool isJumping;
+    private bool isGrounded;
     private Rigidbody2D enemyRB;
+    private Collider2D enemyCollider;
+    private LayerMask allPlatformsLayerMask;
 
     private void Start() {
         _InitialPos = this.transform.position;//new Vector3(transform.position.x, transform.position.y + _HeightOffset, 0);
         _cam = Camera.main;
         enemyRB = this.GetComponent<Rigidbody2D>();
+        enemyCollider = this.GetComponent<CapsuleCollider2D>();
+        allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
     }
 
     private void Update() {
+
+        if (!isJumping) _InitialPos = this.transform.position;
+
         Vector3 targetPos = _cam.ScreenToWorldPoint(Input.mousePosition) - _InitialPos;
         targetPos.z = 0;
         targetPos.y -= _HeightOffset;
@@ -40,6 +48,8 @@ public class TestLaunch : MonoBehaviour
             // StopAllCoroutines();
             // StartCoroutine(Coroutine_Movement(v0, angle, time));
         }
+
+        IsGrounded();
     }
 
     // Draws the path of a jump with the specified number of segments (steps).
@@ -113,9 +123,6 @@ public class TestLaunch : MonoBehaviour
             
             Vector2 dir = newPos - transform.position;
             
-            
-            
-            
             transform.position = _InitialPos + new Vector3(x, y - _HeightOffset, 0);
             t += Time.deltaTime * _JumpSpeedFactor;
             yield return null;
@@ -129,9 +136,17 @@ public class TestLaunch : MonoBehaviour
         return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
     }
     
-    
-    
-    
+    // Sets whether the enemy is grounded.
+    private void IsGrounded() {
+        bool lastGroundStatus = isGrounded;
+        RaycastHit2D raycastHit2D = Physics2D.BoxCast(enemyCollider.bounds.center, new Vector2(0.6f, enemyCollider.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
+        bool onGround = raycastHit2D.collider != null;
+        isGrounded = onGround;
+        if (lastGroundStatus == false && isGrounded == true) {
+            isJumping = false;
+        }
+        return;
+    }
     
     
     

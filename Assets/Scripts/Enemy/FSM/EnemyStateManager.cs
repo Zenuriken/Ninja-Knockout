@@ -29,6 +29,8 @@ public class EnemyStateManager : MonoBehaviour
     private float _Step;
     [SerializeField][Tooltip("The multiplier for the time it takes to jump a path.")]
     private float _JumpSpeedFactor;
+    [SerializeField][Tooltip("The delay between jumps.")]
+    private float jumpDelay;
     [Space(5)]
     #endregion
     
@@ -139,6 +141,7 @@ public class EnemyStateManager : MonoBehaviour
     private Vector2 lastPosition;
     private string gruntSound;
     private string deathSound;
+    private float lastJump;
 
     // Pathfinding Variables
     private List<Vector2> targetPath;
@@ -224,10 +227,10 @@ public class EnemyStateManager : MonoBehaviour
     
     // Update is called once per frame
     void Update() {
-        currentState.UpdateState();
         SetGrounded();
         SetDirection();
         SetAdjustedPos();
+        currentState.UpdateState();
         UpdateSprite();
     }
 
@@ -281,9 +284,9 @@ public class EnemyStateManager : MonoBehaviour
         Vector2 dir = (nextPos - adjustedPos);
 
         // Move Right or Left.
-        if (dir.y == 0) {
+        if (dir.y == 0 && !isJumping && isGrounded) {
             enemyRB.velocity = new Vector2(Mathf.Sign(dir.x) * speed, enemyRB.velocity.y);
-        } else if (!isJumping && isGrounded) {
+        } else if (!isJumping && isGrounded && CanJump()) {
             Jump(nextPos);
         }
 
@@ -314,12 +317,12 @@ public class EnemyStateManager : MonoBehaviour
     // Handles the logic for jumping to a location.
     private void Jump(Vector2 nextPos) {
         isJumping = true;
-        // enemyRB.velocity = Vector2.zero;
-        //enemyRB.bodyType = RigidbodyType2D.Kinematic;
+        lastJump = Time.time;
         enemyRB.velocity = Vector2.zero;
         initialPos = this.transform.position;
         initialPos.z = 0;
-        Vector3 targetPos = new Vector3(nextPos.x, nextPos.y - heightOffset, 0);
+        Vector3 targetPos = (Vector3)nextPos - initialPos;
+        targetPos.y -= heightOffset;
         float height = targetPos.y + targetPos.magnitude / 10f;
         height = Mathf.Max(1f, height);
         float angle;
@@ -404,6 +407,11 @@ public class EnemyStateManager : MonoBehaviour
         // angle = 0 -> 360
         float angleRad = angle * (Mathf.PI / 180f);
         return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
+    }
+
+    // Returns if the player is able to jump.
+    private bool CanJump() {
+        return (lastJump + jumpDelay <= Time.time) && !isStunned;
     }
 
     // Updates the player's sprites based on input/state.
