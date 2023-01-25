@@ -422,7 +422,7 @@ public class EnemyController : MonoBehaviour
 
     // Updates the enemy's pursue path.
     private void UpdatePursuePath() {
-        newPath = astarScript.CalculatePath();
+        //newPath = astarScript.CalculatePath();
         if (newPath != null) {
             pursuePath = newPath;
             currPathIndex = 0;

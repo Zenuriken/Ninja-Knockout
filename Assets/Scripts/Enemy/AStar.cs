@@ -61,8 +61,6 @@ public class AStar : MonoBehaviour
 
     private void Awake() {
         platformLayerMask = LayerMask.GetMask("Platform");
-        RaycastHit2D raycastHit2D = Physics2D.Raycast(this.transform.position, Vector2.down, 100f, platformLayerMask);
-        spawnPos = raycastHit2D.point;
         platformTilemap = GameObject.Find("Tilemap_Platform").GetComponent<Tilemap>();
     }
 
@@ -373,18 +371,9 @@ public class AStar : MonoBehaviour
     // Try to construct path only if enemy and player is at a walkable platform.
     // In this way the enemy only goes to the player's last known location.
     // Calculates the path. If it exists, returns a list of node positions to follow.
-    public List<Vector2> CalculatePath() {
-        // Don't calculate the path to the player if the player is currently hiding.
-        if (playerScript.IsHiding() && !isReturningToPatrolPos) {
-            return null;
-        }
-
+    public List<Vector2> CalculatePath(Vector3 targetPos) {
         Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
-        Vector3Int goalPos = platformTilemap.WorldToCell(new Vector2(playerTrans.position.x, playerTrans.position.y - 1f));
-
-        if (isReturningToPatrolPos) {
-            goalPos = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y + 0.5f));
-        }
+        Vector3Int goalPos = platformTilemap.WorldToCell(new Vector2(targetPos.x, (targetPos.y - 1f)));
 
         if (IsWalkable(startPos) && IsWalkable(goalPos)) {
             List<Vector3Int> reached = new List<Vector3Int>();

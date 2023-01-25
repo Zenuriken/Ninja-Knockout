@@ -22,4 +22,8 @@ public class EnemyStateFactory
         return new EnemyAttackState(context, this);
     }
 
+    public EnemyState Return() {
+        return new EnemyReturnState(context, this);
+    }
+
 }

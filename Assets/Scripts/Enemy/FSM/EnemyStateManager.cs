@@ -138,7 +138,7 @@ public class EnemyStateManager : MonoBehaviour
     private int damageCounter;
     private float lastIdle;
     private float lastAttack;
-    private Vector2 lastPosition;
+    private Vector3 spawnPos;
     private string gruntSound;
     private string deathSound;
     private float lastJump;
@@ -194,6 +194,10 @@ public class EnemyStateManager : MonoBehaviour
         meleeEnemyScript = this.transform.GetChild(1).GetComponent<MeleeEnemy>();
         firePointTrans = this.transform.GetChild(2).transform;
         highLight = this.transform.GetChild(7).gameObject;
+
+        RaycastHit2D raycastHit2D = Physics2D.Raycast(this.transform.position, Vector2.down, 100f, allPlatformsLayerMask);
+        spawnPos = raycastHit2D.point;
+        spawnPos.y += 0.5f;
     }
 
     // Start is called before the first frame update
@@ -221,7 +225,7 @@ public class EnemyStateManager : MonoBehaviour
         states = new EnemyStateFactory(this);
         currentState = states.Patrol();
         currentState.EnterState(); 
-        //Time.timeScale = 0.25f;
+        // Time.timeScale = 0.25f;
     }
     #endregion
     
@@ -277,9 +281,10 @@ public class EnemyStateManager : MonoBehaviour
             if (moveDir != 0 && Mathf.Abs(enemyRB.velocity.x) < 0.05f && Mathf.Abs(enemyRB.velocity.y) < 0.05f) {
                 enemyRB.velocity = new Vector2(moveDir * pursueSpeed, enemyRB.velocity.y);
             }
+            unreachable = true;
             return;
         }
-
+        unreachable = false;
         Vector2 nextPos = targetPath[currPathIndex];
         Vector2 dir = (nextPos - adjustedPos);
 
@@ -294,23 +299,21 @@ public class EnemyStateManager : MonoBehaviour
         if (adjustedPos == targetPath[currPathIndex]) {
             currPathIndex++;
         }
-    }
+    }  
+
 
     // Updates the enemy's pursue path.
-    public void UpdatePursuePath() {
-        newPath = astarScript.CalculatePath();
-        if (newPath != null) {
-            targetPath = newPath;
-            currPathIndex = 0;
-            unreachable = false;
-            return;
-        }
-        unreachable = true;
-        if (!hasDied && playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
-            CreateQuestionMark();
-            if (!isReturningToPatrolPos) {
-                StartCoroutine("ReturnToPatrols");
+    public IEnumerator UpdatePath(Vector3 targetPos) {
+        while (true) {
+            Debug.Log("UPDATING PATH");
+            newPath = astarScript.CalculatePath(targetPos);
+            if (newPath != null) {
+                targetPath = newPath;
+                currPathIndex = 0;
+                // unreachable = false;
             }
+            // unreachable = true;
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
@@ -319,9 +322,7 @@ public class EnemyStateManager : MonoBehaviour
         isJumping = true;
         lastJump = Time.time;
         enemyRB.velocity = Vector2.zero;
-        initialPos = this.transform.position;
-        initialPos.z = 0;
-        Vector3 targetPos = (Vector3)nextPos - initialPos;
+        Vector3 targetPos = (Vector3)nextPos - this.transform.position;
         targetPos.y -= heightOffset;
         float height = targetPos.y + targetPos.magnitude / 10f;
         height = Mathf.Max(1f, height);
@@ -329,14 +330,8 @@ public class EnemyStateManager : MonoBehaviour
         float v0;
         float time;
         CalculatePathWithHeight(targetPos, height, out v0, out angle, out time);
-
         Vector2 dir = GetVectorFromAngle(angle * Mathf.Rad2Deg);
-        //dir.x = targetPos.x > initialPos.x ? dir.x : -1f * dir.x;
         enemyRB.AddForce(dir * v0, ForceMode2D.Impulse);
-        Debug.Log("JUMPED");
-        // DrawPath(v0, angle, time, _Step);
-        // StopAllCoroutines();
-        // StartCoroutine(Coroutine_Movement(v0, angle, time, nextPos));
     }
 
     // Draws the path of a jump with the specified number of segments (steps).
@@ -347,12 +342,12 @@ public class EnemyStateManager : MonoBehaviour
         for (float i = 0; i < time; i += step) {
             float x = v0 * i * Mathf.Cos(angle);
             float y = v0 * i * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(i, 2);
-            _Line.SetPosition(count , initialPos + new Vector3(x, y, 0));
+            _Line.SetPosition(count , this.transform.position + new Vector3(x, y, 0));
             count++;
         }
         float xfinal = v0 * time * Mathf.Cos(angle);
         float yfinal = v0 * time * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(time, 2);
-        _Line.SetPosition(count, initialPos + new Vector3(xfinal, yfinal, 0));
+        _Line.SetPosition(count, this.transform.position + new Vector3(xfinal, yfinal, 0));
     }
 
     // Returns the quadratic formula.
@@ -374,33 +369,17 @@ public class EnemyStateManager : MonoBehaviour
         angle = Mathf.Atan(b * time / xt);
         v0 = b / Mathf.Sin(angle);
 
-        float g_draw = -Physics.gravity.y;
-        float a_draw = (-0.5f * g_draw);
-        float b_draw = Mathf.Sqrt(2 * g_draw * h);
-        float c_draw = -yt;
-        float tplus_draw = QuadraticEquation(a_draw, b_draw, c_draw, 1);
-        float tmin_draw = QuadraticEquation(a_draw, b_draw, c_draw, -1);
-        float time_draw = tplus_draw > tmin_draw ? tplus_draw : tmin_draw;
-        float angle_draw = Mathf.Atan(b_draw * time_draw / xt);
-        float v0_draw = b_draw / Mathf.Sin(angle_draw);
-        DrawPath(v0_draw, angle_draw, time_draw, _Step);
+        // float g_draw = -Physics.gravity.y;
+        // float a_draw = (-0.5f * g_draw);
+        // float b_draw = Mathf.Sqrt(2 * g_draw * h);
+        // float c_draw = -yt;
+        // float tplus_draw = QuadraticEquation(a_draw, b_draw, c_draw, 1);
+        // float tmin_draw = QuadraticEquation(a_draw, b_draw, c_draw, -1);
+        // float time_draw = tplus_draw > tmin_draw ? tplus_draw : tmin_draw;
+        // float angle_draw = Mathf.Atan(b_draw * time_draw / xt);
+        // float v0_draw = b_draw / Mathf.Sin(angle_draw);
+        // DrawPath(v0_draw, angle_draw, time_draw, _Step);
     }
-
-    // // Controls the physics of moving the Enemy along a parabola when jumping.
-	// IEnumerator Coroutine_Movement(float v0, float angle, float time, Vector2 nextPos) {
-    //     float t = 0;
-    //     while (adjustedPos != nextPos) {
-    //         float x = v0 * t * Mathf.Cos(angle);
-    //         float y = v0 * t * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(t, 2);
-    //         transform.position = initialPos + new Vector3(x, y - heightOffset, 0);
-
-    //         t += Time.deltaTime * _JumpSpeedFactor;
-    //         yield return null;
-    //     }
-    //     _Line.positionCount = 0;
-    //     //enemyRB.bodyType = RigidbodyType2D.Dynamic;
-    //     isJumping = false;
-    // }
 
     // Returns a vector pointing in the direction of the given angle (in degrees).
     private Vector2 GetVectorFromAngle(float angle) {
@@ -428,7 +407,6 @@ public class EnemyStateManager : MonoBehaviour
     }
     #endregion
 
-
     #region Getters/Setters
     public FieldOfView FOV {get{return fov;}}
     public SoundManager Sounds {get{return sounds;}}
@@ -438,6 +416,7 @@ public class EnemyStateManager : MonoBehaviour
     public ParticleSystem ExclamationMark {get{return exclamationMark;}}
     public GameObject AlertedObj {get{return alertedObj;}}
     public Rigidbody2D EnemyRB {get{return enemyRB;}}
+    public Vector3 SpawnPos {get{return spawnPos;}}
     public int MaxNodeDist {get{return maxNodeDist;}}
     public int StartingDir {get{return startingDir;} set{startingDir = value;}}
     public float PursueSpeed {get{return pursueSpeed;}}
@@ -447,6 +426,7 @@ public class EnemyStateManager : MonoBehaviour
     public bool IsDetectingPlayer {get{return isDetectingPlayer;} set{isDetectingPlayer = value;}}
     public bool IsAlerted {get{return isAlerted;} set{isAlerted = value;}}
     public bool HasDied {get{return hasDied;} set{hasDied = value;}}
+    public bool Unreachable {get{return unreachable;}}
     #endregion
 
 
