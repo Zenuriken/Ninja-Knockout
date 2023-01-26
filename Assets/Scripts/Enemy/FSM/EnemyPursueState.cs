@@ -8,7 +8,7 @@ public class EnemyPursueState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        ctx.StartCoroutine(ctx.UpdatePath(PlayerController.singleton.transform.position));
+        ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
     }
 
     public override void UpdateState() {
@@ -18,7 +18,8 @@ public class EnemyPursueState : EnemyState
     }
 
     public override void ExitState() {
-        
+        Debug.Log("CANCELLED");
+        ctx.CancelInvoke();
     }
 
     // Enemy should exit pursue state if player hides or is in attacking range.

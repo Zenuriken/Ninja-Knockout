@@ -194,10 +194,6 @@ public class EnemyStateManager : MonoBehaviour
         meleeEnemyScript = this.transform.GetChild(1).GetComponent<MeleeEnemy>();
         firePointTrans = this.transform.GetChild(2).transform;
         highLight = this.transform.GetChild(7).gameObject;
-
-        RaycastHit2D raycastHit2D = Physics2D.Raycast(this.transform.position, Vector2.down, 100f, allPlatformsLayerMask);
-        spawnPos = raycastHit2D.point;
-        spawnPos.y += 0.5f;
     }
 
     // Start is called before the first frame update
@@ -210,6 +206,11 @@ public class EnemyStateManager : MonoBehaviour
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
         playerAndPlatformLayerMask = LayerMask.GetMask("Player", "Platform", "OneWayPlatform");
         fieldOfViewParent = GameObject.Find("FieldOfViews");
+
+        // Setting spawn position.
+        RaycastHit2D raycastHit2D = Physics2D.Raycast(this.transform.position, Vector2.down, 100f, allPlatformsLayerMask);
+        spawnPos = raycastHit2D.point;
+        spawnPos.y += 0.5f;
 
         // Determines whether the enemy will be male or female.
         float value = Random.Range(0, 100);
@@ -303,18 +304,16 @@ public class EnemyStateManager : MonoBehaviour
 
 
     // Updates the enemy's pursue path.
-    public IEnumerator UpdatePath(Vector3 targetPos) {
-        while (true) {
-            Debug.Log("UPDATING PATH");
-            newPath = astarScript.CalculatePath(targetPos);
-            if (newPath != null) {
-                targetPath = newPath;
-                currPathIndex = 0;
-                // unreachable = false;
-            }
-            // unreachable = true;
-            yield return new WaitForSeconds(0.5f);
+    public void UpdatePath() {
+        Vector3 targetPos = currentState.GetType() == typeof(EnemyPursueState) ? playerScript.transform.position : spawnPos;
+        Debug.Log(targetPos);
+        newPath = astarScript.CalculatePath(targetPos);
+        if (newPath != null) {
+            targetPath = newPath;
+            currPathIndex = 0;
+            // unreachable = false;
         }
+        // unreachable = true;
     }
 
     // Handles the logic for jumping to a location.

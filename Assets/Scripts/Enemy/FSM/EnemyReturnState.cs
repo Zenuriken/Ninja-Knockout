@@ -8,14 +8,12 @@ public class EnemyReturnState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        Debug.Log("RETURNING");
-        //ctx.StartCoroutine(ReturnToPatrols());
+        ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
     }
 
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
-        ctx.UpdatePath(ctx.SpawnPos);
         ctx.FollowPath(ctx.PatrolSpeed);
     }
 
@@ -25,9 +23,9 @@ public class EnemyReturnState : EnemyState
 
     // Enemy should exit pursue state if player hides or is in attacking range.
     public override void CheckSwitchStates() {
-        if (!ctx.IsAlerted) {
-            SwitchState(factory.Patrol());
-        }
+        // if (!ctx.IsAlerted) {
+        //     SwitchState(factory.Patrol());
+        // }
     }
 
     public override void InitializeSubState() {
