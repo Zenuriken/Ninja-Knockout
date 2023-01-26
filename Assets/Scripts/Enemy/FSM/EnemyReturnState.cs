@@ -8,7 +8,7 @@ public class EnemyReturnState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
+        ctx.StartCoroutine(ReturnToPatrols());
     }
 
     public override void UpdateState() {
@@ -18,7 +18,7 @@ public class EnemyReturnState : EnemyState
     }
 
     public override void ExitState() {
-        
+        ctx.CancelInvoke();
     }
 
     // Enemy should exit pursue state if player hides or is in attacking range.
@@ -32,22 +32,15 @@ public class EnemyReturnState : EnemyState
         
     }
 
-
-    // if (!hasDied && playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && !isJumping && isAlerted) {
-    //         CreateQuestionMark();
-    //         if (!isReturningToPatrolPos) {
-    //             StartCoroutine("ReturnToPatrols");
-    //         }
-    //     }
-
-    // IEnumerator ReturnToPatrols() {
-    //     yield return new WaitForSeconds(5f);
-    //     if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
-    //         SetAlertStatus(false);
-    //         astarScript.SetReturnToPatrolPos(true);
-    //     } else {
-    //         isReturningToPatrolPos = false;
-    //     }
-    // }
+    IEnumerator ReturnToPatrols() {
+        ctx.InvokeRepeating("CreateQuestionMark", 0f, 0.6f);
+        yield return new WaitForSeconds(5f);
+        if (ctx.PlayerIsHiding()) {
+            ctx.IsAlerted = false;
+            ctx.AlertedObj.SetActive(false);
+            ctx.CancelInvoke();
+            ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
+        }
+    }
 
 }

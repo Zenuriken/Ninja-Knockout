@@ -270,11 +270,11 @@ public class EnemyController : MonoBehaviour
         if (patrolEnabled && !isAlerted && !isReturningToPatrolPos) {
             Patrol();
         } else if (!isAlerted && isReturningToPatrolPos) {
-            if (astarScript.IsAtSpawnPos()) {
-                isReturningToPatrolPos = false;
-            } else {
-                Pursue(patrolSpeed);
-            }
+            // if (astarScript.IsAtSpawnPos()) {
+            //     isReturningToPatrolPos = false;
+            // } else {
+            //     Pursue(patrolSpeed);
+            // }
         } else if (isAlerted) {
             Pursue(pursueSpeed);
         }
@@ -444,7 +444,7 @@ public class EnemyController : MonoBehaviour
         yield return new WaitForSeconds(5f);
         if (playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && isAlerted) {
             SetAlertStatus(false);
-            astarScript.SetReturnToPatrolPos(true);
+            //astarScript.SetReturnToPatrolPos(true);
         } else {
             isReturningToPatrolPos = false;
         }
@@ -460,7 +460,7 @@ public class EnemyController : MonoBehaviour
         sounds.Play("Alerted");
         isReturningToPatrolPos = false;
         alertedObj.SetActive(true);
-        astarScript.SetReturnToPatrolPos(false);
+        //astarScript.SetReturnToPatrolPos(false);
         UpdatePursuePath();
         if (!beganCalculatingPath) {
             beganCalculatingPath = true;

@@ -210,7 +210,7 @@ public class EnemyStateManager : MonoBehaviour
         // Setting spawn position.
         RaycastHit2D raycastHit2D = Physics2D.Raycast(this.transform.position, Vector2.down, 100f, allPlatformsLayerMask);
         spawnPos = raycastHit2D.point;
-        spawnPos.y += 0.5f;
+        spawnPos.y += 1.5f;
 
         // Determines whether the enemy will be male or female.
         float value = Random.Range(0, 100);
@@ -257,6 +257,7 @@ public class EnemyStateManager : MonoBehaviour
             transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             fov.SetStartingAngle(200f);
         }
+        //Debug.Log("Enemy velocity x: " + enemyRB.velocity.x);
     }
 
     // Sets the adjusted position of the enemy (the tile above the platform it stands on).
@@ -280,7 +281,8 @@ public class EnemyStateManager : MonoBehaviour
             // Handles the case in which the enemy gets stuck on an edge.
             int moveDir = astarScript.Unstuck();
             if (moveDir != 0 && Mathf.Abs(enemyRB.velocity.x) < 0.05f && Mathf.Abs(enemyRB.velocity.y) < 0.05f) {
-                enemyRB.velocity = new Vector2(moveDir * pursueSpeed, enemyRB.velocity.y);
+                enemyRB.velocity = new Vector2(moveDir * speed, enemyRB.velocity.y);
+                Debug.Log("STUCK");
             }
             unreachable = true;
             return;
@@ -305,15 +307,15 @@ public class EnemyStateManager : MonoBehaviour
 
     // Updates the enemy's pursue path.
     public void UpdatePath() {
-        Vector3 targetPos = currentState.GetType() == typeof(EnemyPursueState) ? playerScript.transform.position : spawnPos;
-        Debug.Log(targetPos);
-        newPath = astarScript.CalculatePath(targetPos);
-        if (newPath != null) {
-            targetPath = newPath;
-            currPathIndex = 0;
-            // unreachable = false;
+        bool followPlayer = currentState.GetType() == typeof(EnemyPursueState);
+        Vector3 targetPos = followPlayer ? playerScript.transform.position : spawnPos;
+        if ((followPlayer && !PlayerController.singleton.IsHiding()) || !followPlayer) {   
+            newPath = astarScript.CalculatePath(targetPos);
+            if (newPath != null) {
+                targetPath = newPath;
+                currPathIndex = 0;
+            }
         }
-        // unreachable = true;
     }
 
     // Handles the logic for jumping to a location.
@@ -390,6 +392,15 @@ public class EnemyStateManager : MonoBehaviour
     // Returns if the player is able to jump.
     private bool CanJump() {
         return (lastJump + jumpDelay <= Time.time) && !isStunned;
+    }
+
+
+    public bool PlayerIsHiding() {
+        return unreachable && PlayerController.singleton.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f;
+    }
+
+    public bool CanAttack() {
+        return false;
     }
 
     // Updates the player's sprites based on input/state.

@@ -23,10 +23,10 @@ public class AStar : MonoBehaviour
 
     private Tilemap platformTilemap;
     private LayerMask platformLayerMask;
-    private PlayerController playerScript;
-    private Transform playerTrans;
+    // private PlayerController playerScript;
+    // private Transform playerTrans;
     private Vector3 spawnPos;
-    private bool isReturningToPatrolPos;
+    //private bool isReturningToPatrolPos;
     
     public class Node {
         private Vector3Int pos;
@@ -65,8 +65,8 @@ public class AStar : MonoBehaviour
     }
 
     private void Start() {
-        playerScript = PlayerController.singleton;
-        playerTrans = playerScript.transform;
+        // playerScript = PlayerController.singleton;
+        // playerTrans = playerScript.transform;
     }
 
     // private void Start() {
@@ -500,19 +500,19 @@ public class AStar : MonoBehaviour
     //     }
     // }
 
-    public void SetReturnToPatrolPos(bool state) {
-        isReturningToPatrolPos = state;
-    }
+    // public void SetReturnToPatrolPos(bool state) {
+    //     isReturningToPatrolPos = state;
+    // }
 
-    public bool IsAtSpawnPos() {
-        Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
-        Vector3Int spawnPosition  = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y - 1f));
-        if (pos == spawnPosition) {
-            isReturningToPatrolPos = false;
-            return true;
-        }
-        return false;
-    }
+    // public bool IsAtSpawnPos() {
+    //     Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
+    //     Vector3Int spawnPosition  = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y - 1f));
+    //     if (pos == spawnPosition) {
+    //         isReturningToPatrolPos = false;
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
 
 }

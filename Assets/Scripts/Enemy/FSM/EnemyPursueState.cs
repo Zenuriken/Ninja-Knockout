@@ -18,15 +18,14 @@ public class EnemyPursueState : EnemyState
     }
 
     public override void ExitState() {
-        Debug.Log("CANCELLED");
         ctx.CancelInvoke();
     }
 
     // Enemy should exit pursue state if player hides or is in attacking range.
     public override void CheckSwitchStates() {
-        if (PlayerIsHiding()) {
+        if (ctx.PlayerIsHiding()) {
             SwitchState(factory.Return());
-        } else if (CanAttack()) {
+        } else if (ctx.CanAttack()) {
             SwitchState(factory.Attack());
         }
     }
@@ -34,21 +33,4 @@ public class EnemyPursueState : EnemyState
     public override void InitializeSubState() {
         
     }
-
-
-    private bool PlayerIsHiding() {
-        return ctx.Unreachable && PlayerController.singleton.IsHiding() && Mathf.Abs(ctx.EnemyRB.velocity.x) < 0.05f;
-    }
-
-    private bool CanAttack() {
-        return false;
-    }
-
-    // if (!hasDied && playerScript.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f && !isJumping && isAlerted) {
-    //         CreateQuestionMark();
-    //         if (!isReturningToPatrolPos) {
-    //             StartCoroutine("ReturnToPatrols");
-    //         }
-    //     }
-
 }
