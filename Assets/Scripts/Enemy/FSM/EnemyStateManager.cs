@@ -180,7 +180,7 @@ public class EnemyStateManager : MonoBehaviour
     EnemyState currentState;
     #endregion
 
-    #region Initializaiton Functions
+    #region Initialization Functions
     void Awake() {
         // Assign component values.
         alertedObj = this.transform.GetChild(0).gameObject;
@@ -230,6 +230,7 @@ public class EnemyStateManager : MonoBehaviour
     }
     #endregion
     
+    #region Update Function
     // Update is called once per frame
     void Update() {
         SetGrounded();
@@ -238,6 +239,7 @@ public class EnemyStateManager : MonoBehaviour
         currentState.UpdateState();
         UpdateSprite();
     }
+    #endregion
 
     #region State Functions
     // Sets whether the enemy is grounded.
@@ -273,6 +275,7 @@ public class EnemyStateManager : MonoBehaviour
         }
     }
 
+    #region PathFinding Functions
     // Moves the enemy according to the Pursue Path.
     public void FollowPath(float speed) {
         if (targetPath == null || currPathIndex >= targetPath.Count) {
@@ -367,17 +370,6 @@ public class EnemyStateManager : MonoBehaviour
         time = tplus > tmin ? tplus : tmin;
         angle = Mathf.Atan(b * time / xt);
         v0 = b / Mathf.Sin(angle);
-
-        // float g_draw = -Physics.gravity.y;
-        // float a_draw = (-0.5f * g_draw);
-        // float b_draw = Mathf.Sqrt(2 * g_draw * h);
-        // float c_draw = -yt;
-        // float tplus_draw = QuadraticEquation(a_draw, b_draw, c_draw, 1);
-        // float tmin_draw = QuadraticEquation(a_draw, b_draw, c_draw, -1);
-        // float time_draw = tplus_draw > tmin_draw ? tplus_draw : tmin_draw;
-        // float angle_draw = Mathf.Atan(b_draw * time_draw / xt);
-        // float v0_draw = b_draw / Mathf.Sin(angle_draw);
-        // DrawPath(v0_draw, angle_draw, time_draw, _Step);
     }
 
     // Returns a vector pointing in the direction of the given angle (in degrees).
@@ -391,14 +383,15 @@ public class EnemyStateManager : MonoBehaviour
     private bool CanJump() {
         return (lastJump + jumpDelay <= Time.time) && !isStunned;
     }
+    #endregion
 
     public bool PlayerIsHiding() {
         return unreachable && PlayerController.singleton.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f;
     }
 
-    public bool CanAttack() {
-        return false;
-    }
+    // public bool CanAttack() {
+    //     return (lastAttack + attackRate <= Time.time) && !isStunned;
+    // }
 
     // Reduces the enemy's health by dmg.
     public void TakeDmg(int dmg) {
@@ -456,6 +449,8 @@ public class EnemyStateManager : MonoBehaviour
     #endregion
 
     #region Getters/Setters
+    public MeleeEnemy MeleeEnemy {get{return meleeEnemyScript;}}
+    public AlertedSight AlertedSight {get{return alertedSightScript;}}
     public FieldOfView FOV {get{return fov;}}
     public SoundManager Sounds {get{return sounds;}}
     public AStar AstarScript {get{return astarScript;}}
@@ -465,17 +460,26 @@ public class EnemyStateManager : MonoBehaviour
     public GameObject AlertedObj {get{return alertedObj;}}
     public Rigidbody2D EnemyRB {get{return enemyRB;}}
     public Vector3 SpawnPos {get{return spawnPos;}}
+    public Transform FirePointTrans {get{return firePointTrans;}}
     public int MaxNodeDist {get{return maxNodeDist;}}
     public int StartingDir {get{return startingDir;} set{startingDir = value;}}
+    public int Dmg {get{return dmg;}}
     public float PursueSpeed {get{return pursueSpeed;}}
     public float PatrolSpeed {get{return patrolSpeed;}}
     public float IdleDur {get{return idleDur;}}
     public float AlertedDelay {get{return alertedDelay;}}
+    public float LastAttack {get{return lastAttack;} set{lastAttack = value;}}
+    public float AttackRate {get{return attackRate;}}
     public bool IsDetectingPlayer {get{return isDetectingPlayer;} set{isDetectingPlayer = value;}}
     public bool IsAlerted {get{return isAlerted;} set{isAlerted = value;}}
     public bool HasDied {get{return hasDied;} set{hasDied = value;}}
     public bool Unreachable {get{return unreachable;}}
     public bool PatrolEnabled {get{return patrolEnabled;}}
+    public bool PlayerIsInMeleeRange {get{return playerIsInMeleeRange;} set{playerIsInMeleeRange = value;}}
+    public bool PlayerIsInThrowingRange {get{return playerIsInThrowingRange;} set{playerIsInThrowingRange = value;}}
+    public bool IsStunned {get{return isStunned;}}
+    public bool IsGrounded {get{return isGrounded;}}
+    public bool IsMeleeing {get{return isMeleeing;} set{isMeleeing = value;}}
     #endregion
 
 

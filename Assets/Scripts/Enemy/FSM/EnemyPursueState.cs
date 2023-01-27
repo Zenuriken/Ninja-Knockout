@@ -28,12 +28,30 @@ public class EnemyPursueState : EnemyState
     public override void CheckSwitchStates() {
         if (ctx.PlayerIsHiding() && ctx.Unreachable) {
             SwitchState(factory.Confused());
-        } else if (ctx.CanAttack()) {
-            SwitchState(factory.Attack());
+        } else if (CanMelee()) {
+            SwitchState(factory.Melee());
+        } else if (CanThrow()) {
+             SwitchState(factory.Throw());
         }
     }
 
     public override void InitializeSubState() {
         
+    }
+
+    private bool IsWithinVectorBounds() {
+        Vector2 dir = (PlayerController.singleton.transform.position - ctx.FirePointTrans.position).normalized;
+        float dot = (dir.x >= 0) ? Vector2.Dot(dir, Vector2.right) : Vector2.Dot(dir, Vector2.left);
+        return Mathf.Abs(dot) >= 0.25f; // 0.5 is the dot product value for 60 degrees
+    }
+
+    private bool CanMelee() {
+        bool playerIsInMeleeRange = ctx.MeleeEnemy.IsTouchingMeleeTrigger();
+        return (ctx.LastAttack + ctx.AttackRate <= Time.time) && !ctx.IsStunned && playerIsInMeleeRange && ctx.IsGrounded;
+    }
+
+    private bool CanThrow() {
+        bool playerIsInThrowingRange = ctx.AlertedSight.IsTouchingAlertedTrigger() && IsWithinVectorBounds();
+        return (ctx.LastAttack + ctx.AttackRate <= Time.time) && !ctx.IsStunned && playerIsInThrowingRange && ctx.IsGrounded;
     }
 }

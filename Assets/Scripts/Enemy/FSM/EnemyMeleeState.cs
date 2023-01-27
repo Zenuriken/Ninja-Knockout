@@ -2,34 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyConfusedState : EnemyState
+public class EnemyMeleeState : EnemyState
 {
-    private float confusedTime;
-    
-    public EnemyConfusedState(EnemyStateManager currContext, EnemyStateFactory stateFactory) 
+    public EnemyMeleeState(EnemyStateManager currContext, EnemyStateFactory stateFactory) 
     : base(currContext, stateFactory) {}
 
+    float meleeTimer;
+
     public override void EnterState() {
-        Debug.Log("CONFUSED");
-        ctx.InvokeRepeating("CreateQuestionMark", 0f, 1f);
+        Debug.Log("MELEEING");
+        ctx.IsMeleeing = true;
+        ctx.LastAttack = Time.time;
+        ctx.Sounds.Play("Meleeing");
+        PlayerController.singleton.GetComponent<Health>().TakeDmg(ctx.Dmg, ctx.transform.position);
     }
 
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
-        confusedTime += Time.deltaTime;
+        meleeTimer += Time.deltaTime;
+        
     }
 
     public override void ExitState() {
         ctx.CancelInvoke();
-        confusedTime = 0f;
+        ctx.IsMeleeing = false;
     }
 
     // Enemy should exit pursue state if player hides or is in attacking range.
     public override void CheckSwitchStates() {
-        if (ctx.PlayerIsHiding() && confusedTime >= 5f) {
-            SwitchState(factory.Return());
-        } else if (!ctx.PlayerIsHiding()) {
+        if (meleeTimer >= 0.5f) {
             SwitchState(factory.Pursue());
         }
     }
@@ -37,4 +39,8 @@ public class EnemyConfusedState : EnemyState
     public override void InitializeSubState() {
         
     }
+
+
+    #region Attack Functions
+    #endregion
 }

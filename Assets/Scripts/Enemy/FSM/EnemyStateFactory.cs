@@ -18,8 +18,12 @@ public class EnemyStateFactory
         return new EnemyPursueState(context, this);
     }
 
-    public EnemyState Attack() {
-        return new EnemyAttackState(context, this);
+    public EnemyState Melee() {
+        return new EnemyMeleeState(context, this);
+    }
+
+    public EnemyState Throw() {
+        return new EnemyThrowState(context, this);
     }
 
     public EnemyState Return() {
