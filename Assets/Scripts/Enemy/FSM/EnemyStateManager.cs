@@ -290,14 +290,13 @@ public class EnemyStateManager : MonoBehaviour
         unreachable = false;
         Vector2 nextPos = targetPath[currPathIndex];
         Vector2 dir = (nextPos - adjustedPos);
-        Debug.Log("DIR: " + dir);
+
         // Move Right or Left.
-        if (dir.y == 0 && !isJumping && isGrounded) {
+        if (Mathf.Abs(dir.x) == 1 && dir.y == 0 && !isJumping && isGrounded) {
             enemyRB.velocity = new Vector2(Mathf.Sign(dir.x) * speed, enemyRB.velocity.y);
+        } else if (Mathf.Abs(dir.y) > 0 && !isJumping && isGrounded && CanJump()) {
+            Jump(nextPos);
         }
-        // } else if (!isJumping && isGrounded && CanJump()) {
-        //     Jump(nextPos);
-        // }
 
         // Increment path counter if enemy has reached the current path node.
         if (adjustedPos == targetPath[currPathIndex]) {
