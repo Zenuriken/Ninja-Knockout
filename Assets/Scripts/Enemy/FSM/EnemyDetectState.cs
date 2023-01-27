@@ -9,7 +9,6 @@ public class EnemyDetectState : EnemyState
 
     public override void EnterState() {
         Debug.Log("DETECT");
-        FacePlayer();
         ctx.StartCoroutine(PlayerDetected());
     }
 
@@ -45,6 +44,7 @@ public class EnemyDetectState : EnemyState
      // Play's alerted sound and also turns line of sight to red.
     IEnumerator PlayerDetected() {
         FacePlayer();
+        ctx.FOV.SetOrigin(ctx.transform.position);
         ctx.QuestionMarks.Clear();
         ctx.ExclamationMark.Play();
         ctx.Sounds.Play("Alerted");

@@ -614,9 +614,9 @@ public class PlayerController : MonoBehaviour {
         bool sparks = false;
         List<Collider2D> enemyColliders = meleeScript.GetEnemyColliders();
         foreach (Collider2D collider in enemyColliders) {
-            EnemyController enemy = collider.gameObject.GetComponent<EnemyController>();
-            if (!enemy.HasBeenDamaged(meleeCounter) && !enemy.HasDied()) {
-                if (enemy.IsAlerted() || enemy.IsDetectingPlayer()) {
+            EnemyStateManager enemy = collider.gameObject.GetComponent<EnemyStateManager>();
+            if (!enemy.HasBeenDamaged(meleeCounter) && !enemy.HasDied) {
+                if (enemy.IsAlerted || enemy.IsDetectingPlayer) {
                     enemy.TakeDmg(1);
                 } else {
                     enemy.TakeDmg(5);

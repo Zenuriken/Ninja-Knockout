@@ -29,6 +29,8 @@ public class EnemyReturnState : EnemyState
     public override void CheckSwitchStates() {
         if (ctx.IsDetectingPlayer) {
             SwitchState(factory.Detect());
+        } else if (ctx.AstarScript.HasReturned(ctx.SpawnPos)) {
+            SwitchState(factory.Patrol());
         }
     }
 

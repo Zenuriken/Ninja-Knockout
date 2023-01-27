@@ -27,11 +27,11 @@ public class EnemyConfusedState : EnemyState
 
     // Enemy should exit pursue state if player hides or is in attacking range.
     public override void CheckSwitchStates() {
-        if (ctx.PlayerIsHiding() && confusedTime >= 5f) {
-            SwitchState(factory.Return());
-        } else if (!ctx.PlayerIsHiding()) {
-            SwitchState(factory.Pursue());
-        }
+        // if (ctx.PlayerIsHiding() && confusedTime >= 5f) {
+        //     SwitchState(factory.Return());
+        // } else if (!ctx.PlayerIsHiding()) {
+        //     SwitchState(factory.Pursue());
+        // }
     }
 
     public override void InitializeSubState() {

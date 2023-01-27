@@ -233,8 +233,8 @@ public class EnemyStateManager : MonoBehaviour
     // Update is called once per frame
     void Update() {
         SetGrounded();
-        SetDirection();
         SetAdjustedPos();
+        if (!isDetectingPlayer) SetDirection();
         currentState.UpdateState();
         UpdateSprite();
     }
@@ -398,6 +398,47 @@ public class EnemyStateManager : MonoBehaviour
 
     public bool CanAttack() {
         return false;
+    }
+
+    // Reduces the enemy's health by dmg.
+    public void TakeDmg(int dmg) {
+        enemyHealth -= dmg;
+        StartCoroutine(KnockBack(new Vector2(playerScript.GetPlayerAttackDir(), 0f)));
+        if (enemyHealth <= 0) {
+            sounds.Play(deathSound);
+            hasDied = true;
+        } else {
+            sounds.Play(gruntSound);
+            isDetectingPlayer = true;
+        }
+    }
+
+    // Knocks the enemy back when getting damaged.
+    IEnumerator KnockBack(Vector2 playerDir) {
+        isStunned = true;
+        enemyRB.velocity = new Vector2(0f, 0f);
+        enemyRB.AddForce(playerDir * knockBackForce, ForceMode2D.Impulse);
+        yield return new WaitForSeconds(knockBackDur);
+        isStunned = false;
+    }
+
+
+    // Assigns the player's melee counter to the enemy after being damaged.
+    public void SetDamagedCounter(int counter) {
+        this.damageCounter = counter;
+    }
+
+    // Checks to see if enemy has already been damaged by player's current meleeCounter.
+    public bool HasBeenDamaged(int counter) {
+        return this.damageCounter == counter;
+    }
+
+    // Sets the HighLight of the enemy
+    public void SetHighLight(bool state) {
+        // if (state || !isInPlayerMeleeRange) {
+        //     highLight.SetActive(state);
+        // }
+        highLight.SetActive(state);
     }
 
     // Updates the player's sprites based on input/state.
