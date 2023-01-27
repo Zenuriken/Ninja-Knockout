@@ -2,33 +2,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyReturnState : EnemyState
+public class EnemyConfusedState : EnemyState
 {
-    public EnemyReturnState(EnemyStateManager currContext, EnemyStateFactory stateFactory) 
+    private float confusedTime;
+    
+    public EnemyConfusedState(EnemyStateManager currContext, EnemyStateFactory stateFactory) 
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        Debug.Log("RETURNING");
-        ctx.IsAlerted = false;
-        ctx.AlertedObj.SetActive(false);
-        ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
+        Debug.Log("CONFUSED");
+        ctx.InvokeRepeating("CreateQuestionMark", 0f, 1f);
     }
 
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
-        ctx.FOV.SetOrigin(ctx.transform.position);
-        ctx.FollowPath(ctx.PatrolSpeed);
+        confusedTime += Time.deltaTime;
     }
 
     public override void ExitState() {
         ctx.CancelInvoke();
+        confusedTime = 0f;
     }
 
     // Enemy should exit pursue state if player hides or is in attacking range.
     public override void CheckSwitchStates() {
-        if (ctx.IsDetectingPlayer) {
-            SwitchState(factory.Detect());
+        if (ctx.PlayerIsHiding() && confusedTime >= 5f) {
+            SwitchState(factory.Return());
+        } else if (!ctx.PlayerIsHiding()) {
+            SwitchState(factory.Pursue());
         }
     }
 

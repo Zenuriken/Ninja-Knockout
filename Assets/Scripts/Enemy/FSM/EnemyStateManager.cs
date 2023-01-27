@@ -257,7 +257,6 @@ public class EnemyStateManager : MonoBehaviour
             transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             fov.SetStartingAngle(200f);
         }
-        //Debug.Log("Enemy velocity x: " + enemyRB.velocity.x);
     }
 
     // Sets the adjusted position of the enemy (the tile above the platform it stands on).
@@ -276,7 +275,6 @@ public class EnemyStateManager : MonoBehaviour
 
     // Moves the enemy according to the Pursue Path.
     public void FollowPath(float speed) {
-        // If there is no path or our current path index is greater than the length of our path, check if enemy is stuck. Otherwise, terminate.
         if (targetPath == null || currPathIndex >= targetPath.Count) {
             // Handles the case in which the enemy gets stuck on an edge.
             int moveDir = astarScript.Unstuck();
@@ -290,6 +288,7 @@ public class EnemyStateManager : MonoBehaviour
 
         // Increment path counter if enemy has reached the current path node.
         if (adjustedPos == targetPath[currPathIndex]) currPathIndex++;
+        if (currPathIndex >= targetPath.Count) return;
 
         unreachable = false;
         Vector2 nextPos = targetPath[currPathIndex];
@@ -303,7 +302,6 @@ public class EnemyStateManager : MonoBehaviour
             Jump(nextPos);
         }
     }  
-
 
     // Updates the enemy's pursue path.
     public void UpdatePath() {
@@ -393,7 +391,6 @@ public class EnemyStateManager : MonoBehaviour
     private bool CanJump() {
         return (lastJump + jumpDelay <= Time.time) && !isStunned;
     }
-
 
     public bool PlayerIsHiding() {
         return unreachable && PlayerController.singleton.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f;

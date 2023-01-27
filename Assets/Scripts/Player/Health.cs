@@ -39,10 +39,10 @@ public class Health : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D other) {
         if (other.gameObject.tag == "Enemy" && !isBuffering && !hasDied) {
-            EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
-            if (!enemyScript.HasDied()) {
+            EnemyStateManager enemyScript = other.gameObject.GetComponent<EnemyStateManager>();
+            if (!enemyScript.HasDied) {
                 TakeDmg(1, enemyScript.transform.position);
-                enemyScript.SetAlertStatus(true);
+                enemyScript.IsAlerted = true;
             }
         }
     }

@@ -26,4 +26,8 @@ public class EnemyStateFactory
         return new EnemyReturnState(context, this);
     }
 
+    public EnemyState Confused() {
+        return new EnemyConfusedState(context, this);
+    }
+
 }

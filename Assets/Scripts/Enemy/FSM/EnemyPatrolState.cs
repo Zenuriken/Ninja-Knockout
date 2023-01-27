@@ -25,7 +25,6 @@ public class EnemyPatrolState : EnemyState
     }
     
     public override void ExitState() {
-        ctx.IsDetectingPlayer = false;
     }
 
     // Enemy should exit Patrol if alerted.

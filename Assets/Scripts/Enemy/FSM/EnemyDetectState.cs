@@ -8,6 +8,7 @@ public class EnemyDetectState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
+        Debug.Log("DETECT");
         FacePlayer();
         ctx.StartCoroutine(PlayerDetected());
     }
@@ -18,7 +19,7 @@ public class EnemyDetectState : EnemyState
     }
 
     public override void ExitState() {
-        
+        ctx.IsDetectingPlayer = false;
     }
 
     public override void CheckSwitchStates() {
@@ -27,10 +28,6 @@ public class EnemyDetectState : EnemyState
 
     public override void InitializeSubState() {
         
-    }
-
-    private void Detect() {
-        ctx.StartCoroutine(PlayerDetected());
     }
 
     // Sets the direction of the enemy to the player when alerted.
