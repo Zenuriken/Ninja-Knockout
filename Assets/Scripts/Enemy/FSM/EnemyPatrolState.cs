@@ -21,7 +21,7 @@ public class EnemyPatrolState : EnemyState
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
-        Patrol();
+        if (ctx.PatrolEnabled) Patrol();
     }
     
     public override void ExitState() {

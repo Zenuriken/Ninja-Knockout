@@ -303,7 +303,8 @@ public class AStar : MonoBehaviour
     // Draw the Path created by CalculatePath()
     private void DrawPath(List<Vector2> path) {
         for (int i = path.Count - 1; i > 0; i--) {
-            Debug.DrawLine(path[i], path[i - 1], Color.green, 0.5f, false);
+            Color color = (i % 2 == 0) ? Color.green : Color.red;
+            Debug.DrawLine(path[i], path[i - 1], color, 0.5f, false);
         }
     }
 
@@ -395,5 +396,26 @@ public class AStar : MonoBehaviour
     //     return false;
     // }
 
+    // public void VisualizeNeighbors() {
+    //     Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
+    //     GameObject startNodeObj = GameObject.Instantiate(nodePrefab, new Vector2(startPos.x + 0.5f, startPos.y + 0.5f), Quaternion.identity);
+    //     startNodeObj.GetComponent<SpriteRenderer>().color = new Color(0f, 0f, 1f, 1f);
+    //     Node startingNode = new Node(startPos, null, 0f);
+    //     List<Node> neighbors = GetNeighbors(startingNode);
+
+    //     foreach (Node node in neighbors) {
+    //         Vector3Int p = node.GetPos();
+    //         GameObject nodeObj = GameObject.Instantiate(nodePrefab, new Vector2(p.x + 0.5f, p.y + 0.5f), Quaternion.identity);
+    //     }
+    // }
+
+    // public void VisualizePath(List<Vector2> path) {
+    //     for (int i = path.Count - 1; i >= 0; i--) {
+    //         Color color = (i % 2 == 0) ? Color.green : Color.red;
+    //         Vector2 p = path[i];
+    //         GameObject nodeObj = GameObject.Instantiate(nodePrefab, new Vector2(p.x, p.y), Quaternion.identity);
+    //         //Debug.DrawLine(path[i], path[i - 1], color, 0.5f, false);
+    //     }
+    // }
 
 }

@@ -287,20 +287,20 @@ public class EnemyStateManager : MonoBehaviour
             unreachable = true;
             return;
         }
+
+        // Increment path counter if enemy has reached the current path node.
+        if (adjustedPos == targetPath[currPathIndex]) currPathIndex++;
+
         unreachable = false;
         Vector2 nextPos = targetPath[currPathIndex];
         Vector2 dir = (nextPos - adjustedPos);
 
-        // Move Right or Left.
-        if (Mathf.Abs(dir.x) == 1 && dir.y == 0 && !isJumping && isGrounded) {
+        // Moving right or left.
+        if (dir.y == 0 && !isJumping && isGrounded) {
             enemyRB.velocity = new Vector2(Mathf.Sign(dir.x) * speed, enemyRB.velocity.y);
-        } else if (Mathf.Abs(dir.y) > 0 && !isJumping && isGrounded && CanJump()) {
+        // Jumping or dropping.
+        } else if (!isJumping && isGrounded && CanJump()) {
             Jump(nextPos);
-        }
-
-        // Increment path counter if enemy has reached the current path node.
-        if (adjustedPos == targetPath[currPathIndex]) {
-            currPathIndex++;
         }
     }  
 
@@ -437,6 +437,7 @@ public class EnemyStateManager : MonoBehaviour
     public bool IsAlerted {get{return isAlerted;} set{isAlerted = value;}}
     public bool HasDied {get{return hasDied;} set{hasDied = value;}}
     public bool Unreachable {get{return unreachable;}}
+    public bool PatrolEnabled {get{return patrolEnabled;}}
     #endregion
 
 
