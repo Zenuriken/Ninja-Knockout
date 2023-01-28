@@ -27,7 +27,9 @@ public class EnemyReturnState : EnemyState
 
     // Enemy should exit pursue state if player hides or is in attacking range.
     public override void CheckSwitchStates() {
-        if (ctx.IsDetectingPlayer) {
+        if (ctx.HasDied) {
+            SwitchState(factory.Death());
+        } else if (ctx.IsDetectingPlayer) {
             SwitchState(factory.Detect());
         } else if (ctx.AstarScript.HasReturned(ctx.SpawnPos)) {
             SwitchState(factory.Patrol());

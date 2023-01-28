@@ -10,7 +10,7 @@ public class EnemyThrowState : EnemyState
     float throwTimer;
 
     public override void EnterState() {
-        Debug.Log("THROWING");
+        // Debug.Log("THROWING");
         ctx.IsThrowing = true;
         ctx.LastAttack = Time.time;
         
@@ -34,7 +34,9 @@ public class EnemyThrowState : EnemyState
 
     // Enemy should exit pursue state if player hides or is in attacking range.
     public override void CheckSwitchStates() {
-        if (throwTimer >= 0.5f) {
+        if (ctx.HasDied) {
+            SwitchState(factory.Death());
+        } else if (throwTimer >= 0.5f) {
             SwitchState(factory.Pursue());
         }
     }

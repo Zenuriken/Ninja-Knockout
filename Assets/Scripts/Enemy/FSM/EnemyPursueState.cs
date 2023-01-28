@@ -8,7 +8,7 @@ public class EnemyPursueState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        Debug.Log("PURSUING");
+        // Debug.Log("PURSUING");
         ctx.IsAlerted = true;
         ctx.IsDetectingPlayer = false;
         ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
@@ -17,7 +17,7 @@ public class EnemyPursueState : EnemyState
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
-        ctx.FollowPath(ctx.PursueSpeed);
+        if (!ctx.IsStunned) ctx.FollowPath(ctx.PursueSpeed);
     }
 
     public override void ExitState() {
@@ -26,11 +26,13 @@ public class EnemyPursueState : EnemyState
 
     // Enemy should exit pursue state if player hides or is in attacking range.
     public override void CheckSwitchStates() {
-        if (ctx.PlayerIsHiding() && ctx.Unreachable) {
+        if (ctx.HasDied) {
+            SwitchState(factory.Death());
+        } else if (ctx.LostPlayer() && ctx.Unreachable && !ctx.IsStunned) {
             SwitchState(factory.Confused());
-        } else if (CanMelee()) {
+        } else if (!PlayerController.singleton.IsHiding() && CanMelee() && !ctx.IsStunned) {
             SwitchState(factory.Melee());
-        } else if (CanThrow()) {
+        } else if (!PlayerController.singleton.IsHiding() && CanThrow() && !ctx.IsStunned) {
              SwitchState(factory.Throw());
         }
     }

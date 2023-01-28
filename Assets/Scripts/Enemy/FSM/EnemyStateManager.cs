@@ -372,9 +372,8 @@ public class EnemyStateManager : MonoBehaviour
         v0 = b / Mathf.Sin(angle);
     }
 
-    // Returns a vector pointing in the direction of the given angle (in degrees).
+    // Returns a vector pointing in the direction of the given angle (in degrees). angle = 0 -> 360
     private Vector2 GetVectorFromAngle(float angle) {
-        // angle = 0 -> 360
         float angleRad = angle * (Mathf.PI / 180f);
         return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
     }
@@ -385,13 +384,10 @@ public class EnemyStateManager : MonoBehaviour
     }
     #endregion
 
-    public bool PlayerIsHiding() {
+    // Returns if the player is hiding and enemy's path ends.
+    public bool LostPlayer() {
         return unreachable && PlayerController.singleton.IsHiding() && Mathf.Abs(enemyRB.velocity.x) < 0.05f;
     }
-
-    // public bool CanAttack() {
-    //     return (lastAttack + attackRate <= Time.time) && !isStunned;
-    // }
 
     // Reduces the enemy's health by dmg.
     public void TakeDmg(int dmg) {
@@ -428,9 +424,6 @@ public class EnemyStateManager : MonoBehaviour
 
     // Sets the HighLight of the enemy
     public void SetHighLight(bool state) {
-        // if (state || !isInPlayerMeleeRange) {
-        //     highLight.SetActive(state);
-        // }
         highLight.SetActive(state);
     }
 
@@ -459,13 +452,17 @@ public class EnemyStateManager : MonoBehaviour
     public ParticleSystem ExclamationMark {get{return exclamationMark;}}
     public GameObject AlertedObj {get{return alertedObj;}}
     public GameObject ShurikenPrefab {get{return shurikenPrefab;}}
+    public GameObject ShurikenDropPrefab {get{return shurikenDropPrefab;}} 
     public Rigidbody2D EnemyRB {get{return enemyRB;}}
+    public CapsuleCollider2D EnemyCollider {get{return enemyCollider;}}
     public Vector3 SpawnPos {get{return spawnPos;}}
     public Transform FirePointTrans {get{return firePointTrans;}}
     public LayerMask PlayerAndPlatformLayerMask {get{return playerAndPlatformLayerMask;}}
+    public SpriteRenderer EnemySprite {get{return enemySprite;}}
     public int MaxNodeDist {get{return maxNodeDist;}}
     public int StartingDir {get{return startingDir;} set{startingDir = value;}}
     public int Dmg {get{return dmg;}}
+    public float DropChance {get{return dropChance;}}
     public float PursueSpeed {get{return pursueSpeed;}}
     public float PatrolSpeed {get{return patrolSpeed;}}
     public float IdleDur {get{return idleDur;}}
@@ -473,6 +470,10 @@ public class EnemyStateManager : MonoBehaviour
     public float LastAttack {get{return lastAttack;} set{lastAttack = value;}}
     public float AttackRate {get{return attackRate;}}
     public float SpawnDelay {get{return spawnDelay;}}
+    public float BodySplatDelay {get{return bodySplatDelay;}}
+    public float DestroyDelay {get{return destroyDelay;}}
+    public float FadeAwayDelay {get{return fadeAwayDelay;}}
+    public float FadeAwaySpeed {get{return fadeAwaySpeed;}}
     public bool IsDetectingPlayer {get{return isDetectingPlayer;} set{isDetectingPlayer = value;}}
     public bool IsAlerted {get{return isAlerted;} set{isAlerted = value;}}
     public bool HasDied {get{return hasDied;} set{hasDied = value;}}

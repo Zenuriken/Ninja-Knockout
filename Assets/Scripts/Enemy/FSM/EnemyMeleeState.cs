@@ -10,7 +10,7 @@ public class EnemyMeleeState : EnemyState
     float meleeTimer;
 
     public override void EnterState() {
-        Debug.Log("MELEEING");
+        // Debug.Log("MELEEING");
         ctx.IsMeleeing = true;
         ctx.LastAttack = Time.time;
         ctx.Sounds.Play("Meleeing");
@@ -31,7 +31,9 @@ public class EnemyMeleeState : EnemyState
 
     // Enemy should exit pursue state if player hides or is in attacking range.
     public override void CheckSwitchStates() {
-        if (meleeTimer >= 0.5f) {
+        if (ctx.HasDied) {
+            SwitchState(factory.Death());
+        } else if (meleeTimer >= 0.5f) {
             SwitchState(factory.Pursue());
         }
     }

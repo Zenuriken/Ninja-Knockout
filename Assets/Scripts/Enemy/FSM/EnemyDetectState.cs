@@ -8,7 +8,7 @@ public class EnemyDetectState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        Debug.Log("DETECT");
+        // Debug.Log("DETECT");
         ctx.StartCoroutine(PlayerDetected());
     }
 
@@ -22,7 +22,11 @@ public class EnemyDetectState : EnemyState
     }
 
     public override void CheckSwitchStates() {
-        if (ctx.IsAlerted) SwitchState(factory.Pursue());
+        if (ctx.HasDied) {
+            SwitchState(factory.Death());
+        } else if (ctx.IsAlerted) {
+            SwitchState(factory.Pursue());
+        }
     }
 
     public override void InitializeSubState() {
@@ -48,17 +52,9 @@ public class EnemyDetectState : EnemyState
         ctx.QuestionMarks.Clear();
         ctx.ExclamationMark.Play();
         ctx.Sounds.Play("Alerted");
-        //isReturningToPatrolPos = false;
-        //astarScript.SetReturnToPatrolPos(false);
-        // UpdatePursuePath();
-        // if (!beganCalculatingPath) {
-        //     beganCalculatingPath = true;
-        //     InvokeRepeating("UpdatePursuePath", 0f, 0.5f);
-        // }
         UIManager.singleton.PlayerDetected();
         yield return new WaitForSeconds(ctx.AlertedDelay);
         ctx.AlertedObj.SetActive(true);
         ctx.IsAlerted = true;
-        // isDetectingPlayer = false;
     }
 }

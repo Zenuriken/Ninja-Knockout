@@ -8,12 +8,12 @@ public class EnemyDeathState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        Debug.Log("DEAD");
-        
+        // Debug.Log("DEAD");
+        ctx.StartCoroutine(Death());
     }
 
     public override void UpdateState() {
-        CheckSwitchStates();
+        //CheckSwitchStates();
         if (ctx.CurrentState != this) return;
         
     }
@@ -31,42 +31,38 @@ public class EnemyDeathState : EnemyState
         
     }
 
-    // // Kills the enemy
-    // IEnumerator Death() {
-    //     hasDied = true;
-    //     // if (!isAlerted) {
-    //     //     UIManager.singleton.IncreaseScoreBy(enemyPoints * 2);
-    //     // } else {
-    //     //     UIManager.singleton.IncreaseScoreBy(enemyPoints);
-    //     // }
-    //     alertedObj.SetActive(false);
-    //     SetHighLight(false);
-    //     if (playerIsInThrowingRange && isAlerted) {
-    //         playerScript.IncreaseAlertedNumBy(-1);
-    //     }
-    //     Destroy(fov.gameObject);
-    //     this.gameObject.layer = 12; // Set the gameObject to layer 12
-    //     Invoke("BodySplat", bodySplatDelay);
-    //     StartCoroutine("FadeAway");
+    // Kills the enemy
+    IEnumerator Death() {
+        ctx.AlertedObj.SetActive(false);
+        ctx.SetHighLight(false);
+        if (ctx.PlayerIsInThrowingRange && ctx.IsAlerted) PlayerController.singleton.IncreaseAlertedNumBy(-1);
+        GameObject.Destroy(ctx.FOV.gameObject);
+        ctx.gameObject.layer = 12; // Set the gameObject to layer 12
 
-    //     float value = Random.Range(0, 100);
-    //     if (value < dropChance) {
-    //         GameObject shurikenDrop = Instantiate(shurikenDropPrefab, this.transform.position, Quaternion.identity);
-    //     }
+        float value = Random.Range(0, 100);
+        if (value < ctx.DropChance) GameObject.Instantiate(ctx.ShurikenDropPrefab, ctx.transform.position, Quaternion.identity);
 
-    //     yield return new WaitForSeconds(destroyDelay);
-    //     meleeScript.RemoveEnemyFromList(enemyCollider);
-    //     Destroy(this.gameObject);
-    // }
+        yield return new WaitForSeconds(ctx.BodySplatDelay);
+        BodySplat();
+        yield return ctx.StartCoroutine(FadeAway());
 
-    // private void BodySplat() {
-    //     if (isGrounded && Mathf.Abs(enemyRB.velocity.x) < 0.05f && Mathf.Abs(enemyRB.velocity.y) < 0.05f) {
-    //         sounds.Play("BodySplat");
-    //         playedBodySplat = true;
-    //     } else {
-    //         bodySplatDelayPast = true;
-    //         playedBodySplat = false;
-    //     }
-    // }
+        //yield return new WaitForSeconds(ctx.DestroyDelay);
+        PlayerController.singleton.RemoveEnemyFromList(ctx.EnemyCollider);
+        GameObject.Destroy(ctx.gameObject);
+    }
 
+    private void BodySplat() {
+        if (ctx.IsGrounded && Mathf.Abs(ctx.EnemyRB.velocity.x) < 0.05f && Mathf.Abs(ctx.EnemyRB.velocity.y) < 0.05f) {
+            ctx.Sounds.Play("BodySplat");
+        }
+    }
+
+    // Fades away the body of the enemy upon death.
+    IEnumerator FadeAway() {
+        yield return new WaitForSeconds(ctx.FadeAwayDelay);
+        for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * ctx.FadeAwaySpeed) {
+            ctx.EnemySprite.color = new Color(1f, 1f, 1f, alpha);
+            yield return new WaitForEndOfFrame();
+        }
+    }
 }

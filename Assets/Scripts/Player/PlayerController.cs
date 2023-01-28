@@ -965,6 +965,11 @@ public class PlayerController : MonoBehaviour {
     public bool HasPressedContinue() {
         return continuePressed;
     }
+
+    // Removes an enemy from the melee list upon death.
+    public void RemoveEnemyFromList(CapsuleCollider2D enemyCollider) {
+        meleeScript.RemoveEnemyFromList(enemyCollider);
+    }
     #endregion
 
     #region Misc Functions

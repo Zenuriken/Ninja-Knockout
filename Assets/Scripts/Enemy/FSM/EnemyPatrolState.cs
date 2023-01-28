@@ -13,6 +13,7 @@ public class EnemyPatrolState : EnemyState
     : base (currContext, stateFactory) {}
     
     public override void EnterState() {
+        // Debug.Log("PATROLLING");
         adjustedPos = ctx.AstarScript.GetAdjustedPosition();
         patrolPath = ctx.AstarScript.CalculatePatrolPath(ctx.MaxNodeDist);
         ctx.AlertedObj.SetActive(false);
@@ -29,7 +30,11 @@ public class EnemyPatrolState : EnemyState
 
     // Enemy should exit Patrol if alerted.
     public override void CheckSwitchStates() {
-        if (ctx.IsDetectingPlayer) SwitchState(factory.Detect());
+        if (ctx.HasDied) {
+            SwitchState(factory.Death());
+        } else if (ctx.IsDetectingPlayer) {
+            SwitchState(factory.Detect());
+        }
     }
 
     public override void InitializeSubState() {

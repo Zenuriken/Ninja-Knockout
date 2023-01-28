@@ -10,7 +10,7 @@ public class EnemyConfusedState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        Debug.Log("CONFUSED");
+        // Debug.Log("CONFUSED");
         ctx.InvokeRepeating("CreateQuestionMark", 0f, 1f);
     }
 
@@ -27,9 +27,11 @@ public class EnemyConfusedState : EnemyState
 
     // Enemy should exit pursue state if player hides or is in attacking range.
     public override void CheckSwitchStates() {
-        if (ctx.PlayerIsHiding() && confusedTime >= 5f) {
+        if (ctx.HasDied) {
+            SwitchState(factory.Death());
+        } else if (ctx.LostPlayer() && confusedTime >= 5f) {
             SwitchState(factory.Return());
-        } else if (!ctx.PlayerIsHiding()) {
+        } else if (!ctx.LostPlayer()) {
             SwitchState(factory.Pursue());
         }
     }

@@ -34,4 +34,8 @@ public class EnemyStateFactory
         return new EnemyConfusedState(context, this);
     }
 
+    public EnemyState Death() {
+        return new EnemyDeathState(context, this);
+    }
+
 }
