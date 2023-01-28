@@ -235,7 +235,7 @@ public class EnemyStateManager : MonoBehaviour
     void Update() {
         SetGrounded();
         SetAdjustedPos();
-        if (!isDetectingPlayer) SetDirection();
+        if (!isDetectingPlayer && !isMeleeing && !isThrowing) SetDirection();
         currentState.UpdateState();
         UpdateSprite();
     }
@@ -458,9 +458,11 @@ public class EnemyStateManager : MonoBehaviour
     public ParticleSystem QuestionMarks {get{return questionMark;}}
     public ParticleSystem ExclamationMark {get{return exclamationMark;}}
     public GameObject AlertedObj {get{return alertedObj;}}
+    public GameObject ShurikenPrefab {get{return shurikenPrefab;}}
     public Rigidbody2D EnemyRB {get{return enemyRB;}}
     public Vector3 SpawnPos {get{return spawnPos;}}
     public Transform FirePointTrans {get{return firePointTrans;}}
+    public LayerMask PlayerAndPlatformLayerMask {get{return playerAndPlatformLayerMask;}}
     public int MaxNodeDist {get{return maxNodeDist;}}
     public int StartingDir {get{return startingDir;} set{startingDir = value;}}
     public int Dmg {get{return dmg;}}
@@ -470,6 +472,7 @@ public class EnemyStateManager : MonoBehaviour
     public float AlertedDelay {get{return alertedDelay;}}
     public float LastAttack {get{return lastAttack;} set{lastAttack = value;}}
     public float AttackRate {get{return attackRate;}}
+    public float SpawnDelay {get{return spawnDelay;}}
     public bool IsDetectingPlayer {get{return isDetectingPlayer;} set{isDetectingPlayer = value;}}
     public bool IsAlerted {get{return isAlerted;} set{isAlerted = value;}}
     public bool HasDied {get{return hasDied;} set{hasDied = value;}}
@@ -480,7 +483,6 @@ public class EnemyStateManager : MonoBehaviour
     public bool IsStunned {get{return isStunned;}}
     public bool IsGrounded {get{return isGrounded;}}
     public bool IsMeleeing {get{return isMeleeing;} set{isMeleeing = value;}}
+    public bool IsThrowing {get{return isThrowing;} set{isThrowing = value;}}
     #endregion
-
-
 }

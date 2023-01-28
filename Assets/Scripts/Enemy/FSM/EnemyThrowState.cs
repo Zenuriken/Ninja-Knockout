@@ -7,62 +7,47 @@ public class EnemyThrowState : EnemyState
     public EnemyThrowState(EnemyStateManager currContext, EnemyStateFactory stateFactory) 
     : base(currContext, stateFactory) {}
 
+    float throwTimer;
+
     public override void EnterState() {
+        Debug.Log("THROWING");
+        ctx.IsThrowing = true;
+        ctx.LastAttack = Time.time;
         
+        Vector2 dir = (PlayerController.singleton.transform.position - ctx.FirePointTrans.position).normalized;
+        RaycastHit2D raycastHit2D = Physics2D.CircleCast(ctx.FirePointTrans.position, 0.335f, dir, 15f, ctx.PlayerAndPlatformLayerMask, 0f, 0f);
+        Debug.DrawLine(ctx.FirePointTrans.position, (Vector3)raycastHit2D.point);
+        if (raycastHit2D.collider != null && raycastHit2D.collider.tag == "Player") ctx.StartCoroutine(Throw(dir));
     }
 
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
+        throwTimer += Time.deltaTime;
         
     }
 
     public override void ExitState() {
         ctx.CancelInvoke();
+        ctx.IsThrowing = false;
     }
 
     // Enemy should exit pursue state if player hides or is in attacking range.
     public override void CheckSwitchStates() {
-        
+        if (throwTimer >= 0.5f) {
+            SwitchState(factory.Pursue());
+        }
     }
 
     public override void InitializeSubState() {
         
     }
 
-
-    #region Attack Functions
-    // private void Attack() {
-    //     playerIsInMeleeRange = meleeEnemyScript.IsTouchingMeleeTrigger();
-    //     playerIsInThrowingRange = alertedSightScript.IsTouchingAlertedTrigger() && IsWithinVectorBounds();
-    //     if (playerIsInMeleeRange && isGrounded && CanAttack()) {
-    //         isMeleeing = true;
-    //         lastAttack = Time.time;
-    //         sounds.Play("Meleeing");
-    //         Invoke("SetIsMeleeingFalse", 0.5f);
-    //         playerHealthScript.TakeDmg(dmg, this.transform.position);
-    //     } else if (playerIsInThrowingRange && isGrounded && CanAttack() && unreachable) {
-    //         Vector2 dir = (playerScript.transform.position - firePointTrans.position).normalized;
-    //         RaycastHit2D raycastHit2D = Physics2D.CircleCast(firePointTrans.position, shurikenRadius, dir, 15f, playerAndPlatformLayerMask, 0f, 0f);
-    //         Debug.DrawLine(firePointTrans.position, (Vector3)raycastHit2D.point);
-    //         if (raycastHit2D.collider != null && raycastHit2D.collider.tag == "Player") StartCoroutine(Throw(dir));
-    //     }
-    // }
-
-
-    // IEnumerator Throw(Vector2 dir) {
-    //     isThrowing = true;
-    //     if (dir.x >= 0) {
-    //         transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-    //     } else {
-    //         transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-    //     }
-    //     lastAttack = Time.time;
-    //     Invoke("SetIsThrowingFalse", 0.5f);
-    //     yield return new WaitForSeconds(spawnDelay);
-    //     GameObject shuriken = Instantiate(shurikenPrefab, firePointTrans.position, Quaternion.identity);
-    //     Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
-    //     shurikenScript.SetShurikenVelocity(dir);
-    // }
-    #endregion
+    IEnumerator Throw(Vector2 dir) {
+        ctx.transform.localScale = new Vector3(Mathf.Sign(dir.x) * Mathf.Abs(ctx.transform.localScale.x), ctx.transform.localScale.y, ctx.transform.localScale.z);
+        yield return new WaitForSeconds(ctx.SpawnDelay);
+        GameObject shuriken = GameObject.Instantiate(ctx.ShurikenPrefab, ctx.FirePointTrans.position, Quaternion.identity);
+        Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
+        shurikenScript.SetShurikenVelocity(dir);
+    }
 }

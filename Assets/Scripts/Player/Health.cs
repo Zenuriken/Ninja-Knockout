@@ -42,7 +42,7 @@ public class Health : MonoBehaviour
             EnemyStateManager enemyScript = other.gameObject.GetComponent<EnemyStateManager>();
             if (!enemyScript.HasDied) {
                 TakeDmg(1, enemyScript.transform.position);
-                if (!enemyScript.IsAlerted) enemyScript.IsDetectingPlayer = true;
+                if (!enemyScript.IsAlerted && !enemyScript.IsDetectingPlayer) enemyScript.IsDetectingPlayer = true;
             }
         }
     }

@@ -52,6 +52,6 @@ public class EnemyPursueState : EnemyState
 
     private bool CanThrow() {
         bool playerIsInThrowingRange = ctx.AlertedSight.IsTouchingAlertedTrigger() && IsWithinVectorBounds();
-        return (ctx.LastAttack + ctx.AttackRate <= Time.time) && !ctx.IsStunned && playerIsInThrowingRange && ctx.IsGrounded;
+        return (ctx.LastAttack + ctx.AttackRate <= Time.time) && !ctx.IsStunned && playerIsInThrowingRange && ctx.IsGrounded && ctx.Unreachable;
     }
 }

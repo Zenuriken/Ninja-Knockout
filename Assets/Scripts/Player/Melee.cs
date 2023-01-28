@@ -11,7 +11,7 @@ public class Melee : MonoBehaviour
     private List<Collider2D> leverColliders;
     private List<Collider2D> destructibleColliders;
 
-    //private PlayerController playerScript;
+    //private PEnemyStateManager playerScript;
     #endregion
 
     #region Initialization Functions
@@ -32,8 +32,8 @@ public class Melee : MonoBehaviour
         if (other.gameObject.tag == "Enemy") {
             if (!enemyColliders.Contains(other) /*&& playerScript.IsFreeOfAction()*/) {
                 enemyColliders.Add(other);
-                EnemyController enemyScript = other.GetComponent<EnemyController>();
-                enemyScript.SetIsInPlayerMeleeRange(true);
+                EnemyStateManager enemyScript = other.GetComponent<EnemyStateManager>();
+                //enemyScript.SetIsInPlayerMeleeRange(true);
                 enemyScript.SetHighLight(true);
             }
         } else if (other.gameObject.tag == "Projectile") {
@@ -62,8 +62,8 @@ public class Melee : MonoBehaviour
     private void OnTriggerExit2D(Collider2D other) {
         if (other.gameObject.tag == "Enemy") {
             enemyColliders.Remove(other);
-            EnemyController enemyScript = other.GetComponent<EnemyController>();
-            enemyScript.SetIsInPlayerMeleeRange(false);
+            EnemyStateManager enemyScript = other.GetComponent<EnemyStateManager>();
+            //enemyScript.SetIsInPlayerMeleeRange(false);
             enemyScript.SetHighLight(false);
         } else if (other.gameObject.tag == "Projectile") {
             projectileColliders.Remove(other);
@@ -85,8 +85,8 @@ public class Melee : MonoBehaviour
     // Removes an enemy from the list of enemy colliders upon death
     public void RemoveEnemyFromList(Collider2D enemyCollider) {
         enemyColliders.Remove(enemyCollider);
-        EnemyController enemyScript = enemyCollider.GetComponent<EnemyController>();
-        enemyScript.SetIsInPlayerMeleeRange(false);
+        EnemyStateManager enemyScript = enemyCollider.GetComponent<EnemyStateManager>();
+        //enemyScript.SetIsInPlayerMeleeRange(false);
         enemyScript.SetHighLight(false);
     }
 
