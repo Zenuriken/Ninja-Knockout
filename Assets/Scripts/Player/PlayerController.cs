@@ -315,14 +315,10 @@ public class PlayerController : MonoBehaviour {
         playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
         // If the player is on the title screen.
         if (titleScreenModeEnabled) {
+            IsGrounded();
             playerRB.velocity = new Vector2(speed, playerRB.velocity.y);
-            if (isGrounded) {
-                CreateDust(0);
-            }
-            return;
-        }
-        // If the player is not on title screen.
-        if (!hasDied) {
+            if (isGrounded) CreateDust(0);
+        } else if (!hasDied) {
             GetPlayerInput();
             IsGrounded();
             IsAgainstWall();

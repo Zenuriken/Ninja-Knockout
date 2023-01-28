@@ -8,7 +8,7 @@ public class EnemyReturnState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        Debug.Log("RETURNING");
+        // Debug.Log("RETURNING");
         ctx.IsAlerted = false;
         ctx.AlertedObj.SetActive(false);
         ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
