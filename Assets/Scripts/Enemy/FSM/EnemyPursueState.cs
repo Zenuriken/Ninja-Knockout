@@ -11,6 +11,7 @@ public class EnemyPursueState : EnemyState
         // Debug.Log("PURSUING");
         ctx.IsAlerted = true;
         ctx.IsDetectingPlayer = false;
+        ctx.SetTarget(PlayerController.singleton.transform.position);
         ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
     }
 

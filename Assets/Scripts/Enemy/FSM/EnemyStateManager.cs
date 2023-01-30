@@ -139,6 +139,7 @@ public class EnemyStateManager : MonoBehaviour
     private float lastIdle;
     private float lastAttack;
     private Vector3 spawnPos;
+    private Vector3 targetPos;
     private string gruntSound;
     private string deathSound;
     private float lastJump;
@@ -307,7 +308,7 @@ public class EnemyStateManager : MonoBehaviour
         Vector2 dir = (nextPos - adjustedPos);
 
         // Moving right or left.
-        if (dir.y == 0 && !isJumping && isGrounded) {
+        if (Mathf.Abs(dir.x) == 1 && dir.y == 0 && !isJumping && isGrounded) {
             enemyRB.velocity = new Vector2(Mathf.Sign(dir.x) * speed, enemyRB.velocity.y);
         // Jumping or dropping.
         } else if (!isJumping && isGrounded && CanJump()) {
@@ -315,10 +316,15 @@ public class EnemyStateManager : MonoBehaviour
         }
     }  
 
+    // Sets the target for the pursue path.
+    public void SetTarget(Vector3 pos) {
+        targetPos = pos;
+    }
+
     // Updates the enemy's pursue path.
     public void UpdatePath() {
         bool followPlayer = currentState.GetType() == typeof(EnemyPursueState);
-        Vector3 targetPos = followPlayer ? playerScript.transform.position : spawnPos;
+        //Vector3 targetPos = followPlayer ? playerScript.transform.position : spawnPos;
         if ((followPlayer && !PlayerController.singleton.IsHiding()) || !followPlayer) {   
             newPath = astarScript.CalculatePath(targetPos);
             if (newPath != null) {
@@ -439,8 +445,8 @@ public class EnemyStateManager : MonoBehaviour
     // Updates the player's sprites based on input/state.
     private void UpdateSprite() {
         enemyAnim.SetBool("isMoving", Mathf.Abs(enemyRB.velocity.x) > 0.05f);
-        enemyAnim.SetBool("isJumping", enemyRB.velocity.y > 0.05f);
-        enemyAnim.SetBool("isFalling", enemyRB.velocity.y < -0.05f);
+        enemyAnim.SetBool("isJumping", enemyRB.velocity.y > 0.5f);
+        enemyAnim.SetBool("isFalling", enemyRB.velocity.y < -0.5f);
         enemyAnim.SetBool("isGrounded", isGrounded);
         enemyAnim.SetBool("isStunned", isStunned);
         enemyAnim.SetBool("hasDied", hasDied);

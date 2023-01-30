@@ -9,8 +9,8 @@ public class OutOfBounds : MonoBehaviour
             Health playerHealthScript = other.gameObject.GetComponent<Health>();
             playerHealthScript.TakeEnvironDmg(1);
         } else if (other.gameObject.tag == "Enemy") {
-            EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
-            if (!enemyScript.HasDied()) {
+            EnemyStateManager enemyScript = other.gameObject.GetComponent<EnemyStateManager>();
+            if (!enemyScript.HasDied) {
                 enemyScript.TakeDmg(100);
             }
         }

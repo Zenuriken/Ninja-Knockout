@@ -11,6 +11,7 @@ public class EnemyReturnState : EnemyState
         // Debug.Log("RETURNING");
         ctx.IsAlerted = false;
         ctx.AlertedObj.SetActive(false);
+        ctx.SetTarget(ctx.SpawnPos);
         ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
     }
 

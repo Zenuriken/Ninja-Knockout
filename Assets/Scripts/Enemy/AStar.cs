@@ -63,7 +63,7 @@ public class AStar : MonoBehaviour
     private void Awake() {
         platformLayerMask = LayerMask.GetMask("Platform");
         platformTilemap = GameObject.Find("Tilemap_Platform").GetComponent<Tilemap>();
-        nodeParent = GameObject.Find("NodeParent").transform;
+        // nodeParent = GameObject.Find("NodeParent").transform;
     }
 
     private void Start() {

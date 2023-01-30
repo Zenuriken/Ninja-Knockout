@@ -61,8 +61,8 @@ public class Shuriken : MonoBehaviour
         if (other.gameObject.tag == "Platform" || other.gameObject.tag == "TrapDoor") {
             StartCoroutine(Contact(false));
         } else if (other.gameObject.tag == "Enemy" && this.owner == "Player") {
-            EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
-            if (!enemyScript.IsAlerted() && !enemyScript.IsDetectingPlayer()) {
+            EnemyStateManager enemyScript = other.gameObject.GetComponent<EnemyStateManager>();
+            if (!enemyScript.IsAlerted && !enemyScript.IsDetectingPlayer) {
                 enemyScript.TakeDmg(5);
                 sounds.Play("ShurikenStealthKill");
             } else {
@@ -74,6 +74,10 @@ public class Shuriken : MonoBehaviour
             Health playerHealth = PlayerController.singleton.GetComponent<Health>();
             playerHealth.TakeDmg(1, this.transform.position);
             sounds.Play("ShurikenBodyHit");
+            StartCoroutine(Contact(true));
+        } else if (other.gameObject.tag == "Destructible") {
+            Destructible obj = other.gameObject.GetComponent<Destructible>();
+            obj.Break();
             StartCoroutine(Contact(true));
         }
     }
