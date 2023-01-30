@@ -233,8 +233,6 @@ public class EnemyStateManager : MonoBehaviour
     // Update is called once per frame
     void Update() {
         SetGrounded();
-        SetAdjustedPos();
-        if (!isDetectingPlayer && !isMeleeing && !isThrowing) SetDirection();
         currentState.UpdateState();
         UpdateSprite();
     }
@@ -242,7 +240,7 @@ public class EnemyStateManager : MonoBehaviour
 
     #region State Functions
     // Sets whether the enemy is grounded.
-    private void SetGrounded() {
+    public void SetGrounded() {
         bool lastGroundStatus = isGrounded;
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(enemyCollider.bounds.center, new Vector2(0.6f, enemyCollider.bounds.size.y - 0.1f), 0f, Vector2.down, 0.2f, allPlatformsLayerMask);
         isGrounded = raycastHit2D.collider != null;
@@ -250,7 +248,7 @@ public class EnemyStateManager : MonoBehaviour
     }
 
     // Sets the direction of the enemy to where it's moving.
-    private void SetDirection() {
+    public void SetDirection() {
         if (enemyRB.velocity.x > 0.05f) {
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             fov.SetStartingAngle(15f);
@@ -260,8 +258,20 @@ public class EnemyStateManager : MonoBehaviour
         }
     }
 
+    // Sets the direction of the enemy to the player when alerted.
+    public void FacePlayer() {
+        float xDir = PlayerController.singleton.transform.position.x - this.transform.position.x;
+        if (xDir >= 0) {
+            this.transform.localScale = new Vector3(Mathf.Abs(this.transform.localScale.x), this.transform.localScale.y, this.transform.localScale.z);
+            fov.SetStartingAngle(15f);
+        } else {
+            this.transform.localScale = new Vector3(-1f * Mathf.Abs(this.transform.localScale.x), this.transform.localScale.y, this.transform.localScale.z);
+            fov.SetStartingAngle(200f);
+        }
+    }
+
     // Sets the adjusted position of the enemy (the tile above the platform it stands on).
-    private void SetAdjustedPos() {
+    public void SetAdjustedPos() {
         adjustedPos = astarScript.GetAdjustedPosition();
     }
 
@@ -455,6 +465,7 @@ public class EnemyStateManager : MonoBehaviour
     public Rigidbody2D EnemyRB {get{return enemyRB;}}
     public CapsuleCollider2D EnemyCollider {get{return enemyCollider;}}
     public Vector3 SpawnPos {get{return spawnPos;}}
+    public Vector2 AdjustedPos {get{return adjustedPos;}}
     public Transform FirePointTrans {get{return firePointTrans;}}
     public LayerMask PlayerAndPlatformLayerMask {get{return playerAndPlatformLayerMask;}}
     public SpriteRenderer EnemySprite {get{return enemySprite;}}

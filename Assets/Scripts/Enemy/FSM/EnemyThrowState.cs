@@ -11,9 +11,7 @@ public class EnemyThrowState : EnemyState
 
     public override void EnterState() {
         // Debug.Log("THROWING");
-        ctx.IsThrowing = true;
-        ctx.LastAttack = Time.time;
-        
+        ctx.FacePlayer();
         Vector2 dir = (PlayerController.singleton.transform.position - ctx.FirePointTrans.position).normalized;
         RaycastHit2D raycastHit2D = Physics2D.CircleCast(ctx.FirePointTrans.position, 0.335f, dir, 15f, ctx.PlayerAndPlatformLayerMask, 0f, 0f);
         Debug.DrawLine(ctx.FirePointTrans.position, (Vector3)raycastHit2D.point);
@@ -36,7 +34,7 @@ public class EnemyThrowState : EnemyState
     public override void CheckSwitchStates() {
         if (ctx.HasDied) {
             SwitchState(factory.Death());
-        } else if (throwTimer >= 0.5f) {
+        } else if (!ctx.IsThrowing || throwTimer >= 0.5f) {
             SwitchState(factory.Pursue());
         }
     }
@@ -46,10 +44,13 @@ public class EnemyThrowState : EnemyState
     }
 
     IEnumerator Throw(Vector2 dir) {
+        ctx.IsThrowing = true;
+        ctx.LastAttack = Time.time;
         ctx.transform.localScale = new Vector3(Mathf.Sign(dir.x) * Mathf.Abs(ctx.transform.localScale.x), ctx.transform.localScale.y, ctx.transform.localScale.z);
         yield return new WaitForSeconds(ctx.SpawnDelay);
         GameObject shuriken = GameObject.Instantiate(ctx.ShurikenPrefab, ctx.FirePointTrans.position, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
+        shurikenScript.SetOwner(ctx.tag);
         shurikenScript.SetShurikenVelocity(dir);
     }
 }

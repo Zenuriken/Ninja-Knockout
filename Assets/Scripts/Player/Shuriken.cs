@@ -25,6 +25,8 @@ public class Shuriken : MonoBehaviour
     private float currflightTime;
     private bool isActive;
     private bool hasContact;
+
+    private string owner;
     #endregion
 
     #region Initialization Functions
@@ -58,7 +60,7 @@ public class Shuriken : MonoBehaviour
         
         if (other.gameObject.tag == "Platform" || other.gameObject.tag == "TrapDoor") {
             StartCoroutine(Contact(false));
-        } else if (other.gameObject.tag == "Enemy") {
+        } else if (other.gameObject.tag == "Enemy" && this.owner == "Player") {
             EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
             if (!enemyScript.IsAlerted() && !enemyScript.IsDetectingPlayer()) {
                 enemyScript.TakeDmg(5);
@@ -68,7 +70,7 @@ public class Shuriken : MonoBehaviour
                 sounds.Play("ShurikenBodyHit");
             }
             StartCoroutine(Contact(true));
-        } else if (other.gameObject.tag == "Player") {
+        } else if (other.gameObject.tag == "Player" && this.owner == "Enemy") {
             Health playerHealth = PlayerController.singleton.GetComponent<Health>();
             playerHealth.TakeDmg(1, this.transform.position);
             sounds.Play("ShurikenBodyHit");
@@ -110,6 +112,11 @@ public class Shuriken : MonoBehaviour
     // Creates sparks when called.
     private void CreateSparks() {
         sparks.Play();
+    }
+
+    // Sets the owner of the shuriken
+    public void SetOwner(string tag) {
+        this.owner = tag;
     }
 
     // Sets the shuriken's velocity and direction.

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class EnemyPatrolState : EnemyState
 {
-    Vector2 adjustedPos;
     private List<Vector2> patrolPath;
     private float lastIdle;
     
@@ -14,7 +13,6 @@ public class EnemyPatrolState : EnemyState
     
     public override void EnterState() {
         // Debug.Log("PATROLLING");
-        adjustedPos = ctx.AstarScript.GetAdjustedPosition();
         patrolPath = ctx.AstarScript.CalculatePatrolPath(ctx.MaxNodeDist);
         ctx.AlertedObj.SetActive(false);
         InitializeDirection();
@@ -23,8 +21,9 @@ public class EnemyPatrolState : EnemyState
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
+        ctx.SetDirection();
+        ctx.SetAdjustedPos();
         if (ctx.PatrolEnabled) Patrol();
-        adjustedPos = ctx.AstarScript.GetAdjustedPosition();
         ctx.FOV.SetOrigin(ctx.transform.position);
     }
     
@@ -49,8 +48,8 @@ public class EnemyPatrolState : EnemyState
     private void Patrol() {
         if (patrolPath == null) {
             ctx.EnemyRB.velocity = new Vector2(0f, ctx.EnemyRB.velocity.y);
-        } else if ((adjustedPos.x < patrolPath[1].x && ctx.StartingDir == 1) || 
-                    (adjustedPos.x > patrolPath[0].x && ctx.StartingDir == -1)) {
+        } else if ((ctx.AdjustedPos.x < patrolPath[1].x && ctx.StartingDir == 1) || 
+                    (ctx.AdjustedPos.x > patrolPath[0].x && ctx.StartingDir == -1)) {
             ctx.EnemyRB.velocity = new Vector2(ctx.StartingDir * ctx.PatrolSpeed, ctx.EnemyRB.velocity.y);
         } else if (CanIdle()) {
             ctx.StartCoroutine(Idle());

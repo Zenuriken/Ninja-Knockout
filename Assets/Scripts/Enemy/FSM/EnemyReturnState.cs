@@ -17,6 +17,8 @@ public class EnemyReturnState : EnemyState
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
+        ctx.SetDirection();
+        ctx.SetAdjustedPos();
         ctx.FOV.SetOrigin(ctx.transform.position);
         ctx.FollowPath(ctx.PatrolSpeed);
     }

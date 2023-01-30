@@ -16,10 +16,11 @@ public class AStar : MonoBehaviour
     // [SerializeField]
     // [Tooltip("The maximum number of nodes height-wise to create nodes for.")]
     // private int height;
-    // [SerializeField]
-    // [Tooltip("The Node prefab for visual aid.")]
-    // private GameObject nodePrefab;
+    [SerializeField]
+    [Tooltip("The Node prefab for visual aid.")]
+    private GameObject nodePrefab;
     // #endregion
+    private Transform nodeParent;
 
     private Tilemap platformTilemap;
     private LayerMask platformLayerMask;
@@ -62,6 +63,7 @@ public class AStar : MonoBehaviour
     private void Awake() {
         platformLayerMask = LayerMask.GetMask("Platform");
         platformTilemap = GameObject.Find("Tilemap_Platform").GetComponent<Tilemap>();
+        nodeParent = GameObject.Find("NodeParent").transform;
     }
 
     private void Start() {
@@ -256,6 +258,11 @@ public class AStar : MonoBehaviour
         Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
         Vector3Int goalPos = platformTilemap.WorldToCell(new Vector2(targetPos.x, (targetPos.y - 1f)));
 
+        if (IsWalkable(startPos) && !IsWalkable(goalPos)) {
+            Vector3Int nearestNode = FindNearestWalkableNode(goalPos);
+            if (nearestNode != Vector3.zero) goalPos = nearestNode;
+        }
+
         if (IsWalkable(startPos) && IsWalkable(goalPos)) {
             List<Vector3Int> reached = new List<Vector3Int>();
             PriorityQueue<Node> frontier = new PriorityQueue<Node>();
@@ -371,6 +378,90 @@ public class AStar : MonoBehaviour
         Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
         Vector3Int spawn = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y - 1f));
         return pos == spawn;
+    }
+
+    // Returns a vector pointing in the direction of the given angle (in degrees).
+    public Vector2 GetVectorFromAngle(float angle) {
+        // angle = 0 -> 360
+        float angleRad = angle * (Mathf.PI / 180f);
+        return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
+    }
+
+    private Vector3Int FindNearestWalkableNode(Vector3Int goalPos) {
+        // Ray Approach
+        // int numRays = 16;
+        // int dist = 20;
+        // float currAngle = 0f;
+        // PriorityQueue<Vector3Int> positions = new PriorityQueue<Vector3Int>();
+        // Vector2 startingWorldPos = AdjustPos(goalPos);
+        // for (int i = 0; i < numRays; i++) {
+        //     RaycastHit2D raycastHit2D = Physics2D.Raycast(startingWorldPos, GetVectorFromAngle(currAngle), dist, platformLayerMask);
+        //     if (raycastHit2D.collider != null) {
+        //         Vector3Int hitPoint = platformTilemap.WorldToCell(new Vector2(raycastHit2D.point.x, raycastHit2D.point.y + 0.5f));
+        //         if (IsWalkable(hitPoint)) {
+        //             //Debug.DrawRay(AdjustPos(goalPos), Vector2.down * raycastHit2D.distance, Color.red, 0.5f);
+        //             positions.Enqueue(raycastHit2D.distance, hitPoint);
+        //         }
+        //     }
+        //     currAngle += 360f / numRays;
+        // }
+
+        // // Vector3Int calculatedNode = (positions.Count() > 0) ? positions.Dequeue : pos
+        // if (positions.Count() > 0) {
+        //     Vector3Int pos = positions.Dequeue();
+        //     Debug.DrawLine(AdjustPos(goalPos), AdjustPos(pos), Color.red, 0.5f);
+        //     return pos;
+        // } else {
+        //     return Vector3Int.zero;
+        // }
+
+
+        // Tile Approach
+        // foreach (Transform child in nodeParent) {
+        //     GameObject.Destroy(child.gameObject);
+        // }
+        Vector2 goalPosWorld = AdjustPos(goalPos);
+        Vector3Int testPos;
+        int N = 20;
+        int K = 1;
+        while (true) {
+            int k = K-1;
+            for (int n = 0; n <= k; n++) {
+                int x = -k + n; 
+                int y = -n;
+                // Vector2 testPosWorld = new Vector2(goalPosWorld.x + x, goalPosWorld.y + y);
+                // GameObject.Instantiate(nodePrefab, testPosWorld, Quaternion.identity, nodeParent);
+                testPos = new Vector3Int(goalPos.x + x, goalPos.y + y, 0);
+                if (IsWalkable(testPos)) return testPos;
+            }
+            for (int n = 1; n <= k; n++) {
+                int x = n; 
+                int y = -k + n; 
+                // Vector2 testPosWorld = new Vector2(goalPosWorld.x + x, goalPosWorld.y + y);
+                // GameObject.Instantiate(nodePrefab, testPosWorld, Quaternion.identity, nodeParent);
+                testPos = new Vector3Int(goalPos.x + x, goalPos.y + y, 0);
+                if (IsWalkable(testPos)) return testPos;
+            }
+            for (int n = 1; n <= k; n++) {
+                int x = k - n; 
+                int y = n;
+                // Vector2 testPosWorld = new Vector2(goalPosWorld.x + x, goalPosWorld.y + y);
+                // GameObject.Instantiate(nodePrefab, testPosWorld, Quaternion.identity, nodeParent);
+                testPos = new Vector3Int(goalPos.x + x, goalPos.y + y, 0);
+                if (IsWalkable(testPos)) return testPos;
+            }
+            for (int n = 1; n <= k - 1; n++) {
+                int x = -n; 
+                int y = k - n;
+                // Vector2 testPosWorld = new Vector2(goalPosWorld.x + x, goalPosWorld.y + y);
+                // GameObject.Instantiate(nodePrefab, testPosWorld, Quaternion.identity, nodeParent);
+                testPos = new Vector3Int(goalPos.x + x, goalPos.y + y, 0);
+                if (IsWalkable(testPos)) return testPos;
+            }
+            K++;
+            if(K > N/2) break;
+        }
+        return Vector3Int.zero;
     }
 
     // // Returns the direction the enemy should move when stuck.

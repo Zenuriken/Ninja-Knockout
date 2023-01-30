@@ -17,6 +17,8 @@ public class EnemyPursueState : EnemyState
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
+        ctx.SetDirection();
+        ctx.SetAdjustedPos();
         if (!ctx.IsStunned) ctx.FollowPath(ctx.PursueSpeed);
     }
 

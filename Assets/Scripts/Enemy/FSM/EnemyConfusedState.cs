@@ -17,6 +17,7 @@ public class EnemyConfusedState : EnemyState
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
+        ctx.SetDirection();
         confusedTime += Time.deltaTime;
     }
 
