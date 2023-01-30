@@ -17,12 +17,15 @@ public class EnemyPatrolState : EnemyState
         adjustedPos = ctx.AstarScript.GetAdjustedPosition();
         patrolPath = ctx.AstarScript.CalculatePatrolPath(ctx.MaxNodeDist);
         ctx.AlertedObj.SetActive(false);
+        InitializeDirection();
     }
 
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
         if (ctx.PatrolEnabled) Patrol();
+        adjustedPos = ctx.AstarScript.GetAdjustedPosition();
+        ctx.FOV.SetOrigin(ctx.transform.position);
     }
     
     public override void ExitState() {
@@ -44,8 +47,6 @@ public class EnemyPatrolState : EnemyState
 
     // The enemy's patrolling state
     private void Patrol() {
-        adjustedPos = ctx.AstarScript.GetAdjustedPosition();
-        ctx.FOV.SetOrigin(ctx.transform.position);
         if (patrolPath == null) {
             ctx.EnemyRB.velocity = new Vector2(0f, ctx.EnemyRB.velocity.y);
         } else if ((adjustedPos.x < patrolPath[1].x && ctx.StartingDir == 1) || 
@@ -67,5 +68,16 @@ public class EnemyPatrolState : EnemyState
     // Returns whether the enemy can start idling at the end of a platform
     private bool CanIdle() {
         return (lastIdle + ctx.IdleDur * 2f) < Time.time;
+    }
+
+    // Sets the direction of the enemy to where it's moving.
+    private void InitializeDirection() {
+        if (ctx.StartingDir == 1) {
+            ctx.transform.localScale = new Vector3(Mathf.Abs(ctx.transform.localScale.x), ctx.transform.localScale.y, ctx.transform.localScale.z);
+            ctx.FOV.SetStartingAngle(15f);
+        } else if (ctx.StartingDir == -1) {
+            ctx.transform.localScale = new Vector3(-1f * Mathf.Abs(ctx.transform.localScale.x), ctx.transform.localScale.y, ctx.transform.localScale.z);
+             ctx.FOV.SetStartingAngle(200f);
+        }
     }
 }

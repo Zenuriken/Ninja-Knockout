@@ -44,6 +44,7 @@ public class FieldOfView : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
+        if (enemyScript == null) return;
         // If the enemy is not allerted and hasn't died, update the line of sight.
         if (!enemyScript.IsAlerted && !enemyScript.HasDied) {
             if (!lastOrigin.Equals(origin)) {

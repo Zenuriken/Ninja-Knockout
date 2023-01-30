@@ -194,12 +194,6 @@ public class EnemyStateManager : MonoBehaviour
         meleeEnemyScript = this.transform.GetChild(1).GetComponent<MeleeEnemy>();
         firePointTrans = this.transform.GetChild(2).transform;
         highLight = this.transform.GetChild(7).gameObject;
-
-        // Initialize FOV.
-        fieldOfViewParent = GameObject.Find("FieldOfViews");
-        GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj, fieldOfViewParent.transform);
-        fov = lineOfSight.GetComponent<FieldOfView>();
-        fov.InitializeEnemyScript(this);
     }
 
     // Start is called before the first frame update
@@ -211,6 +205,7 @@ public class EnemyStateManager : MonoBehaviour
         meleeScript = playerScript.transform.GetChild(1).GetComponent<Melee>();
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
         playerAndPlatformLayerMask = LayerMask.GetMask("Player", "Platform", "OneWayPlatform");
+        fieldOfViewParent = GameObject.Find("FieldOfViews");
 
         // Setting spawn position.
         RaycastHit2D raycastHit2D = Physics2D.Raycast(this.transform.position, Vector2.down, 100f, allPlatformsLayerMask);
@@ -222,11 +217,15 @@ public class EnemyStateManager : MonoBehaviour
         gruntSound = (value < 50) ? "MaleGrunt" : "FemaleGrunt";
         deathSound = (value < 50) ? "MaleDeath" : "FemaleDeath";
 
+        // Initialize FOV
+        GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj, fieldOfViewParent.transform);
+        fov = lineOfSight.GetComponent<FieldOfView>();
+        fov.InitializeEnemyScript(this);
+
         // Starting state for the state machine
         states = new EnemyStateFactory(this);
         currentState = states.Patrol();
         currentState.EnterState(); 
-        // Time.timeScale = 0.25f;
     }
     #endregion
     
