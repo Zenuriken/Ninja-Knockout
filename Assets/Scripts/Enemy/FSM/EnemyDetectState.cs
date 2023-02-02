@@ -15,6 +15,7 @@ public class EnemyDetectState : EnemyState
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
+        ctx.FOV.SetOrigin(ctx.transform.position);
     }
 
     public override void ExitState() {

@@ -121,8 +121,8 @@ public class AStar : MonoBehaviour
 
         // Check right jump/drop positions
         int xOffset = 3;
-        int yOffset = -5;
-        for (int y = yOffset; y < 6; y++) {
+        int yOffset = -6;
+        for (int y = yOffset; y < 7; y++) {
             testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
             if (IsWalkable(testPos) && IsClear(pos, testPos)) {
                 Node newNode;
@@ -139,8 +139,8 @@ public class AStar : MonoBehaviour
             }
         }
         xOffset = 4;
-        yOffset = -4;
-        for (int y = yOffset; y < 5; y++) {
+        yOffset = -5;
+        for (int y = yOffset; y < 6; y++) {
             testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
             if (IsWalkable(testPos) && IsClear(pos, testPos)) {
                 Node newNode;
@@ -157,8 +157,8 @@ public class AStar : MonoBehaviour
             }
         }
         xOffset = 5;
-        yOffset = -3;
-        for (int y = yOffset; y < 4; y++) {
+        yOffset = -4;
+        for (int y = yOffset; y < 5; y++) {
             testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
             if (IsWalkable(testPos) && IsClear(pos, testPos)) {
                 Node newNode;
@@ -177,6 +177,24 @@ public class AStar : MonoBehaviour
 
         // Check left jump/drop positions
         xOffset = -3;
+        yOffset = -6;
+        for (int y = yOffset; y < 7; y++) {
+            testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
+            if (IsWalkable(testPos) && IsClear(pos, testPos)) {
+                Node newNode;
+                // Jump
+                if (y >= 0 && !platformTilemap.HasTile(new Vector3Int(testPos.x + 1, testPos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 3f);
+                // Drop
+                } else if (!platformTilemap.HasTile(new Vector3Int(pos.x - 1, pos.y - 1, 0))) {
+                    newNode = new Node(testPos, n, 2f);
+                } else {
+                    continue;
+                }
+                neighbors.Add(newNode);
+            }
+        }
+        xOffset = -4;
         yOffset = -5;
         for (int y = yOffset; y < 6; y++) {
             testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
@@ -194,27 +212,9 @@ public class AStar : MonoBehaviour
                 neighbors.Add(newNode);
             }
         }
-        xOffset = -4;
+        xOffset = -5;
         yOffset = -4;
         for (int y = yOffset; y < 5; y++) {
-            testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
-            if (IsWalkable(testPos) && IsClear(pos, testPos)) {
-                Node newNode;
-                // Jump
-                if (y >= 0 && !platformTilemap.HasTile(new Vector3Int(testPos.x + 1, testPos.y - 1, 0))) {
-                    newNode = new Node(testPos, n, 3f);
-                // Drop
-                } else if (!platformTilemap.HasTile(new Vector3Int(pos.x - 1, pos.y - 1, 0))) {
-                    newNode = new Node(testPos, n, 2f);
-                } else {
-                    continue;
-                }
-                neighbors.Add(newNode);
-            }
-        }
-        xOffset = -5;
-        yOffset = -3;
-        for (int y = yOffset; y < 4; y++) {
             testPos = new Vector3Int(pos.x + xOffset, pos.y + y, 0);
             if (IsWalkable(testPos) && IsClear(pos, testPos)) {
                 Node newNode;
