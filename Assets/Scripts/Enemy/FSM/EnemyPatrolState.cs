@@ -61,7 +61,7 @@ public class EnemyPatrolState : EnemyState
 
     // Controls the player's Idle state when reaching the end of a platform.
     IEnumerator Idle() {
-        Debug.Log("IDLING");
+        //Debug.Log("IDLING");
         lastIdle = Time.time;
         ctx.EnemyRB.velocity = new Vector2(0f, 0f);
         yield return new WaitForSeconds(ctx.IdleDur);

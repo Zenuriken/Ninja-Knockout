@@ -50,7 +50,7 @@ public class EnemyThrowState : EnemyState
         yield return new WaitForSeconds(ctx.SpawnDelay);
         GameObject shuriken = GameObject.Instantiate(ctx.ShurikenPrefab, ctx.FirePointTrans.position, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
-        shurikenScript.SetOwner(ctx.tag);
+        shurikenScript.Owner = ctx.tag;
         shurikenScript.SetShurikenVelocity(dir);
     }
 }

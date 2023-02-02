@@ -58,7 +58,7 @@ public class Shuriken : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other) {
         if (!isActive) return;
         
-        if (other.gameObject.tag == "Platform" || other.gameObject.tag == "TrapDoor") {
+        if (other.gameObject.tag == "Platform" || (other.gameObject.tag == "TrapDoor" && this.owner == "Player")) {
             StartCoroutine(Contact(false));
         } else if (other.gameObject.tag == "Enemy" && this.owner == "Player") {
             EnemyStateManager enemyScript = other.gameObject.GetComponent<EnemyStateManager>();
@@ -118,10 +118,12 @@ public class Shuriken : MonoBehaviour
         sparks.Play();
     }
 
-    // Sets the owner of the shuriken
-    public void SetOwner(string tag) {
-        this.owner = tag;
-    }
+    // // Sets the owner of the shuriken
+    // public void SetOwner(string tag) {
+    //     this.owner = tag;
+    // }
+
+    public string Owner {get{return owner;} set{owner = value;}}
 
     // Sets the shuriken's velocity and direction.
     public void SetShurikenVelocity(Vector2 dir) {

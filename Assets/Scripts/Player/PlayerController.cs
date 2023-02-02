@@ -773,7 +773,7 @@ public class PlayerController : MonoBehaviour {
         yield return new WaitForSeconds(spawnDelay);
         GameObject shuriken = Object.Instantiate(shurikenPrefab, spawnPos, Quaternion.identity);
         Shuriken shurikenScript = shuriken.GetComponent<Shuriken>();
-        shurikenScript.SetOwner(this.tag);
+        shurikenScript.Owner = this.tag;
         shurikenScript.SetShurikenVelocity(shootDir);
     }
     #endregion

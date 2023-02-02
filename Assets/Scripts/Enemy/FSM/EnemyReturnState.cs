@@ -35,6 +35,7 @@ public class EnemyReturnState : EnemyState
         } else if (ctx.IsDetectingPlayer) {
             SwitchState(factory.Detect());
         } else if (ctx.AstarScript.HasReturned(ctx.SpawnPos)) {
+            ctx.StartingDir = (int)Mathf.Sign(ctx.EnemyRB.velocity.x);
             SwitchState(factory.Patrol());
         }
     }
