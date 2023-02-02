@@ -316,11 +316,6 @@ public class EnemyStateManager : MonoBehaviour
         }
     }  
 
-    // Sets the target for the pursue path.
-    public void SetTarget(Vector3 pos) {
-        targetPos = pos;
-    }
-
     // Updates the enemy's pursue path.
     public void UpdatePath() {
         bool followPlayer = currentState.GetType() == typeof(EnemyPursueState);
@@ -471,6 +466,7 @@ public class EnemyStateManager : MonoBehaviour
     public Rigidbody2D EnemyRB {get{return enemyRB;}}
     public CapsuleCollider2D EnemyCollider {get{return enemyCollider;}}
     public Vector3 SpawnPos {get{return spawnPos;}}
+    public Vector3 TargetPos {get{return targetPos;} set{targetPos = value;}}
     public Vector2 AdjustedPos {get{return adjustedPos;}}
     public Transform FirePointTrans {get{return firePointTrans;}}
     public LayerMask PlayerAndPlatformLayerMask {get{return playerAndPlatformLayerMask;}}

@@ -323,37 +323,70 @@ public class AStar : MonoBehaviour
         return pos;
     }
 
-    // Calculates the position of two ends of a platform for the enemy to patrol
+    // // Calculates the position of two ends of a platform for the enemy to patrol
+    // public List<Vector2> CalculatePatrolPath(int maxNodeDist) {
+    //     List<Vector2> posList = new List<Vector2>();
+    //     Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
+    //     Vector3Int leftEnd = startPos;
+    //     Vector3Int rightEnd = startPos;
+    //     Vector3Int testPos;
+    //     if (IsWalkable(startPos)) {
+    //         // Checking left
+    //         int currDist = 0;
+    //         testPos = startPos;
+    //         while (IsWalkable(testPos) && currDist <= maxNodeDist) {
+    //             leftEnd = testPos;
+    //             testPos = new Vector3Int(testPos.x - 1, testPos.y, 0);
+    //             currDist++;
+    //         }
+    //         posList.Add(AdjustPos(leftEnd));
+            
+    //         // Checking right
+    //         currDist = 0;
+    //         testPos = startPos;
+    //         while (IsWalkable(testPos) && currDist <= maxNodeDist) {
+    //             rightEnd = testPos;
+    //             testPos = new Vector3Int(testPos.x + 1, testPos.y, 0);
+    //             currDist++;
+    //         }
+    //         posList.Add(AdjustPos(rightEnd));
+    
+    //         return posList;
+    //     }   
+    //     return null;
+    // }
+
+    // Returns the two end positions of the patrol path.
     public List<Vector2> CalculatePatrolPath(int maxNodeDist) {
         List<Vector2> posList = new List<Vector2>();
         Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
         Vector3Int leftEnd = startPos;
         Vector3Int rightEnd = startPos;
         Vector3Int testPos;
-        if (IsWalkable(startPos)) {
-            // Checking left
-            int currDist = 0;
-            testPos = startPos;
-            while (IsWalkable(testPos) && currDist <= maxNodeDist) {
-                leftEnd = testPos;
-                testPos = new Vector3Int(testPos.x - 1, testPos.y, 0);
-                currDist++;
-            }
-            posList.Add(AdjustPos(leftEnd));
-            
-            // Checking right
-            currDist = 0;
-            testPos = startPos;
-            while (IsWalkable(testPos) && currDist <= maxNodeDist) {
-                rightEnd = testPos;
-                testPos = new Vector3Int(testPos.x + 1, testPos.y, 0);
-                currDist++;
-            }
-            posList.Add(AdjustPos(rightEnd));
-    
-            return posList;
-        }   
-        return null;
+
+        if (!IsWalkable(startPos)) return null;
+
+        // Checking left
+        int currDist = 0;
+        testPos = startPos;
+        while (IsWalkable(testPos) && currDist <= maxNodeDist) {
+            leftEnd = testPos;
+            testPos = new Vector3Int(testPos.x - 1, testPos.y, 0);
+            currDist++;
+        }
+        posList.Add(AdjustPos(leftEnd));
+        
+        // Checking right
+        currDist = 0;
+        testPos = startPos;
+        while (IsWalkable(testPos) && currDist <= maxNodeDist) {
+            rightEnd = testPos;
+            testPos = new Vector3Int(testPos.x + 1, testPos.y, 0);
+            currDist++;
+        }
+        posList.Add(AdjustPos(rightEnd));
+
+        return posList;
     }
 
     // Returns the enemy's adjusted position: The cell coordinate on top of the platform they are standing on.
@@ -492,6 +525,7 @@ public class AStar : MonoBehaviour
     //     }
     //     return false;
     // }
+
 
     // public void VisualizeNeighbors() {
     //     Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));

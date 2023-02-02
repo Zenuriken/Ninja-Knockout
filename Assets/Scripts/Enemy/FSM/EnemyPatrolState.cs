@@ -16,15 +16,18 @@ public class EnemyPatrolState : EnemyState
         patrolPath = ctx.AstarScript.CalculatePatrolPath(ctx.MaxNodeDist);
         ctx.AlertedObj.SetActive(false);
         InitializeDirection();
+        ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
     }
 
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
-        ctx.SetDirection();
+        //ctx.SetDirection();
         ctx.SetAdjustedPos();
-        if (ctx.PatrolEnabled) Patrol();
+        if (ctx.PatrolEnabled) ctx.FollowPath(ctx.PatrolSpeed);
         ctx.FOV.SetOrigin(ctx.transform.position);
+
+        if (CanIdle()) ctx.StartCoroutine(Idle());
     }
     
     public override void ExitState() {
@@ -44,29 +47,31 @@ public class EnemyPatrolState : EnemyState
     }
 
 
-    // The enemy's patrolling state
-    private void Patrol() {
-        if (patrolPath == null) {
-            ctx.EnemyRB.velocity = new Vector2(0f, ctx.EnemyRB.velocity.y);
-        } else if ((ctx.AdjustedPos.x < patrolPath[1].x && ctx.StartingDir == 1) || 
-                    (ctx.AdjustedPos.x > patrolPath[0].x && ctx.StartingDir == -1)) {
-            ctx.EnemyRB.velocity = new Vector2(ctx.StartingDir * ctx.PatrolSpeed, ctx.EnemyRB.velocity.y);
-        } else if (CanIdle()) {
-            ctx.StartCoroutine(Idle());
-        }
-    }
+    // // The enemy's patrolling state
+    // private void Patrol() {
+    //     if (patrolPath == null) {
+    //         ctx.EnemyRB.velocity = new Vector2(0f, ctx.EnemyRB.velocity.y);
+    //     } else if ((ctx.AdjustedPos.x < patrolPath[1].x && ctx.StartingDir == 1) || 
+    //                 (ctx.AdjustedPos.x > patrolPath[0].x && ctx.StartingDir == -1)) {
+    //         ctx.EnemyRB.velocity = new Vector2(ctx.StartingDir * ctx.PatrolSpeed, ctx.EnemyRB.velocity.y);
+    //     } else if (CanIdle()) {
+    //         ctx.StartCoroutine(Idle());
+    //     }
+    // }
 
     // Controls the player's Idle state when reaching the end of a platform.
     IEnumerator Idle() {
+        Debug.Log("IDLING");
         lastIdle = Time.time;
         ctx.EnemyRB.velocity = new Vector2(0f, 0f);
         yield return new WaitForSeconds(ctx.IdleDur);
         ctx.StartingDir *= -1;
+        InitializeDirection();
     }
 
     // Returns whether the enemy can start idling at the end of a platform
     private bool CanIdle() {
-        return (lastIdle + ctx.IdleDur * 2f) < Time.time;
+        return ctx.Unreachable && (lastIdle + ctx.IdleDur * 2f) < Time.time;
     }
 
     // Sets the direction of the enemy to where it's moving.
@@ -74,9 +79,11 @@ public class EnemyPatrolState : EnemyState
         if (ctx.StartingDir == 1) {
             ctx.transform.localScale = new Vector3(Mathf.Abs(ctx.transform.localScale.x), ctx.transform.localScale.y, ctx.transform.localScale.z);
             ctx.FOV.SetStartingAngle(15f);
+            ctx.TargetPos = patrolPath[1];
         } else if (ctx.StartingDir == -1) {
             ctx.transform.localScale = new Vector3(-1f * Mathf.Abs(ctx.transform.localScale.x), ctx.transform.localScale.y, ctx.transform.localScale.z);
-             ctx.FOV.SetStartingAngle(200f);
+            ctx.FOV.SetStartingAngle(200f);
+            ctx.TargetPos = patrolPath[0];
         }
     }
 }
