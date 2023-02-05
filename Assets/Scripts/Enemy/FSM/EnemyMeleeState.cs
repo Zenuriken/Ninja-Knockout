@@ -10,7 +10,7 @@ public class EnemyMeleeState : EnemyState
     float meleeTimer;
 
     public override void EnterState() {
-        // Debug.Log("MELEEING");
+        Debug.Log("MELEEING");
         ctx.IsMeleeing = true;
         ctx.LastAttack = Time.time;
         ctx.Sounds.Play("Meleeing");

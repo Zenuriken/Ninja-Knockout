@@ -8,7 +8,7 @@ public class EnemyPursueState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        // Debug.Log("PURSUING");
+        Debug.Log("PURSUING");
         ctx.IsAlerted = true;
         ctx.IsDetectingPlayer = false;
         ctx.TargetPos = PlayerController.singleton.transform.position;
@@ -20,6 +20,7 @@ public class EnemyPursueState : EnemyState
         if (ctx.CurrentState != this) return;
         ctx.SetDirection();
         ctx.SetAdjustedPos();
+        ctx.TargetPos = PlayerController.singleton.transform.position;
         if (!ctx.IsStunned) ctx.FollowPath(ctx.PursueSpeed);
     }
 

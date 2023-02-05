@@ -10,7 +10,7 @@ public class EnemyThrowState : EnemyState
     float throwTimer;
 
     public override void EnterState() {
-        // Debug.Log("THROWING");
+        Debug.Log("THROWING");
         ctx.FacePlayer();
         Vector2 dir = (PlayerController.singleton.transform.position - ctx.FirePointTrans.position).normalized;
         RaycastHit2D raycastHit2D = Physics2D.CircleCast(ctx.FirePointTrans.position, 0.335f, dir, 15f, ctx.PlayerAndPlatformLayerMask, 0f, 0f);
@@ -44,6 +44,7 @@ public class EnemyThrowState : EnemyState
     }
 
     IEnumerator Throw(Vector2 dir) {
+        Debug.Log("SHURIKEN LAUNCHED");
         ctx.IsThrowing = true;
         ctx.LastAttack = Time.time;
         ctx.transform.localScale = new Vector3(Mathf.Sign(dir.x) * Mathf.Abs(ctx.transform.localScale.x), ctx.transform.localScale.y, ctx.transform.localScale.z);
