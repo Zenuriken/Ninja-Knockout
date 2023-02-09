@@ -5456,6 +5456,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 594737425, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: grad.key0.a
       value: 0.29411766
@@ -5540,6 +5544,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 6371837796901407429, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 3.51
+      objectReference: {fileID: 0}
+    - target: {fileID: 6371837796901407429, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 3.51
       objectReference: {fileID: 0}
     - target: {fileID: 6371837797275581661, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
