@@ -280,6 +280,11 @@ PrefabInstance:
       propertyPath: isHorizontal
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2724266885844992775, guid: 3ff9b3ac6bf468544a49d68c88bb4c54,
+        type: 3}
+      propertyPath: trapDoorScript
+      value: 
+      objectReference: {fileID: 1656784748}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3ff9b3ac6bf468544a49d68c88bb4c54, type: 3}
 --- !u!1 &409597824
@@ -5215,6 +5220,18 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1516586541}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1656784748 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5646886327230567797, guid: fb6268c683e76de4e83e73d3cc0e67e2,
+    type: 3}
+  m_PrefabInstance: {fileID: 1516586541}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1656784747}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ac164eac6055d44ab2b3006d22ae39c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!850595691 &1779319130
 LightingSettings:
   m_ObjectHideFlags: 0
