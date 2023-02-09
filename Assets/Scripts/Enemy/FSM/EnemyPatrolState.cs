@@ -78,11 +78,11 @@ public class EnemyPatrolState : EnemyState
     private void InitializeDirection() {
         if (ctx.StartingDir == 1) {
             ctx.transform.localScale = new Vector3(Mathf.Abs(ctx.transform.localScale.x), ctx.transform.localScale.y, ctx.transform.localScale.z);
-            ctx.FOV.SetStartingAngle(15f);
+            ctx.FOV.StartingAngle = 15f;
             ctx.TargetPos = patrolPath[1];
         } else if (ctx.StartingDir == -1) {
             ctx.transform.localScale = new Vector3(-1f * Mathf.Abs(ctx.transform.localScale.x), ctx.transform.localScale.y, ctx.transform.localScale.z);
-            ctx.FOV.SetStartingAngle(200f);
+            ctx.FOV.StartingAngle = 200f;
             ctx.TargetPos = patrolPath[0];
         }
     }

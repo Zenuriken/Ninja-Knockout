@@ -4,31 +4,25 @@ using UnityEngine;
 
 public class FieldOfView : MonoBehaviour
 {
+    public Vector3 originOffset;
+    
     // Private variables.
     private PolygonCollider2D polyCol;
     private EnemyStateManager enemyScript;
     private PlayerController playerScript;
     private LayerMask platformsLayerMask;
-    private GradientColorKey[] colorKeys;
     private MeshRenderer meshRenderer;
     private Mesh mesh;
     private Vector3 origin;
     private Vector3 lastOrigin;
-    private float lastDetectTimer;
-    private float currDetectTimer;
-    private bool seesPlayer;
-
-    // Public variables.
-    public Vector3 originOffset;
-    public float startingAngle;
-    public float fov;
-    public int rayCount;
-    public float viewDistance;
-    public float detectionTime;
-
-    [SerializeField]
-    [Tooltip("The gradient of the FOV.")]
     private Gradient gradient;
+    private float currDetectTimer;
+    private float startingAngle;
+    private float fov;
+    private float viewDistance;
+    private float detectionTime = 1f;
+    private bool seesPlayer;
+    private int rayCount;
     
     // Start is called before the first frame update
     void Start()
@@ -47,7 +41,8 @@ public class FieldOfView : MonoBehaviour
         if (enemyScript == null) return;
         // If the enemy is not allerted and hasn't died, update the line of sight.
         if (!enemyScript.IsAlerted && !enemyScript.HasDied) {
-            if (!lastOrigin.Equals(origin)) {
+            Debug.Log("UPDATING");
+            if (true) {
                 UpdateFOVShape();
             }
             UpdateFOVColor();
@@ -68,7 +63,6 @@ public class FieldOfView : MonoBehaviour
         }
 
         lastOrigin = origin;
-        //lastDetectTimer = currDetectTimer;
     }
 
     #region Private Functions
@@ -146,7 +140,7 @@ public class FieldOfView : MonoBehaviour
 
     // Sets the gradient to a color from Yellow -> Red based on proportion.
     private void SetColorKeys(float prop) {
-        colorKeys = gradient.colorKeys;
+        GradientColorKey[] colorKeys = gradient.colorKeys;
         colorKeys[0].color = new Color(1f, 1f - prop, 0f, 0.2941f);
         colorKeys[1].color = new Color(1f, 1f - prop, 0f, 0f);
         gradient.colorKeys = colorKeys;
@@ -198,14 +192,11 @@ public class FieldOfView : MonoBehaviour
         this.origin = origin + originOffset;
     }
 
-    // Sets the starting angle based on direction of the enemy.
-    public void SetStartingAngle(float angle) {
-        this.startingAngle = angle;
-    }
-
-    // Sets the enemyScript reference for this FOV game object.
-    public void InitializeEnemyScript(EnemyStateManager enemy) {
-        this.enemyScript = enemy; 
-    }
+    public EnemyStateManager EnemyScript {get{return enemyScript;} set{enemyScript = value;}}
+    public Gradient Gradient {get{return gradient;} set{gradient = value;}}
+    public float StartingAngle {get{return startingAngle;} set{startingAngle = value;}}
+    public float FOV {get{return fov;} set{fov = value;}}
+    public float ViewDistance {get{return viewDistance;} set{viewDistance = value;}}
+    public int RayCount {get{return rayCount;} set{rayCount = value;}}
     #endregion
 }

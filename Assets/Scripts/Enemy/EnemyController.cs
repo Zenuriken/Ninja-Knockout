@@ -558,18 +558,18 @@ public class EnemyController : MonoBehaviour
         if (!justSpawned) {
             if (enemyRB.velocity.x > 0.05f) {
                 transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-                fov.SetStartingAngle(15f);
+                //fov.SetStartingAngle(15f);
             } else if (enemyRB.velocity.x < -0.05f) {
                 transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-                fov.SetStartingAngle(200f);
+                //fov.SetStartingAngle(200f);
             }
         } else {
             if (startingDir == 1) {
                 transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-                fov.SetStartingAngle(15f);
+                //fov.SetStartingAngle(15f);
             } else if (startingDir == -1) {
                 transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-                fov.SetStartingAngle(200f);
+                //fov.SetStartingAngle(200f);
             }
         }
     }
@@ -579,10 +579,10 @@ public class EnemyController : MonoBehaviour
         float xDir = playerScript.transform.position.x - this.transform.position.x;
         if (xDir >= 0) {
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-            fov.SetStartingAngle(15f);
+            //fov.SetStartingAngle(15f);
         } else {
             transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-            fov.SetStartingAngle(200f);
+            //fov.SetStartingAngle(200f);
         }
     }
 

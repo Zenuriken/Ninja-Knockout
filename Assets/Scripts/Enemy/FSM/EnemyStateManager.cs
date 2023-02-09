@@ -106,7 +106,17 @@ public class EnemyStateManager : MonoBehaviour
     [SerializeField]
     [Tooltip("Controls the chances of the enemy dropping a shuriken (0 - 100).")]
     private float dropChance;
+    [SerializeField]
+    [Tooltip("Sets whether this enemy is an archer.")]
+    private bool archerModeEnabled;
     [Space(5)]
+
+    [SerializeField]
+    [Tooltip("The FOV gradient.")]
+    private Gradient enemyGrad;
+    [SerializeField]
+    [Tooltip("The FOV gradient for archers.")]
+    private Gradient archerGrad;
     #endregion
     
     #region Private Variables
@@ -221,7 +231,32 @@ public class EnemyStateManager : MonoBehaviour
         // Initialize FOV
         GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj, fieldOfViewParent.transform);
         fov = lineOfSight.GetComponent<FieldOfView>();
-        fov.InitializeEnemyScript(this);
+        fov.FOV = 30f;
+        // // Gradient grad = new Gradient();
+        // GradientColorKey[] colorKeys = new GradientColorKey[2];
+        // //GradientColorKey[] colorKeys = grad.colorKeys;
+        // GradientAlphaKey[] alphaKeys = new GradientAlphaKey[2];
+        // alphaKeys[0].alpha = 1f;
+        // alphaKeys[0].time = 1f;
+        // alphaKeys[1].alpha = 0.2941f;
+        // alphaKeys[1].time = 1f;
+        if (archerModeEnabled) {
+            fov.RayCount = 30;
+            fov.ViewDistance = 30f;
+            fov.Gradient = archerGrad;
+            // colorKeys[0].color = new Color(1f, 0.5f, 0f, 0.2941f);
+            // colorKeys[1].color = new Color(1f, 0.5f, 0f, 0f);
+        } else {
+            fov.RayCount = 15;
+            fov.ViewDistance = 15f;
+            fov.Gradient = enemyGrad;
+            // colorKeys[0].color = new Color(1f, 1f, 0f, 0.2941f);
+            // colorKeys[1].color = new Color(1f, 1f, 0f, 0f);
+        }
+        // grad.colorKeys = colorKeys;
+        // grad.alphaKeys = alphaKeys;
+        // fov.Gradient = grad;
+        fov.EnemyScript = this;
 
         // Starting state for the state machine
         states = new EnemyStateFactory(this);
@@ -252,10 +287,10 @@ public class EnemyStateManager : MonoBehaviour
     public void SetDirection() {
         if (enemyRB.velocity.x > 0.05f) {
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-            fov.SetStartingAngle(15f);
+            fov.StartingAngle = 15f;
         } else if (enemyRB.velocity.x < -0.05f) {
             transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-            fov.SetStartingAngle(200f);
+            fov.StartingAngle = 200f;
         }
     }
 
@@ -264,10 +299,10 @@ public class EnemyStateManager : MonoBehaviour
         float xDir = PlayerController.singleton.transform.position.x - this.transform.position.x;
         if (xDir >= 0) {
             this.transform.localScale = new Vector3(Mathf.Abs(this.transform.localScale.x), this.transform.localScale.y, this.transform.localScale.z);
-            fov.SetStartingAngle(15f);
+            fov.StartingAngle = 15f;
         } else {
             this.transform.localScale = new Vector3(-1f * Mathf.Abs(this.transform.localScale.x), this.transform.localScale.y, this.transform.localScale.z);
-            fov.SetStartingAngle(200f);
+            fov.StartingAngle = 200f;
         }
     }
 
@@ -344,22 +379,6 @@ public class EnemyStateManager : MonoBehaviour
         CalculatePathWithHeight(targetPos, height, out v0, out angle, out time);
         Vector2 dir = GetVectorFromAngle(angle * Mathf.Rad2Deg);
         enemyRB.AddForce(dir * v0, ForceMode2D.Impulse);
-    }
-
-    // Draws the path of a jump with the specified number of segments (steps).
-    private void DrawPath(float v0, float angle, float time, float step) {
-        step = Mathf.Max(0.01f, step);
-        _Line.positionCount = (int)(time / step) + 2;
-        int count = 0;
-        for (float i = 0; i < time; i += step) {
-            float x = v0 * i * Mathf.Cos(angle);
-            float y = v0 * i * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(i, 2);
-            _Line.SetPosition(count , this.transform.position + new Vector3(x, y, 0));
-            count++;
-        }
-        float xfinal = v0 * time * Mathf.Cos(angle);
-        float yfinal = v0 * time * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(time, 2);
-        _Line.SetPosition(count, this.transform.position + new Vector3(xfinal, yfinal, 0));
     }
 
     // Returns the quadratic formula.
@@ -497,5 +516,6 @@ public class EnemyStateManager : MonoBehaviour
     public bool IsGrounded {get{return isGrounded;}}
     public bool IsMeleeing {get{return isMeleeing;} set{isMeleeing = value;}}
     public bool IsThrowing {get{return isThrowing;} set{isThrowing = value;}}
+    public bool ArcherModeEnabled {get{return archerModeEnabled;}}
     #endregion
 }
