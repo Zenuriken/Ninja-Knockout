@@ -104,6 +104,8 @@ public class EnemyStateManager : MonoBehaviour
     private float dropChance;
     [SerializeField][Tooltip("Sets whether this enemy is an archer.")]
     private bool archerModeEnabled;
+    [SerializeField][Tooltip("Controls whether the FOV will oscillate.")]
+    private bool fovOscillateEnabled;
     [SerializeField][Tooltip("The up offset of the FOV")]
     private float upFOVOffset;
     [SerializeField][Tooltip("The down offset of the FOV")]

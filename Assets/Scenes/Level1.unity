@@ -150,6 +150,12 @@ PrefabInstance:
       propertyPath: downFOVOffset
       value: 30
       objectReference: {fileID: 0}
+    - target: {fileID: 3603058926589578773, guid: da78744d960161e4d9ccf0425677f733,
+        type: 3}
+      propertyPath: shurikenPrefab
+      value: 
+      objectReference: {fileID: 3583712357065962116, guid: 535ff6f95e6ef2e4998827c678fb4e0c,
+        type: 3}
     - target: {fileID: 7669053706971795492, guid: da78744d960161e4d9ccf0425677f733,
         type: 3}
       propertyPath: m_RootOrder
@@ -5926,12 +5932,12 @@ PrefabInstance:
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 325.51
+      value: 372.33
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.6
+      value: -9.44
       objectReference: {fileID: 0}
     - target: {fileID: 5612327972322969648, guid: 929b10b5838ed444b8ebdde8c09e2d3b,
         type: 3}
@@ -16529,7 +16535,7 @@ PrefabInstance:
     - target: {fileID: 7168849093136311656, guid: 848915b10cdd22f48b993cff580ba208,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 325.51
+      value: 372.33
       objectReference: {fileID: 0}
     - target: {fileID: 7168849093136311656, guid: 848915b10cdd22f48b993cff580ba208,
         type: 3}
@@ -16764,7 +16770,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2082947478
 Transform:
   m_ObjectHideFlags: 0
