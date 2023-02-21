@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class FieldOfView : MonoBehaviour
 {
+    [SerializeField]
+    [Tooltip("The FOV gradient.")]
+    private Gradient enemyGrad;
+    [SerializeField]
+    [Tooltip("The FOV gradient for archers.")]
+    private Gradient archerGrad;
+    
     public Vector3 originOffset;
     
     // Private variables.
@@ -22,6 +29,7 @@ public class FieldOfView : MonoBehaviour
     private float viewDistance;
     private float detectionTime = 1f;
     private bool seesPlayer;
+    private bool archerModeEnabled;
     private int rayCount;
     
     // Start is called before the first frame update
@@ -41,14 +49,13 @@ public class FieldOfView : MonoBehaviour
         if (enemyScript == null) return;
         // If the enemy is not allerted and hasn't died, update the line of sight.
         if (!enemyScript.IsAlerted && !enemyScript.HasDied) {
-            Debug.Log("UPDATING");
             if (true) {
                 UpdateFOVShape();
             }
             UpdateFOVColor();
 
             // If the detection time is met, set the enemy to alerted.
-            if (currDetectTimer >= detectionTime && !playerScript.IsHiding()) {
+            if (currDetectTimer >= detectionTime && !playerScript.IsHiding() && !archerModeEnabled) {
                 seesPlayer = true;
                 SetColorKeys(1f);
                 enemyScript.IsDetectingPlayer = true;
@@ -57,7 +64,7 @@ public class FieldOfView : MonoBehaviour
         } else {
             mesh.Clear();
             currDetectTimer = 0f;
-            SetColorKeys(0f);
+            SetGradient(archerModeEnabled ? archerGrad : enemyGrad);
             seesPlayer = false;
             polyCol.enabled = false;
         }
@@ -122,7 +129,7 @@ public class FieldOfView : MonoBehaviour
     // Sets the color of the FOV.
     private void UpdateFOVColor() {
         // Calculate the gradient color based on current detection time.
-        if (!seesPlayer) {
+        if (!seesPlayer && !archerModeEnabled) {
             float prop = currDetectTimer / detectionTime;
             SetColorKeys(prop); 
         }
@@ -165,16 +172,20 @@ public class FieldOfView : MonoBehaviour
 
     // Creates question mark above enemy's head when seeing player.
     private void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.tag == "Player" && !playerScript.IsHiding() && !seesPlayer && !enemyScript.IsAlerted) {
+        if (other.gameObject.tag == "Player" && !playerScript.IsHiding() && !seesPlayer && !enemyScript.IsAlerted && !archerModeEnabled) {
             enemyScript.CreateQuestionMark();
         }
     }
 
     // Increase the detection timer if in contact with the player.
     private void OnTriggerStay2D(Collider2D other) {
-        if (other.gameObject.tag == "Player" && !playerScript.IsHiding()) {
+        if (other.gameObject.tag == "Player" && !playerScript.IsHiding() && !archerModeEnabled) {
             float distProp = Vector2.Distance((Vector2)playerScript.transform.position, (Vector2)origin) / viewDistance;
             currDetectTimer += (1f / distProp) * Time.deltaTime;
+        } else if (other.gameObject.tag == "Player" && !playerScript.IsHiding() && archerModeEnabled) {
+            seesPlayer = true;
+            SetColorKeys(1f);
+            enemyScript.IsDetectingPlayer = true;
         }
     }
 
@@ -192,11 +203,33 @@ public class FieldOfView : MonoBehaviour
         this.origin = origin + originOffset;
     }
 
+    // Defines whether the FOV is in archer mode.
+    public void SetArcherMode(bool enabled) {
+        archerModeEnabled = enabled;
+        fov = 30f;
+        if (archerModeEnabled) {
+            this.rayCount = 30;
+            this.viewDistance = 30f;
+            SetGradient(archerGrad);
+        } else {
+            this.rayCount = 15;
+            this.viewDistance = 15f;
+            SetGradient(enemyGrad);
+        }
+    }
+
+    private void SetGradient(Gradient grad) {
+        gradient = new Gradient();
+        gradient.colorKeys = grad.colorKeys;
+        gradient.alphaKeys = grad.alphaKeys;
+    }
+
+
     public EnemyStateManager EnemyScript {get{return enemyScript;} set{enemyScript = value;}}
     public Gradient Gradient {get{return gradient;} set{gradient = value;}}
     public float StartingAngle {get{return startingAngle;} set{startingAngle = value;}}
     public float FOV {get{return fov;} set{fov = value;}}
-    public float ViewDistance {get{return viewDistance;} set{viewDistance = value;}}
-    public int RayCount {get{return rayCount;} set{rayCount = value;}}
+    // public float ViewDistance {get{return viewDistance;} set{viewDistance = value;}}
+    // public int RayCount {get{return rayCount;} set{rayCount = value;}}
     #endregion
 }

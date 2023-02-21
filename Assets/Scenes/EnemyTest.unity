@@ -5526,16 +5526,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: archerGrad.key0.a
+      value: 0.29411766
+      objectReference: {fileID: 0}
+    - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: archerGrad.key0.b
-      value: 0.46737686
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: archerGrad.key0.g
-      value: 0.42947665
+      value: 0.5254902
       objectReference: {fileID: 0}
     - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: archerGrad.key0.r
-      value: 0.9811321
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: archerGrad.key1.a
@@ -5543,15 +5547,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: archerGrad.key1.b
-      value: 0.46666667
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: archerGrad.key1.g
-      value: 0.43137255
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: archerGrad.key1.r
-      value: 0.98039216
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: archerModeEnabled

@@ -5,7 +5,10 @@ using UnityEngine;
 public class EnemyPatrolState : EnemyState
 {
     private List<Vector2> patrolPath;
+    private float fovSpeed = 32f;
     private float lastIdle;
+    private float initialAngle;
+    private float dir;
     
     // Constructor for this state.
     public EnemyPatrolState(EnemyStateManager currContext, EnemyStateFactory stateFactory)
@@ -15,6 +18,7 @@ public class EnemyPatrolState : EnemyState
         // Debug.Log("PATROLLING");
         patrolPath = ctx.AstarScript.CalculatePatrolPath(ctx.MaxNodeDist);
         ctx.AlertedObj.SetActive(false);
+        dir = ctx.StartingDir;
         InitializeDirection();
         ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
     }
@@ -22,11 +26,17 @@ public class EnemyPatrolState : EnemyState
     public override void UpdateState() {
         CheckSwitchStates();
         if (ctx.CurrentState != this) return;
-        //ctx.SetDirection();
         ctx.SetAdjustedPos();
         if (ctx.PatrolEnabled) ctx.FollowPath(ctx.PatrolSpeed);
         ctx.FOV.SetOrigin(ctx.transform.position);
 
+
+        if (ctx.StartingDir == -1f && (ctx.FOV.StartingAngle > initialAngle + ctx.DownFOVOffset || ctx.FOV.StartingAngle < initialAngle - ctx.UpFOVOffset)) dir *= -1f;
+
+        if (ctx.StartingDir == 1f && (ctx.FOV.StartingAngle > initialAngle + ctx.UpFOVOffset || ctx.FOV.StartingAngle < initialAngle - ctx.DownFOVOffset)) dir *= -1f;
+
+        ctx.FOV.StartingAngle = ctx.FOV.StartingAngle + dir * fovSpeed * Time.deltaTime;
+        Debug.Log("Starting angle: " + ctx.FOV.StartingAngle);
         if (CanIdle()) ctx.StartCoroutine(Idle());
     }
     
@@ -45,19 +55,6 @@ public class EnemyPatrolState : EnemyState
     public override void InitializeSubState() {
         
     }
-
-
-    // // The enemy's patrolling state
-    // private void Patrol() {
-    //     if (patrolPath == null) {
-    //         ctx.EnemyRB.velocity = new Vector2(0f, ctx.EnemyRB.velocity.y);
-    //     } else if ((ctx.AdjustedPos.x < patrolPath[1].x && ctx.StartingDir == 1) || 
-    //                 (ctx.AdjustedPos.x > patrolPath[0].x && ctx.StartingDir == -1)) {
-    //         ctx.EnemyRB.velocity = new Vector2(ctx.StartingDir * ctx.PatrolSpeed, ctx.EnemyRB.velocity.y);
-    //     } else if (CanIdle()) {
-    //         ctx.StartCoroutine(Idle());
-    //     }
-    // }
 
     // Controls the player's Idle state when reaching the end of a platform.
     IEnumerator Idle() {
@@ -85,5 +82,6 @@ public class EnemyPatrolState : EnemyState
             ctx.FOV.StartingAngle = 200f;
             ctx.TargetPos = patrolPath[0];
         }
+        initialAngle = ctx.FOV.StartingAngle;
     }
 }

@@ -94,29 +94,21 @@ public class EnemyStateManager : MonoBehaviour
 
     #region Toggle Variables
     [Header("Toggle Variables")]
-    [SerializeField]
-    [Tooltip("Controls if the enemy is alerted.")]
+    [SerializeField][Tooltip("Controls if the enemy is alerted.")]
     private bool isAlerted;
-    [SerializeField]
-    [Tooltip("Controls whether the enemy will patrol.")]
+    [SerializeField][Tooltip("Controls whether the enemy will patrol.")]
     private bool patrolEnabled;
-    [SerializeField]
-    [Tooltip("Controls the starting direction of the enemy (-1 for left, 0 for random, 1 for right).")]
+    [SerializeField][Tooltip("Controls the starting direction of the enemy (-1 for left, 0 for random, 1 for right).")]
     private int startingDir;
-    [SerializeField]
-    [Tooltip("Controls the chances of the enemy dropping a shuriken (0 - 100).")]
+    [SerializeField][Tooltip("Controls the chances of the enemy dropping a shuriken (0 - 100).")]
     private float dropChance;
-    [SerializeField]
-    [Tooltip("Sets whether this enemy is an archer.")]
+    [SerializeField][Tooltip("Sets whether this enemy is an archer.")]
     private bool archerModeEnabled;
+    [SerializeField][Tooltip("The up offset of the FOV")]
+    private float upFOVOffset;
+    [SerializeField][Tooltip("The down offset of the FOV")]
+    private float downFOVOffset;
     [Space(5)]
-
-    [SerializeField]
-    [Tooltip("The FOV gradient.")]
-    private Gradient enemyGrad;
-    [SerializeField]
-    [Tooltip("The FOV gradient for archers.")]
-    private Gradient archerGrad;
     #endregion
     
     #region Private Variables
@@ -231,31 +223,7 @@ public class EnemyStateManager : MonoBehaviour
         // Initialize FOV
         GameObject lineOfSight = GameObject.Instantiate(lineOfSightObj, fieldOfViewParent.transform);
         fov = lineOfSight.GetComponent<FieldOfView>();
-        fov.FOV = 30f;
-        // // Gradient grad = new Gradient();
-        // GradientColorKey[] colorKeys = new GradientColorKey[2];
-        // //GradientColorKey[] colorKeys = grad.colorKeys;
-        // GradientAlphaKey[] alphaKeys = new GradientAlphaKey[2];
-        // alphaKeys[0].alpha = 1f;
-        // alphaKeys[0].time = 1f;
-        // alphaKeys[1].alpha = 0.2941f;
-        // alphaKeys[1].time = 1f;
-        if (archerModeEnabled) {
-            fov.RayCount = 30;
-            fov.ViewDistance = 30f;
-            fov.Gradient = archerGrad;
-            // colorKeys[0].color = new Color(1f, 0.5f, 0f, 0.2941f);
-            // colorKeys[1].color = new Color(1f, 0.5f, 0f, 0f);
-        } else {
-            fov.RayCount = 15;
-            fov.ViewDistance = 15f;
-            fov.Gradient = enemyGrad;
-            // colorKeys[0].color = new Color(1f, 1f, 0f, 0.2941f);
-            // colorKeys[1].color = new Color(1f, 1f, 0f, 0f);
-        }
-        // grad.colorKeys = colorKeys;
-        // grad.alphaKeys = alphaKeys;
-        // fov.Gradient = grad;
+        fov.SetArcherMode(archerModeEnabled);
         fov.EnemyScript = this;
 
         // Starting state for the state machine
@@ -505,6 +473,8 @@ public class EnemyStateManager : MonoBehaviour
     public float DestroyDelay {get{return destroyDelay;}}
     public float FadeAwayDelay {get{return fadeAwayDelay;}}
     public float FadeAwaySpeed {get{return fadeAwaySpeed;}}
+    public float UpFOVOffset {get{return upFOVOffset;}}
+    public float DownFOVOffset {get{return downFOVOffset;}}
     public bool IsDetectingPlayer {get{return isDetectingPlayer;} set{isDetectingPlayer = value;}}
     public bool IsAlerted {get{return isAlerted;} set{isAlerted = value;}}
     public bool HasDied {get{return hasDied;} set{hasDied = value;}}
