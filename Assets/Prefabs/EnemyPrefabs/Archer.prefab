@@ -7,20 +7,47 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 594737425, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: patrolEnabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: archerModeEnabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977679683, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 16d765bbe36e85a4984908be15e82849, type: 2}
     - target: {fileID: 6371837796901407288, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
       propertyPath: m_Name
       value: Archer
       objectReference: {fileID: 0}
+    - target: {fileID: 6371837796901407288, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6371837796901407429, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: f872db40f6331af4d99794655316d8fa,
+        type: 3}
     - target: {fileID: 6371837796901407429, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
       propertyPath: m_Color.b
-      value: 0.1830188
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6371837796901407429, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
       propertyPath: m_Color.g
-      value: 0.5230294
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6371837796901407429, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
@@ -35,12 +62,12 @@ PrefabInstance:
     - target: {fileID: 6371837797275581661, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 407.615
       objectReference: {fileID: 0}
     - target: {fileID: 6371837797275581661, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1.567
       objectReference: {fileID: 0}
     - target: {fileID: 6371837797275581661, guid: 6ee4a750a42495947aa3c3b60ca2b4e4,
         type: 3}
