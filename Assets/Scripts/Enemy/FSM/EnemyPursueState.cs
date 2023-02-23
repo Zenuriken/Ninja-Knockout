@@ -8,7 +8,7 @@ public class EnemyPursueState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        Debug.Log("PURSUING");
+        // Debug.Log("PURSUING");
         ctx.IsAlerted = true;
         ctx.IsDetectingPlayer = false;
         ctx.TargetPos = PlayerController.singleton.transform.position;
@@ -34,10 +34,12 @@ public class EnemyPursueState : EnemyState
             SwitchState(factory.Death());
         } else if (ctx.LostPlayer() && ctx.Unreachable && !ctx.IsStunned) {
             SwitchState(factory.Confused());
-        } else if (!PlayerController.singleton.IsHiding() && CanMelee() && !ctx.IsStunned) {
+        } else if (!ctx.ArcherModeEnabled && !PlayerController.singleton.IsHiding() && CanMelee() && !ctx.IsStunned) {
             SwitchState(factory.Melee());
-        } else if (!PlayerController.singleton.IsHiding() && CanThrow() && !ctx.IsStunned) {
-             SwitchState(factory.Throw());
+        } else if (!ctx.ArcherModeEnabled && !PlayerController.singleton.IsHiding() && CanThrow() && !ctx.IsStunned) {
+            SwitchState(factory.Throw());
+        } else if (ctx.ArcherModeEnabled && !PlayerController.singleton.IsHiding() && CanShoot() && !ctx.IsStunned) {
+            SwitchState(factory.Throw());
         }
     }
 
@@ -59,5 +61,9 @@ public class EnemyPursueState : EnemyState
     private bool CanThrow() {
         bool playerIsInThrowingRange = ctx.AlertedSight.IsTouchingAlertedTrigger() && IsWithinVectorBounds();
         return (ctx.LastAttack + ctx.AttackRate <= Time.time) && !ctx.IsStunned && playerIsInThrowingRange && ctx.IsGrounded && ctx.Unreachable;
+    }
+
+    private bool CanShoot() {
+        return (ctx.LastAttack + ctx.AttackRate <= Time.time) && !ctx.IsStunned && ctx.IsGrounded;
     }
 }

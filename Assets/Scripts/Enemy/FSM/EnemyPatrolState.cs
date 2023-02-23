@@ -36,7 +36,6 @@ public class EnemyPatrolState : EnemyState
         if (ctx.StartingDir == 1f && (ctx.FOV.StartingAngle > initialAngle + ctx.UpFOVOffset || ctx.FOV.StartingAngle < initialAngle - ctx.DownFOVOffset)) dir *= -1f;
 
         ctx.FOV.StartingAngle = ctx.FOV.StartingAngle + dir * fovSpeed * Time.deltaTime;
-        Debug.Log("Starting angle: " + ctx.FOV.StartingAngle);
         if (CanIdle()) ctx.StartCoroutine(Idle());
     }
     
