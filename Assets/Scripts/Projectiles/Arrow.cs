@@ -19,7 +19,7 @@ public class Arrow : MonoBehaviour
     private ParticleSystem sparks;
     private SoundManager sounds;
     private Vector2 throwDir;
-    private float shurikenSpeed = 80f;
+    private float shurikenSpeed = 60f;
     private float noContactDestroyTime = 5f;
     private float currflightTime;
     private bool isActive;
@@ -82,8 +82,8 @@ public class Arrow : MonoBehaviour
 
     // Creates spark on contact and then destroys shuriken.
     IEnumerator Contact(bool hitEntity) {
-        Debug.Log("HIT");
         isActive = false;
+        trailRen.enabled = false;
         hasContact = true;
         rb.velocity = new Vector2(0f, 0f);
 
@@ -91,7 +91,6 @@ public class Arrow : MonoBehaviour
         if (hitEntity) {
             this.gameObject.layer = 12;
             shurikenSprite.enabled = false;
-            trailRen.enabled = false;
             yield return new WaitForSeconds(1f);
             Destroy(this.gameObject);
         } else {
@@ -115,11 +114,6 @@ public class Arrow : MonoBehaviour
     private void CreateSparks() {
         sparks.Play();
     }
-
-    // // Sets the owner of the shuriken
-    // public void SetOwner(string tag) {
-    //     this.owner = tag;
-    // }
 
     public string Owner {get{return owner;} set{owner = value;}}
 

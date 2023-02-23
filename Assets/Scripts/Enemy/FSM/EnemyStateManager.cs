@@ -209,7 +209,7 @@ public class EnemyStateManager : MonoBehaviour
         playerHealthScript = playerScript.gameObject.GetComponent<Health>();
         meleeScript = playerScript.transform.GetChild(1).GetComponent<Melee>();
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
-        playerAndPlatformLayerMask = LayerMask.GetMask("Player", "Platform", "OneWayPlatform");
+        playerAndPlatformLayerMask = LayerMask.GetMask("Player", "Platform");
         fieldOfViewParent = GameObject.Find("FieldOfViews");
 
         // Setting spawn position.

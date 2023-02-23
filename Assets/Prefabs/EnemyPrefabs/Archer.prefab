@@ -11,10 +11,39 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1002254738, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1002254738, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1002254738, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 1002254738, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: spawnDelay
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: downFOVOffset
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: patrolEnabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: shurikenPrefab
+      value: 
+      objectReference: {fileID: 3583712357065962116, guid: 535ff6f95e6ef2e4998827c678fb4e0c,
+        type: 3}
     - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: archerModeEnabled
       value: 1

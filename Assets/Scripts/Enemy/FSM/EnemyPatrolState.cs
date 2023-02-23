@@ -9,6 +9,8 @@ public class EnemyPatrolState : EnemyState
     private float lastIdle;
     private float initialAngle;
     private float dir;
+    private float anglePauseDur;
+    private bool shouldWait;
     
     // Constructor for this state.
     public EnemyPatrolState(EnemyStateManager currContext, EnemyStateFactory stateFactory)
@@ -30,12 +32,20 @@ public class EnemyPatrolState : EnemyState
         if (ctx.PatrolEnabled) ctx.FollowPath(ctx.PatrolSpeed);
         ctx.FOV.SetOrigin(ctx.transform.position);
 
+        // If we reached the bounds of the FOV
+        if (ReachedFOVBounds() && !shouldWait) {
+            anglePauseDur += Time.deltaTime;
+        } else {
+            ctx.FOV.StartingAngle = ctx.FOV.StartingAngle + dir * fovSpeed * Time.deltaTime;
+        }
+        
+        if (anglePauseDur >= 1f) {
+            dir *= -1f;
+            anglePauseDur = 0f;
+        }
 
-        if (ctx.StartingDir == -1f && (ctx.FOV.StartingAngle > initialAngle + ctx.DownFOVOffset || ctx.FOV.StartingAngle < initialAngle - ctx.UpFOVOffset)) dir *= -1f;
 
-        if (ctx.StartingDir == 1f && (ctx.FOV.StartingAngle > initialAngle + ctx.UpFOVOffset || ctx.FOV.StartingAngle < initialAngle - ctx.DownFOVOffset)) dir *= -1f;
 
-        ctx.FOV.StartingAngle = ctx.FOV.StartingAngle + dir * fovSpeed * Time.deltaTime;
         if (CanIdle()) ctx.StartCoroutine(Idle());
     }
     
@@ -82,5 +92,10 @@ public class EnemyPatrolState : EnemyState
             ctx.TargetPos = patrolPath[0];
         }
         initialAngle = ctx.FOV.StartingAngle;
+    }
+
+    private bool ReachedFOVBounds() {
+        return ((ctx.StartingDir == -1f && (ctx.FOV.StartingAngle >= initialAngle + ctx.DownFOVOffset || ctx.FOV.StartingAngle <= initialAngle - ctx.UpFOVOffset)) ||
+                (ctx.StartingDir == 1f && (ctx.FOV.StartingAngle >= initialAngle + ctx.UpFOVOffset || ctx.FOV.StartingAngle <= initialAngle - ctx.DownFOVOffset)));
     }
 }
