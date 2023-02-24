@@ -8,9 +8,11 @@ public class EnemyPatrolState : EnemyState
     private float fovSpeed = 32f;
     private float lastIdle;
     private float initialAngle;
-    private float dir;
+    private float rotateDir;
     private float anglePauseDur;
-    private bool shouldWait;
+
+    private float lastSwitchTime;
+    private float holdTime;
     
     // Constructor for this state.
     public EnemyPatrolState(EnemyStateManager currContext, EnemyStateFactory stateFactory)
@@ -20,9 +22,11 @@ public class EnemyPatrolState : EnemyState
         // Debug.Log("PATROLLING");
         patrolPath = ctx.AstarScript.CalculatePatrolPath(ctx.MaxNodeDist);
         ctx.AlertedObj.SetActive(false);
-        dir = ctx.StartingDir;
+        rotateDir = ctx.StartingDir * -1f;
         InitializeDirection();
-        ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
+        if (ctx.PatrolEnabled) ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
+
+        //ctx.StartCoroutine(RotateFOV());
     }
 
     public override void UpdateState() {
@@ -32,18 +36,9 @@ public class EnemyPatrolState : EnemyState
         if (ctx.PatrolEnabled) ctx.FollowPath(ctx.PatrolSpeed);
         ctx.FOV.SetOrigin(ctx.transform.position);
 
-        // If we reached the bounds of the FOV
-        if (ReachedFOVBounds() && !shouldWait) {
-            anglePauseDur += Time.deltaTime;
-        } else {
-            ctx.FOV.StartingAngle = ctx.FOV.StartingAngle + dir * fovSpeed * Time.deltaTime;
-        }
         
-        if (anglePauseDur >= 1f) {
-            dir *= -1f;
-            anglePauseDur = 0f;
-        }
-
+        ctx.FOV.StartingAngle = ctx.FOV.StartingAngle + rotateDir * fovSpeed * Time.deltaTime;
+        if (CanSwitch()) 
 
 
         if (CanIdle()) ctx.StartCoroutine(Idle());
@@ -73,6 +68,17 @@ public class EnemyPatrolState : EnemyState
         yield return new WaitForSeconds(ctx.IdleDur);
         ctx.StartingDir *= -1;
         InitializeDirection();
+    }
+
+    // Rotates the angle of the FOV.
+    IEnumerator RotateFOV() {
+        lastSwitchTime = Time.time;
+        yield return new WaitForSeconds(1f);
+        rotateDir *= -1f;
+    }
+
+    private bool CanSwitch() {
+        return lastSwitchTime + 2f < Time.time;
     }
 
     // Returns whether the enemy can start idling at the end of a platform
