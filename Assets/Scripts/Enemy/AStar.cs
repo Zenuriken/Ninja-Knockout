@@ -332,6 +332,7 @@ public class AStar : MonoBehaviour
         return 0;
     }
 
+    // Returns whether the enemy has returned to its spawn position.
     public bool HasReturned(Vector3 spawnPos) {
         Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
         Vector3Int spawn = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y - 1f));

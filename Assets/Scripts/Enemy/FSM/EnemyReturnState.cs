@@ -35,7 +35,8 @@ public class EnemyReturnState : EnemyState
         } else if (ctx.IsDetectingPlayer) {
             SwitchState(factory.Detect());
         } else if (ctx.AstarScript.HasReturned(ctx.SpawnPos)) {
-            ctx.StartingDir = (int)Mathf.Sign(ctx.EnemyRB.velocity.x);
+            // Prevents the enemy from swapping directions w/o warning upon returning to spawn pos.
+            if (ctx.PatrolEnabled) ctx.StartingDir = (int)Mathf.Sign(ctx.EnemyRB.velocity.x);
             SwitchState(factory.Patrol());
         }
     }
@@ -43,16 +44,4 @@ public class EnemyReturnState : EnemyState
     public override void InitializeSubState() {
         
     }
-
-    // IEnumerator ReturnToPatrols() {
-    //     ctx.InvokeRepeating("CreateQuestionMark", 0f, 1f);
-    //     yield return new WaitForSeconds(5f);
-    //     if (ctx.PlayerIsHiding()) {
-    //         ctx.IsAlerted = false;
-    //         ctx.AlertedObj.SetActive(false);
-    //         ctx.CancelInvoke();
-    //         ctx.InvokeRepeating("UpdatePath", 0f, 0.5f);
-    //     }
-    // }
-
 }

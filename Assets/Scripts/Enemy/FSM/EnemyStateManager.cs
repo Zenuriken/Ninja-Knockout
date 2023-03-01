@@ -266,14 +266,10 @@ public class EnemyStateManager : MonoBehaviour
 
     // Sets the direction of the enemy to the player when alerted.
     public void FacePlayer() {
-        float xDir = PlayerController.singleton.transform.position.x - this.transform.position.x;
-        if (xDir >= 0) {
-            this.transform.localScale = new Vector3(Mathf.Abs(this.transform.localScale.x), this.transform.localScale.y, this.transform.localScale.z);
-            fov.StartingAngle = 15f;
-        } else {
-            this.transform.localScale = new Vector3(-1f * Mathf.Abs(this.transform.localScale.x), this.transform.localScale.y, this.transform.localScale.z);
-            fov.StartingAngle = 200f;
-        }
+        Vector2 dir = (Vector2)(PlayerController.singleton.transform.position - this.transform.position).normalized;
+        float angle = 360f - Vector2.Angle(Vector2.right, dir) + fov.FOV / 2f;
+        this.transform.localScale = new Vector3(Mathf.Sign(dir.x) * Mathf.Abs(this.transform.localScale.x), this.transform.localScale.y, this.transform.localScale.z);
+        fov.StartingAngle = angle;
     }
 
     // Sets the adjusted position of the enemy (the tile above the platform it stands on).
@@ -489,5 +485,6 @@ public class EnemyStateManager : MonoBehaviour
     public bool IsMeleeing {get{return isMeleeing;} set{isMeleeing = value;}}
     public bool IsThrowing {get{return isThrowing;} set{isThrowing = value;}}
     public bool ArcherModeEnabled {get{return archerModeEnabled;}}
+    public bool FOVOscillateEnabled {get{return fovOscillateEnabled;}}
     #endregion
 }
