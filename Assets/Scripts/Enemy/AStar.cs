@@ -6,28 +6,15 @@ using System;
 
 public class AStar : MonoBehaviour
 {
-    // #region Debugging Variables
-    // [SerializeField]
-    // [Tooltip("Where the AStar object is located.")]
-    // private Vector3 center;
-    // [SerializeField]
-    // [Tooltip("The maximum number of nodes width-wise to create nodes for.")]
-    // private int width;
-    // [SerializeField]
-    // [Tooltip("The maximum number of nodes height-wise to create nodes for.")]
-    // private int height;
-    [SerializeField]
-    [Tooltip("The Node prefab for visual aid.")]
+    [SerializeField][Tooltip("The Node prefab for visual aid.")]
     private GameObject nodePrefab;
-    // #endregion
+    [SerializeField][Tooltip("Whether adjacent nodes will be instantiated.")]
+    private bool nodeModeEnabled;
+    
     private Transform nodeParent;
-
     private Tilemap platformTilemap;
     private LayerMask platformLayerMask;
-    // private PlayerController playerScript;
-    // private Transform playerTrans;
     private Vector3 spawnPos;
-    //private bool isReturningToPatrolPos;
     
     public class Node {
         private Vector3Int pos;
@@ -63,33 +50,12 @@ public class AStar : MonoBehaviour
     private void Awake() {
         platformLayerMask = LayerMask.GetMask("Platform");
         platformTilemap = GameObject.Find("Tilemap_Platform").GetComponent<Tilemap>();
-        // nodeParent = GameObject.Find("NodeParent").transform;
+        if (nodeModeEnabled) nodeParent = GameObject.Find("NodeParent").transform;
     }
 
-    private void Start() {
-        // playerScript = PlayerController.singleton;
-        // playerTrans = playerScript.transform;
+    private void Update() {
+        if (nodeModeEnabled) VisualizeNeighbors();
     }
-
-    // private void Start() {
-
-    //     playerScript = GameObject.Find("Player").GetComponent<PlayerController>();
-    //     spawnPos = start.position;
-    //     float lowerX = center.x - width / 2f + 0.5f;
-    //     float upperX = center.x + width / 2f - 0.5f;
-    //     float lowerY = center.y - height / 2f + 0.5f;
-    //     float upperY = center.y + height / 2f - 0.5f;
-
-    //     for (float x = lowerX; x <= upperX; x+=1f) {
-    //         for (float y = lowerY; y <= upperY; y+=1f) {
-    //             Vector3Int coords = platformTilemap.WorldToCell(new Vector2(x, y));
-    //             if (IsWalkable(coords)) {
-    //                 GameObject node = GameObject.Instantiate(nodePrefab, new Vector2(x, y), Quaternion.identity);
-    //             }
-    //         }
-    //     }
-    //     InvokeRepeating("CalculatePath", 0f, 0.5f);
-    // }
 
     // Returns whether the position is walkable.
     private bool IsWalkable(Vector3Int coords) {
@@ -100,6 +66,7 @@ public class AStar : MonoBehaviour
         return (isEmpty && hasPlatformUnder);
     }
     
+    // Retrieves a list of neighbors to a given node position.
     private List<Node> GetNeighbors(Node n) {
         List<Node> neighbors = new List<Node>();
         Vector3Int pos = n.GetPos();
@@ -230,25 +197,17 @@ public class AStar : MonoBehaviour
                 neighbors.Add(newNode);
             }
         }
-        // Debug.Log("called");
-        // foreach (var neighbor in neighbors) {
-        //     Vector3 p = neighbor.GetPos();
-        //     GameObject node = GameObject.Instantiate(nodePrefab, new Vector2(p.x + 0.5f, p.y + 0.5f), Quaternion.identity);
-        //     node.GetComponent<SpriteRenderer>().color = new Color(0f, 0f, 1f, 1f);
-        // }
-
         return neighbors;
     }
 
+    // Returns whether there's a clear jump/drop path from pos to testPos.
     private bool IsClear(Vector3Int pos, Vector3Int testPos) {
         Vector2 abovePos = AdjustPos(new Vector3Int(pos.x, pos.y + 2, 0));
         Vector2 aboveTestPos = AdjustPos(new Vector3Int(testPos.x, testPos.y + 2, 0));
         Vector2 dir = (aboveTestPos - abovePos).normalized;
         RaycastHit2D raycastHit2D = Physics2D.Raycast(abovePos, dir, CalcHeuristic(pos, testPos), platformLayerMask);
-        //Debug.DrawRay(abovePos, dir.normalized * CalcHeuristic(pos, testPos), Color.blue);
         return raycastHit2D.collider == null;
     }
-
 
     // An optimization would be have the nodes already constructed, and then identify which nodes the enemy/player lie on. Then traverse premade neighbors.
     // Try to construct path only if enemy and player is at a walkable platform.
@@ -323,39 +282,6 @@ public class AStar : MonoBehaviour
         return pos;
     }
 
-    // // Calculates the position of two ends of a platform for the enemy to patrol
-    // public List<Vector2> CalculatePatrolPath(int maxNodeDist) {
-    //     List<Vector2> posList = new List<Vector2>();
-    //     Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
-    //     Vector3Int leftEnd = startPos;
-    //     Vector3Int rightEnd = startPos;
-    //     Vector3Int testPos;
-    //     if (IsWalkable(startPos)) {
-    //         // Checking left
-    //         int currDist = 0;
-    //         testPos = startPos;
-    //         while (IsWalkable(testPos) && currDist <= maxNodeDist) {
-    //             leftEnd = testPos;
-    //             testPos = new Vector3Int(testPos.x - 1, testPos.y, 0);
-    //             currDist++;
-    //         }
-    //         posList.Add(AdjustPos(leftEnd));
-            
-    //         // Checking right
-    //         currDist = 0;
-    //         testPos = startPos;
-    //         while (IsWalkable(testPos) && currDist <= maxNodeDist) {
-    //             rightEnd = testPos;
-    //             testPos = new Vector3Int(testPos.x + 1, testPos.y, 0);
-    //             currDist++;
-    //         }
-    //         posList.Add(AdjustPos(rightEnd));
-    
-    //         return posList;
-    //     }   
-    //     return null;
-    // }
-
     // Returns the two end positions of the patrol path.
     public List<Vector2> CalculatePatrolPath(int maxNodeDist) {
         List<Vector2> posList = new List<Vector2>();
@@ -392,7 +318,6 @@ public class AStar : MonoBehaviour
     // Returns the enemy's adjusted position: The cell coordinate on top of the platform they are standing on.
     public Vector2 GetAdjustedPosition() {
         Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
-        //Debug.Log(AdjustPos(pos));
         return AdjustPos(pos);
     }
 
@@ -421,38 +346,6 @@ public class AStar : MonoBehaviour
     }
 
     private Vector3Int FindNearestWalkableNode(Vector3Int goalPos) {
-        // Ray Approach
-        // int numRays = 16;
-        // int dist = 20;
-        // float currAngle = 0f;
-        // PriorityQueue<Vector3Int> positions = new PriorityQueue<Vector3Int>();
-        // Vector2 startingWorldPos = AdjustPos(goalPos);
-        // for (int i = 0; i < numRays; i++) {
-        //     RaycastHit2D raycastHit2D = Physics2D.Raycast(startingWorldPos, GetVectorFromAngle(currAngle), dist, platformLayerMask);
-        //     if (raycastHit2D.collider != null) {
-        //         Vector3Int hitPoint = platformTilemap.WorldToCell(new Vector2(raycastHit2D.point.x, raycastHit2D.point.y + 0.5f));
-        //         if (IsWalkable(hitPoint)) {
-        //             //Debug.DrawRay(AdjustPos(goalPos), Vector2.down * raycastHit2D.distance, Color.red, 0.5f);
-        //             positions.Enqueue(raycastHit2D.distance, hitPoint);
-        //         }
-        //     }
-        //     currAngle += 360f / numRays;
-        // }
-
-        // // Vector3Int calculatedNode = (positions.Count() > 0) ? positions.Dequeue : pos
-        // if (positions.Count() > 0) {
-        //     Vector3Int pos = positions.Dequeue();
-        //     Debug.DrawLine(AdjustPos(goalPos), AdjustPos(pos), Color.red, 0.5f);
-        //     return pos;
-        // } else {
-        //     return Vector3Int.zero;
-        // }
-
-
-        // Tile Approach
-        // foreach (Transform child in nodeParent) {
-        //     GameObject.Destroy(child.gameObject);
-        // }
         Vector2 goalPosWorld = AdjustPos(goalPos);
         Vector3Int testPos;
         int N = 20;
@@ -497,56 +390,20 @@ public class AStar : MonoBehaviour
         return Vector3Int.zero;
     }
 
-    // // Returns the direction the enemy should move when stuck.
-    // public Vector2 GetMoveDir() {
-    //     Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
-    //     Vector3Int leftPos = new Vector3Int(pos.x - 1, pos.y, 0);
-    //     Vector3Int rightPos = new Vector3Int(pos.x + 1, pos.y, 0);
-    //     if (IsWalkable(rightPos)) {
-    //         return new Vector2(1f, 1f);
-    //     } else if (IsWalkable(leftPos)) {
-    //         return new Vector2(-1f, 1f);
-    //     } else {
-    //         Debug.Log("No walkable platforms found. Enemy stuck.");
-    //         return Vector2.zero;
-    //     }
-    // }
+    // Instantiate node objects for neighbor nodes of current position. NodeMode must be enabled.
+    public void VisualizeNeighbors() {
+        foreach (Transform child in nodeParent) {
+            GameObject.Destroy(child.gameObject);
+        }
+        Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
+        GameObject startNodeObj = GameObject.Instantiate(nodePrefab, new Vector2(startPos.x + 0.5f, startPos.y + 0.5f), Quaternion.identity, nodeParent);
+        startNodeObj.GetComponent<SpriteRenderer>().color = new Color(0f, 0f, 1f, 1f);
+        Node startingNode = new Node(startPos, null, 0f);
+        List<Node> neighbors = GetNeighbors(startingNode);
 
-    // public void SetReturnToPatrolPos(bool state) {
-    //     isReturningToPatrolPos = state;
-    // }
-
-    // public bool IsAtSpawnPos() {
-    //     Vector3Int pos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
-    //     Vector3Int spawnPosition  = platformTilemap.WorldToCell(new Vector2(spawnPos.x, spawnPos.y - 1f));
-    //     if (pos == spawnPosition) {
-    //         isReturningToPatrolPos = false;
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
-
-    // public void VisualizeNeighbors() {
-    //     Vector3Int startPos = platformTilemap.WorldToCell(new Vector2(this.transform.position.x, this.transform.position.y - 1f));
-    //     GameObject startNodeObj = GameObject.Instantiate(nodePrefab, new Vector2(startPos.x + 0.5f, startPos.y + 0.5f), Quaternion.identity);
-    //     startNodeObj.GetComponent<SpriteRenderer>().color = new Color(0f, 0f, 1f, 1f);
-    //     Node startingNode = new Node(startPos, null, 0f);
-    //     List<Node> neighbors = GetNeighbors(startingNode);
-
-    //     foreach (Node node in neighbors) {
-    //         Vector3Int p = node.GetPos();
-    //         GameObject nodeObj = GameObject.Instantiate(nodePrefab, new Vector2(p.x + 0.5f, p.y + 0.5f), Quaternion.identity);
-    //     }
-    // }
-
-    // public void VisualizePath(List<Vector2> path) {
-    //     for (int i = path.Count - 1; i >= 0; i--) {
-    //         Color color = (i % 2 == 0) ? Color.green : Color.red;
-    //         Vector2 p = path[i];
-    //         GameObject nodeObj = GameObject.Instantiate(nodePrefab, new Vector2(p.x, p.y), Quaternion.identity);
-    //         //Debug.DrawLine(path[i], path[i - 1], color, 0.5f, false);
-    //     }
-    // }
-
+        foreach (Node node in neighbors) {
+            Vector3Int p = node.GetPos();
+            GameObject nodeObj = GameObject.Instantiate(nodePrefab, new Vector2(p.x + 0.5f, p.y + 0.5f), Quaternion.identity, nodeParent);
+        }
+    }
 }

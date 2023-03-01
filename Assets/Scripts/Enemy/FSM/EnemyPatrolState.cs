@@ -37,8 +37,8 @@ public class EnemyPatrolState : EnemyState
         ctx.FOV.SetOrigin(ctx.transform.position);
 
         
-        ctx.FOV.StartingAngle = ctx.FOV.StartingAngle + rotateDir * fovSpeed * Time.deltaTime;
-        if (CanSwitch()) 
+        // ctx.FOV.StartingAngle = ctx.FOV.StartingAngle + rotateDir * fovSpeed * Time.deltaTime;
+        // if (CanSwitch()) 
 
 
         if (CanIdle()) ctx.StartCoroutine(Idle());
