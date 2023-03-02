@@ -316,7 +316,7 @@ MonoBehaviour:
   - {fileID: 1161592135696062192}
   - {fileID: 3792230078010361237}
   - {fileID: 4321274925041158242}
-  doorTile: {fileID: 11400000, guid: a1236946ebda53e4483ad30e0b83e1ad, type: 2}
+  doorTile: {fileID: 11400000, guid: 4843d9c5773b607488cf819b01f532f5, type: 2}
 --- !u!1 &7784342801542425998
 GameObject:
   m_ObjectHideFlags: 0

@@ -8,7 +8,7 @@ public class EnemyDetectState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        // Debug.Log("DETECT");
+        // Debug.Log("DETECT: " + Time.time);
         ctx.StartCoroutine(PlayerDetected());
     }
 
@@ -20,6 +20,7 @@ public class EnemyDetectState : EnemyState
 
     public override void ExitState() {
         ctx.IsDetectingPlayer = false;
+        ctx.StopAllCoroutines();
     }
 
     public override void CheckSwitchStates() {

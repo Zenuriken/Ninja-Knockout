@@ -15,8 +15,8 @@ public class Hazard : MonoBehaviour
             ContactPoint2D contact = other.contacts[0];
             healthScript.TakeDmg(1, contact.point);
         } else if (other.gameObject.tag == "Enemy") {
-            EnemyController enemyScript = other.gameObject.GetComponent<EnemyController>();
-            if (!enemyScript.HasDied()) {
+            EnemyStateManager enemyScript = other.gameObject.GetComponent<EnemyStateManager>();
+            if (!enemyScript.HasDied) {
                 enemyScript.TakeDmg(100);
             }
         }

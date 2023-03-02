@@ -8,7 +8,7 @@ public class EnemyDeathState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        // Debug.Log("DEAD");
+        // Debug.Log("DEAD:"  + Time.time);
         ctx.StartCoroutine(Death());
     }
 

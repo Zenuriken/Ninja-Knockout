@@ -8,7 +8,7 @@ public class EnemyPursueState : EnemyState
     : base(currContext, stateFactory) {}
 
     public override void EnterState() {
-        // Debug.Log("PURSUING");
+        // Debug.Log("PURSUING: " + Time.time);
         ctx.IsAlerted = true;
         ctx.IsDetectingPlayer = false;
         ctx.TargetPos = PlayerController.singleton.transform.position;
