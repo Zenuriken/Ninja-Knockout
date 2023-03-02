@@ -4,11 +4,9 @@ using UnityEngine;
 
 public class FieldOfView : MonoBehaviour
 {
-    [SerializeField]
-    [Tooltip("The FOV gradient.")]
+    [SerializeField][Tooltip("The FOV gradient.")]
     private Gradient enemyGrad;
-    [SerializeField]
-    [Tooltip("The FOV gradient for archers.")]
+    [SerializeField][Tooltip("The FOV gradient for archers.")]
     private Gradient archerGrad;
     
     public Vector3 originOffset;
@@ -148,8 +146,8 @@ public class FieldOfView : MonoBehaviour
     // Sets the gradient to a color from Yellow -> Red based on proportion.
     private void SetColorKeys(float prop) {
         GradientColorKey[] colorKeys = gradient.colorKeys;
-        colorKeys[0].color = new Color(1f, 1f - prop, 0f, 0.2941f);
-        colorKeys[1].color = new Color(1f, 1f - prop, 0f, 0f);
+        colorKeys[0].color = new Color(1f, 1f - prop, 0f, 0.39216f);
+        colorKeys[1].color = new Color(1f, 1f - prop, 0f, 0.05882f);
         gradient.colorKeys = colorKeys;
     }
 
@@ -208,11 +206,11 @@ public class FieldOfView : MonoBehaviour
         archerModeEnabled = enabled;
         fov = 30f;
         if (archerModeEnabled) {
-            this.rayCount = 30;
+            this.rayCount = 35;
             this.viewDistance = 30f;
             SetGradient(archerGrad);
         } else {
-            this.rayCount = 15;
+            this.rayCount = 25;
             this.viewDistance = 15f;
             SetGradient(enemyGrad);
         }
