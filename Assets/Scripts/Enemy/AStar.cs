@@ -267,7 +267,7 @@ public class AStar : MonoBehaviour
     }
 
     // Draw the Path created by CalculatePath()
-    private void DrawPath(List<Vector2> path) {
+    public void DrawPath(List<Vector2> path) {
         for (int i = path.Count - 1; i > 0; i--) {
             //Color color = (i % 2 == 0) ? Color.green : Color.red;
             Debug.DrawLine(path[i], path[i - 1], Color.green, 0.5f, false);
