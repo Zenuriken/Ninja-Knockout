@@ -114,6 +114,9 @@ public class PlayerController : MonoBehaviour {
     [SerializeField]
     [Tooltip("Spark particle effect when clashing with an enemy.")]
     private ParticleSystem sparks;
+    [SerializeField]
+    [Tooltip("The prefab that spawns when hiding in leaves.")]
+    private GameObject leavesPrefab;
     [Space(5)]
     #endregion
 
@@ -822,6 +825,7 @@ public class PlayerController : MonoBehaviour {
                 sounds.Play("EnteringBushes");
                 isPlayingEnteringBushesNoise = true;
                 isPlayingLeavingBushesNoise = false;
+                GameObject.Instantiate(leavesPrefab, this.transform.position, Quaternion.identity);
             }
         } else if (!isBuffering && isHiding && (numCovered <= 0 || !isSneaking || isAttacking)) {
             playerSprite.color = new Color(1f, 1f, 1f, 1f);
@@ -833,6 +837,7 @@ public class PlayerController : MonoBehaviour {
                 sounds.Play("LeavingBushes");
                 isPlayingLeavingBushesNoise = true;
                 isPlayingEnteringBushesNoise = false;
+                GameObject.Instantiate(leavesPrefab, this.transform.position, Quaternion.identity);
             }
         }
     }
