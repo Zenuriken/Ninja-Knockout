@@ -22087,7 +22087,7 @@ MonoBehaviour:
   dashDelay: 1
   dashForce: 20
   trailDur: 0.1
-  wallJumpDur: 0.2
+  wallJumpDur: 0.15
   wallFallSpeed: 2
   wallClimbSoundTime: 0.2
   shurikenPrefab: {fileID: 2571422860314671873, guid: 76bf74555c3057b46b266b4b34c4e68a,
@@ -22102,8 +22102,9 @@ MonoBehaviour:
   groundDust: {fileID: 1235888323}
   wallClimbDust: {fileID: 2141654167}
   sparks: {fileID: 1605555548}
-  meleeBallPrefab: {fileID: 4299081516674768801, guid: c27c534528e341c49a00e099927f72f1,
+  leavesPrefab: {fileID: 3220956850822290230, guid: f2649286ea7ac9e44aca88b99fbddb35,
     type: 3}
+  meleeBallPrefab: {fileID: 0}
   meleeBallSpeed: 7.5
   meleeNumIters: 50
   meleeTime: 0.01

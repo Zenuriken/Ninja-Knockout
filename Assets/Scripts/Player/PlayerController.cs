@@ -555,6 +555,8 @@ public class PlayerController : MonoBehaviour {
         if (lastGroundStatus == false && isGrounded == true) {
             jumpCounter = 2;
             dashCounter = 1;
+        } else if (lastGroundStatus == true && isGrounded == false) {
+            jumpCounter = 1;
         }
         // If the player has landed on the grounded.
         if (lastGroundStatus == false && isGrounded == true && FallDistanceMet(this.transform.position) && raycastHit2D.collider.tag == "Platform" && !titleScreenModeEnabled) {
