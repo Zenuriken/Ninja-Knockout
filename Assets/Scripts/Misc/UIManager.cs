@@ -19,17 +19,13 @@ public class UIManager : MonoBehaviour
 
     #region UI Lists
     [Header("UI Lists")]
-    [SerializeField]
-    [Tooltip("List of textures for health UI.")]
+    [SerializeField][Tooltip("List of textures for health UI.")]
     private List<Texture> healthList;
-    [SerializeField]
-    [Tooltip("List of textures for shuriken UI.")]
+    [SerializeField][Tooltip("List of textures for shuriken UI.")]
     private List<Texture> shurikenList;
-    [SerializeField]
-    [Tooltip("List of textures backgrounds for shuriken UI.")]
+    [SerializeField][Tooltip("List of textures backgrounds for shuriken UI.")]
     private List<Texture> shurikenBackgroundList;
-    [SerializeField]
-    [Tooltip("List of textures for Tutorial Popup.")]
+    [SerializeField][Tooltip("List of textures for Tutorial Popup.")]
     private List<Texture> tutorialPopUps;
     [Space(5)]
     #endregion
@@ -65,23 +61,17 @@ public class UIManager : MonoBehaviour
 
     #region Screen Variables
     [Header("Screen Fade Properties")]
-    [SerializeField]
-    [Tooltip("How fast the screen fades away when damaged.")]
+    [SerializeField][Tooltip("How fast the screen fades away when damaged.")]
     private float fadeAwaySpeed;
-    [SerializeField]
-    [Tooltip("How fast the screen fades when dying.")]
+    [SerializeField][Tooltip("How fast the screen fades when dying.")]
     private float deathFadeAwaySpeed;
-    [SerializeField]
-    [Tooltip("How fast the gold UI will fade")]
+    [SerializeField][Tooltip("How fast the gold UI will fade")]
     private float goldUIFadeSpeed;
-    [SerializeField]
-    [Tooltip("The delay before fading the screen.")]
+    [SerializeField][Tooltip("The delay before fading the screen.")]
     private float fadeAwayDelay;
-    [SerializeField]
-    [Tooltip("How fast the detection screen appears")]
+    [SerializeField][Tooltip("How fast the detection screen appears")]
     private float detectionScreenSpeed;
-    [SerializeField]
-    [Tooltip("The delay before the detection screen appears")]
+    [SerializeField][Tooltip("The delay before the detection screen appears")]
     private float detectionScreenDelay;
     [Space(5)]
     #endregion

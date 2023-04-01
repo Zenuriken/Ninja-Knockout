@@ -59,6 +59,12 @@ public class SceneController : MonoBehaviour
     }
 
 
+    public void LoadLevel(int lvl) {
+        string lvlName = "Level" + lvl.ToString();
+        SceneManager.LoadScene(lvlName);
+    }
+
+
 
     public void LoadTutorialScene() {
         StartCoroutine("LoadInTutorial");
