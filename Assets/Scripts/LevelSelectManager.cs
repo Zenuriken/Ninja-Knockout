@@ -32,6 +32,7 @@ public class LevelSelectManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Return)) {
             SceneController.singleton.LoadLevel(lvl);
+            sound.Play();
         }
     }
 

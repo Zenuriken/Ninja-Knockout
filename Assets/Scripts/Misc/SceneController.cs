@@ -58,12 +58,10 @@ public class SceneController : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-
     public void LoadLevel(int lvl) {
         string lvlName = "Level" + lvl.ToString();
-        SceneManager.LoadScene(lvlName);
+        StartCoroutine(LoadLevel(lvlName));
     }
-
 
 
     public void LoadTutorialScene() {
@@ -78,6 +76,15 @@ public class SceneController : MonoBehaviour
     public void LoadTitlescreen() {
         StartCoroutine("LoadInTitleScreen");
     }
+
+
+    IEnumerator LoadLevel(string lvlName) {
+        yield return UIManager.singleton.StartCoroutine("FadeOut");
+        SceneManager.LoadScene(lvlName);
+        yield return UIManager.singleton.StartCoroutine("FadeIn");
+    }
+    //////////////////////////
+
 
     IEnumerator LoadInTitleScreen() {
         SceneManager.LoadScene("TitleScreen");
