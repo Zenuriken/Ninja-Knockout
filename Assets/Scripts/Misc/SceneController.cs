@@ -2,24 +2,45 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class SceneController : MonoBehaviour
 {
     public static SceneController singleton;
+    private static Dictionary<string, string> lvl2Music;
 
-    [SerializeField]
-    [Tooltip("List of campfires in the scene")]
+    [SerializeField][Tooltip("List of campfires in the scene")]
     private GameObject campFires;
+    [SerializeField][Tooltip("The screen fade transition")]
+    private Image fadeImg;
+
+    #region Screen Variables
+    [Header("Screen Fade Properties")]
+    [SerializeField][Tooltip("How fast the screen fades away when damaged.")]
+    private float fadeAwaySpeed;
+    [SerializeField][Tooltip("How fast the screen fades when dying.")]
+    private float deathFadeAwaySpeed;
+    [SerializeField][Tooltip("How fast the gold UI will fade")]
+    private float goldUIFadeSpeed;
+    [SerializeField][Tooltip("The delay before fading the screen.")]
+    private float fadeAwayDelay;
+    [SerializeField][Tooltip("How fast the detection screen appears")]
+    private float detectionScreenSpeed;
+    [SerializeField][Tooltip("The delay before the detection screen appears")]
+    private float detectionScreenDelay;
+    [Space(5)]
+    #endregion
 
     private Dictionary<string, bool> campFireDict;
+    private bool isFading;
     
     private void Awake() {
         if (singleton != null && singleton != this) { 
             Destroy(this.gameObject); 
-        } 
-        else { 
+        } else { 
             singleton = this;
             DontDestroyOnLoad(this.gameObject);
+            InitializeMapping();
             campFireDict = new Dictionary<string, bool>();
         }
     }
@@ -34,17 +55,14 @@ public class SceneController : MonoBehaviour
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         string sceneName = scene.name;
-        if (sceneName == "TitleScreen") {
-            
-        } else if (sceneName == "Tutorial") {
+        if (sceneName != "TitleScreen") {
             campFires = GameObject.Find("CampFires");
             if (campFireDict.Count > 0) {
                 SetCampFires();
             } else {
                 UpdateCampFireList();
             }
-        }
-        
+        }   
     }
 
     // called third
@@ -58,55 +76,20 @@ public class SceneController : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    void InitializeMapping() {
+        lvl2Music = new Dictionary<string, string>();
+        lvl2Music["TitleScreen"] = "Adventure";
+        lvl2Music["Level0"] = "ForestWalk";
+        lvl2Music["Level1"] = "WayFarer";
+    }
+
     public void LoadLevel(int lvl) {
         string lvlName = "Level" + lvl.ToString();
         StartCoroutine(LoadLevel(lvlName));
     }
 
-
-    public void LoadTutorialScene() {
-        StartCoroutine("LoadInTutorial");
-    }
-
     public void QuitGame() {
         Application.Quit();
-    }
-
-    
-    public void LoadTitlescreen() {
-        StartCoroutine("LoadInTitleScreen");
-    }
-
-
-    IEnumerator LoadLevel(string lvlName) {
-        yield return UIManager.singleton.StartCoroutine("FadeOut");
-        SceneManager.LoadScene(lvlName);
-        yield return UIManager.singleton.StartCoroutine("FadeIn");
-    }
-    //////////////////////////
-
-
-    IEnumerator LoadInTitleScreen() {
-        SceneManager.LoadScene("TitleScreen");
-        PlayerController.singleton.transform.position = Vector2.zero;
-        MusicManager.singleton.FadeInAudio("Adventure");
-        yield return UIManager.singleton.FadeIn();
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-    }
-
-
-    IEnumerator LoadInTutorial() {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        MusicManager.singleton.FadeOutAudio("Adventure");
-        yield return UIManager.singleton.StartCoroutine("FadeOut");
-        SceneManager.LoadScene("Tutorial");
-        MusicManager.singleton.Stop("Adventure");
-        MusicManager.singleton.FadeInAudio("Traveler");
-        PlayerController.singleton.Reset(true);
-        yield return UIManager.singleton.StartCoroutine("FadeIn");
-        PlayerController.singleton.SetPlayerInput(true);
     }
 
     // Updates the camp fire dictionary with the activation status of all the campfires.
@@ -121,6 +104,74 @@ public class SceneController : MonoBehaviour
         foreach (Transform child in campFires.transform) {
             CampFire campFire = child.GetComponent<CampFire>();
             campFire.SetHasActivated(campFireDict[child.name]);
+        }
+    }
+
+
+    IEnumerator LoadLevel(string lvlName) {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        PlayerController.singleton.SetPlayerInput(false);
+        MusicManager.singleton.FadeOutAudio();
+        yield return StartCoroutine("FadeOut");
+        PlayerController.singleton.Reset(true);
+        SceneManager.LoadScene(lvlName);
+        MusicManager.singleton.Stop();
+        MusicManager.singleton.FadeInAudio(lvl2Music[lvlName]);
+        yield return StartCoroutine("FadeIn");
+        PlayerController.singleton.SetPlayerInput(true);
+    }
+
+    //////////////////////////
+
+
+    // IEnumerator LoadInTitleScreen() {
+    //     SceneManager.LoadScene("TitleScreen");
+    //     PlayerController.singleton.transform.position = Vector2.zero;
+    //     MusicManager.singleton.FadeInAudio("Adventure");
+    //     yield return UIManager.singleton.FadeIn();
+    //     Cursor.lockState = CursorLockMode.None;
+    //     Cursor.visible = true;
+    // }
+
+
+    // IEnumerator LoadInTutorial() {
+    //     Cursor.lockState = CursorLockMode.Locked;
+    //     Cursor.visible = false;
+    //     MusicManager.singleton.FadeOutAudio("Adventure");
+    //     yield return UIManager.singleton.StartCoroutine("FadeOut");
+    //     SceneManager.LoadScene("Tutorial");
+    //     MusicManager.singleton.Stop("Adventure");
+    //     MusicManager.singleton.FadeInAudio("Traveler");
+    //     PlayerController.singleton.Reset(true);
+    //     yield return UIManager.singleton.StartCoroutine("FadeIn");
+    //     PlayerController.singleton.SetPlayerInput(true);
+    // }
+
+    IEnumerator FadeOut() {
+        if(!isFading) {
+            isFading = true;
+            float speed = deathFadeAwaySpeed;
+            for (float alpha = 0f; alpha < 1f; alpha += Time.deltaTime * speed) {
+                fadeImg.color = new Color(0f, 0f, 0f, alpha);
+                yield return new WaitForEndOfFrame();
+            }
+            fadeImg.color = new Color(0f, 0f, 0f, 1f);
+            isFading = false;
+        }
+    }
+
+    IEnumerator FadeIn() {
+        if(!isFading) {
+            isFading = true;
+            float speed = deathFadeAwaySpeed;
+            yield return new WaitForSeconds(fadeAwayDelay);
+            for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * speed) {
+                fadeImg.color = new Color(0f, 0f, 0f, alpha);
+                yield return new WaitForEndOfFrame();
+            }
+            fadeImg.color = new Color(0f, 0f, 0f, 0f);
+            isFading = false;
         }
     }
 }

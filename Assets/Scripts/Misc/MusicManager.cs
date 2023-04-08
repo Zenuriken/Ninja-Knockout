@@ -7,11 +7,12 @@ public class MusicManager : MonoBehaviour
     public static MusicManager singleton;
     private Dictionary<string, AudioSource> audioSources;
 
+    private AudioSource currAudio;
+
     private void Awake() {
         if (singleton != null && singleton != this) { 
             Destroy(this.gameObject); 
-        } 
-        else { 
+        } else { 
             singleton = this;
             audioSources = new Dictionary<string, AudioSource>();
             foreach (Transform child in this.transform) {
@@ -26,13 +27,20 @@ public class MusicManager : MonoBehaviour
         source.Play();
     }
 
-    public void Stop(string name) {
-        AudioSource source = audioSources[name];
-        source.Stop();
+    public void Stop() {
+        currAudio.Stop();
     }
 
-    public void FadeOutAudio(string name) {
-        StartCoroutine(StartFade(audioSources[name], 3f, 0f));
+    public void FadeInAudio(string name) {
+        AudioSource audioSource = audioSources[name];
+        audioSource.volume = 0f;
+        audioSource.Play();
+        currAudio = audioSource;
+        StartCoroutine(StartFade(audioSources[name], 3f, 0.25f));
+    }
+
+    public void FadeOutAudio() {
+        StartCoroutine(StartFade(currAudio, 3f, 0f));
     }
 
     IEnumerator StartFade(AudioSource audioSource, float duration, float targetVolume) {
@@ -45,12 +53,5 @@ public class MusicManager : MonoBehaviour
             yield return null;
         }
         yield break;
-    }
-
-    public void FadeInAudio(string name) {
-        AudioSource audioSource = audioSources[name];
-        audioSource.volume = 0f;
-        audioSource.Play();
-        StartCoroutine(StartFade(audioSources[name], 3f, 0.25f));
     }
 }
