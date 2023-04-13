@@ -138,7 +138,6 @@ public class EnemyStateManager : MonoBehaviour
     private LayerMask allPlatformsLayerMask;
     private LayerMask playerAndPlatformLayerMask;
     private Vector2 adjustedPos;
-    private float shurikenRadius = 0.335f;
     private int damageCounter;
     private float lastIdle;
     private float lastAttack;

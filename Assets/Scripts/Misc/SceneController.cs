@@ -33,6 +33,15 @@ public class SceneController : MonoBehaviour
 
     private Dictionary<string, bool> campFireDict;
     private bool isFading;
+    private bool tutorialEnabled;
+
+
+    // private GameObject enemies;
+    // private GameObject breakables;
+    // private int totalEnemies;
+    // private int enemiesKilled;
+    // private int totalSupplies;
+    // private int suppliesLooted;
     
     private void Awake() {
         if (singleton != null && singleton != this) { 
@@ -55,14 +64,17 @@ public class SceneController : MonoBehaviour
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         string sceneName = scene.name;
-        if (sceneName != "TitleScreen") {
+
+        if (sceneName == "TitleScreen") {
+            MusicManager.singleton.PlayAudio("Adventure");
+        } else {
             campFires = GameObject.Find("CampFires");
             if (campFireDict.Count > 0) {
                 SetCampFires();
             } else {
                 UpdateCampFireList();
             }
-        }   
+        }  
     }
 
     // called third
@@ -92,6 +104,10 @@ public class SceneController : MonoBehaviour
         Application.Quit();
     }
 
+    public void SetTutorialStatus(bool status) {
+        tutorialEnabled = status;
+    }
+
     // Updates the camp fire dictionary with the activation status of all the campfires.
     public void UpdateCampFireList() {
         foreach (Transform child in campFires.transform) {
@@ -106,6 +122,18 @@ public class SceneController : MonoBehaviour
             campFire.SetHasActivated(campFireDict[child.name]);
         }
     }
+
+    // // Fades in detection screen if detection is not allowed and player has not died.
+    // public void PlayerDetected() {
+    //     if (!detectionAllowed && health > 0) {
+    //         StartCoroutine("DetectionScreen");
+    //     }
+    // }
+
+    // // Activates the black movie bars UI for cutscenes.
+    // public void DropBars(bool state) {
+    //     blackBars.SetActive(state);
+    // }
 
 
     IEnumerator LoadLevel(string lvlName) {

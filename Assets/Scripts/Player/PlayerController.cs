@@ -305,8 +305,8 @@ public class PlayerController : MonoBehaviour {
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
         enemyPlatformLeverLayerMask = LayerMask.GetMask("Enemy", "Platform", "OneWayPlatform", "Lever");
         if (!titleScreenModeEnabled) {
-            UIManager.singleton.UpdateShurikenNum(numShurikens);
-            UIManager.singleton.InitializeShurikenBackground(maxShurikens);
+            LevelUI.singleton.UpdateShurikenNum(numShurikens);
+            LevelUI.singleton.InitializeShurikenBackground(maxShurikens);
         }
     }
     #endregion

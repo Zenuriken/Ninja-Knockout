@@ -26,7 +26,7 @@ public class FinishLine : MonoBehaviour
 
     IEnumerator EndingCinematic() {
         UIManager.singleton.DropBars(true);
-        MusicManager.singleton.FadeOutAudio("Traveler");
+        MusicManager.singleton.FadeOutAudio();
         yield return new WaitForSeconds(3f);
         UIManager.singleton.DropBars(true);
         //yield return cam.StartCoroutine("SwitchTime");
@@ -36,6 +36,6 @@ public class FinishLine : MonoBehaviour
         UIManager.singleton.DropBars(false);
         yield return UIManager.singleton.StartTutorialEndCinematic();
         yield return new WaitForSeconds(1f);
-        SceneController.singleton.LoadTitlescreen();
+        //SceneController.singleton.LoadTitlescreen();
     }
 }

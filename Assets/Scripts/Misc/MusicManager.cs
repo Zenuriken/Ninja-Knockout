@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MusicManager : MonoBehaviour
 {
@@ -22,9 +23,35 @@ public class MusicManager : MonoBehaviour
         }
     }
 
-    public void Play(string name) {
-        AudioSource source = audioSources[name];
-        source.Play();
+    // // called first
+    // void OnEnable()
+    // {
+    //     SceneManager.sceneLoaded += OnSceneLoaded;
+    // }
+
+    // // called second
+    // void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    // {
+    //     if (scene.name == "TitleScreen") {
+
+    //     }
+    // }
+
+    // // called third
+    // void Start()
+    // {
+    // }
+
+    // // called when the game is terminated
+    // void OnDisable()
+    // {
+    //     SceneManager.sceneLoaded -= OnSceneLoaded;
+    // }
+
+    public void PlayAudio(string name) {
+        AudioSource audioSource = audioSources[name];
+        audioSource.Play();
+        currAudio = audioSource;
     }
 
     public void Stop() {
