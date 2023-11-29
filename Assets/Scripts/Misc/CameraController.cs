@@ -48,7 +48,7 @@ public class CameraController : MonoBehaviour
     {
         cam = GetComponent<Camera>();
         player = GameObject.FindGameObjectWithTag("Player");
-        if (titleScreenModeEnabled) playerScript = player.GetComponent<PlayerController>();
+        if (!titleScreenModeEnabled) playerScript = player.GetComponent<PlayerController>();
         currSmoothTime = smoothTime;
         float screenAspect = (float)Screen.width / (float)Screen.height;
         cameraHalfWidth = cam.orthographicSize * screenAspect;

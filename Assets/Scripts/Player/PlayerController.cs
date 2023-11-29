@@ -304,10 +304,10 @@ public class PlayerController : MonoBehaviour {
         platformLayerMask = LayerMask.GetMask("Platform");
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
         enemyPlatformLeverLayerMask = LayerMask.GetMask("Enemy", "Platform", "OneWayPlatform", "Lever");
-        if (!titleScreenModeEnabled) {
-            LevelUI.singleton.UpdateShurikenNum(numShurikens);
-            LevelUI.singleton.InitializeShurikenBackground(maxShurikens);
-        }
+        // if (!titleScreenModeEnabled) {
+        //     LevelUI.singleton.UpdateShurikenNum(numShurikens);
+        //     LevelUI.singleton.InitializeShurikenBackground(maxShurikens);
+        // }
     }
     #endregion
 
@@ -317,21 +317,17 @@ public class PlayerController : MonoBehaviour {
         // Limits the velocity when falling
         playerRB.velocity = new Vector2(playerRB.velocity.x, Mathf.Clamp(playerRB.velocity.y, -maxFallSpeed, maxFallSpeed));
         // If the player is on the title screen.
-        if (titleScreenModeEnabled) {
-            IsGrounded();
-            playerRB.velocity = new Vector2(speed, playerRB.velocity.y);
-            if (isGrounded) CreateDust(0);
-        } else if (!hasDied) {
-            GetPlayerInput();
-            IsGrounded();
-            IsAgainstWall();
-            SetDirection();
-            Move();
-            Melee();
-            Throw();
-            HidePlayer();
-        }
         UpdateSprite();
+        
+        if (hasDied) return;
+        GetPlayerInput();
+        IsGrounded();
+        IsAgainstWall();
+        SetDirection();
+        Move();
+        Melee();
+        Throw();
+        HidePlayer();
     }
     #endregion
 
