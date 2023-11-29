@@ -8,9 +8,10 @@ using UnityEngine.SceneManagement;
 public class TitleScreenUI : MonoBehaviour
 {
     [SerializeField] GameObject tutorialPrompt;
-
-    public void ShowTutorialPrompt() {
-        tutorialPrompt.SetActive(true);
+    
+    // Shows the prompt asking if tutorial pop ups should be enabled.
+    public void ShowTutorialPrompt(bool state) {
+        tutorialPrompt.SetActive(state);
     }
 
 

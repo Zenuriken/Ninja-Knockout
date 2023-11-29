@@ -31,7 +31,7 @@ public class LevelSelectManager : MonoBehaviour
         if (lvl != lastLvl) HighLightLvl();
 
         if (Input.GetKeyDown(KeyCode.Return)) {
-            SceneController.singleton.LoadLevel(lvl);
+            // GameManager.singleton.LoadLevel(lvl);
             sound.Play();
         }
     }

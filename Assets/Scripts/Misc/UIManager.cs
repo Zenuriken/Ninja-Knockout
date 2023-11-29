@@ -146,8 +146,8 @@ public class UIManager : MonoBehaviour
             title.SetActive(true);
             Button yesTutorialBttn = tutorialPrompt.transform.GetChild(1).GetComponent<Button>();
             Button noTutorialBttn = tutorialPrompt.transform.GetChild(2).GetComponent<Button>();
-            // yesTutorialBttn.onClick.AddListener(SceneController.singleton.LoadTutorialScene);
-            // noTutorialBttn.onClick.AddListener(SceneController.singleton.LoadTutorialScene);
+            // yesTutorialBttn.onClick.AddListener(GameManager.singleton.LoadTutorialScene);
+            // noTutorialBttn.onClick.AddListener(GameManager.singleton.LoadTutorialScene);
         } else if (sceneName == "Tutorial") {
             playerStatus.SetActive(true);
             titleButtons.SetActive(false);
@@ -400,7 +400,7 @@ public class UIManager : MonoBehaviour
 
         // While screen is covered, reset the player to last spawn point.
         PlayerController.singleton.Respawn();
-        SceneController.singleton.UpdateCampFireList();
+        GameManager.singleton.UpdateCampFireList();
         SceneManager.LoadScene("Tutorial");
 
 

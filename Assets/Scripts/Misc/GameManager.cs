@@ -4,15 +4,19 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class SceneController : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
-    public static SceneController singleton;
+    public static GameManager singleton;
     private static Dictionary<string, string> lvl2Music;
 
     [SerializeField][Tooltip("List of campfires in the scene")]
     private GameObject campFires;
     [SerializeField][Tooltip("The screen fade transition")]
     private Image fadeImg;
+
+
+    
+
 
     #region Screen Variables
     [Header("Screen Fade Properties")]
@@ -95,9 +99,8 @@ public class SceneController : MonoBehaviour
         lvl2Music["Level1"] = "WayFarer";
     }
 
-    public void LoadLevel(int lvl) {
-        string lvlName = "Level" + lvl.ToString();
-        StartCoroutine(LoadLevel(lvlName));
+    public void LoadLevel(string lvlName) {
+        StartCoroutine(LoadLevelCoroutine(lvlName));
     }
 
     public void QuitGame() {
@@ -136,7 +139,7 @@ public class SceneController : MonoBehaviour
     // }
 
 
-    IEnumerator LoadLevel(string lvlName) {
+    IEnumerator LoadLevelCoroutine(string lvlName) {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         PlayerController.singleton.SetPlayerInput(false);
