@@ -7,38 +7,29 @@ public class CameraController : MonoBehaviour
     public static CameraController singleton;
 
     #region Serialized Variables
-    [SerializeField]
-    [Tooltip("The Camera's camera object.")]
+    [SerializeField][Tooltip("The Camera's camera object.")]
     private Camera cam;
-    [SerializeField]
-    [Tooltip("The proportion of the camera's width size to move in the x dimension. (For increasing player's line of sight)")]
+    [SerializeField][Tooltip("Whether we are on the title screen.")]
+    private bool titleScreenModeEnabled;
+    [SerializeField][Tooltip("The proportion of the camera's width size to move in the x dimension. (For increasing player's line of sight)")]
     private float xProportion;
-    [SerializeField]
-    [Tooltip("The Camera's horiztonal threshold for movement.")]
+    [SerializeField][Tooltip("The Camera's horiztonal threshold for movement.")]
     private float xThreshold;
-    [SerializeField]
-    [Tooltip("The Camera's vertical threshold for movement.")]
+    [SerializeField][Tooltip("The Camera's vertical threshold for movement.")]
     private float yThreshold;
-    [SerializeField]
-    [Tooltip("The time it takes for the camera to move to the player's last recorded position.")]
+    [SerializeField][Tooltip("The time it takes for the camera to move to the player's last recorded position.")]
     private float smoothTime;
-    [SerializeField]
-    [Tooltip("Left bounds of the camera.")]
+    [SerializeField][Tooltip("Left bounds of the camera.")]
     private float leftXLimit;
-    [SerializeField]
-    [Tooltip("The right bounds of the camera.")]
+    [SerializeField][Tooltip("The right bounds of the camera.")]
     private float rightXLimit;
-    [SerializeField]
-    [Tooltip("Determines whether the camera will follow the player.")]
+    [SerializeField][Tooltip("Determines whether the camera will follow the player.")]
     private bool followEnabled;
-    [SerializeField]
-    [Tooltip("How fast the moon and sun will rotate")]
+    [SerializeField][Tooltip("How fast the moon and sun will rotate")]
     private float switchSpeed;
-    [SerializeField]
-    [Tooltip("The moon.")]
+    [SerializeField][Tooltip("The moon.")]
     private GameObject moon;
-    [SerializeField]
-    [Tooltip("The sun.")]
+    [SerializeField][Tooltip("The sun.")]
     private GameObject sun;
     #endregion
 
@@ -46,12 +37,9 @@ public class CameraController : MonoBehaviour
     private GameObject player;
     private PlayerController playerScript;
     private int playerDir;
-    private float yVelocity;
     private float xVelocity;
     private float currSmoothTime;
     private float cameraHalfWidth;
-
-    private bool titleScreenModeEnabled;
     #endregion
 
     #region Initializing Functions
@@ -60,16 +48,10 @@ public class CameraController : MonoBehaviour
     {
         cam = GetComponent<Camera>();
         player = GameObject.FindGameObjectWithTag("Player");
-        playerScript = player.GetComponent<PlayerController>();
-        playerDir = playerScript.GetPlayerDir();
-        titleScreenModeEnabled = playerScript.GetTitleScreenModeStatus();
-
+        if (titleScreenModeEnabled) playerScript = player.GetComponent<PlayerController>();
         currSmoothTime = smoothTime;
-
         float screenAspect = (float)Screen.width / (float)Screen.height;
-        //float cameraHalfHeight = cam.orthographicSize;
         cameraHalfWidth = cam.orthographicSize * screenAspect;
-
         followEnabled = true;
     }
 
@@ -85,34 +67,23 @@ public class CameraController : MonoBehaviour
     #region Update Functions
     // Update is called once per frame
     void LateUpdate() {
+        if (titleScreenModeEnabled) {
+            transform.position += Vector3.right * 10f * Time.deltaTime;
+            return;
+        }
+
         if (followEnabled && player != null) {
             Vector3 pos = this.transform.position;
             Vector3 targetPos = player.transform.position;
             playerDir = playerScript.GetPlayerDir();
             SetSmoothTime(playerScript.IsSneaking());
             float xOffset = cam.orthographicSize * 2 * xProportion;
-            if (playerDir == 1) {
-                targetPos = new Vector3(targetPos.x + xOffset, targetPos.y, targetPos.z);
-            } else {
-                targetPos = new Vector3(targetPos.x - xOffset, targetPos.y, targetPos.z);
-            }
-
-            // if (playerPos.y > pos.y + cam.orthographicSize * yThreshold
-            //     || playerPos.y < pos.y - cam.orthographicSize * yThreshold) {
-            //         pos.y = Mathf.SmoothDamp(pos.y, playerPos.y, ref yVelocity, smoothTime);
-            // }
-            if (!titleScreenModeEnabled) {
-                if ((targetPos.x > pos.x + cam.orthographicSize * xThreshold && pos.x < rightXLimit - cameraHalfWidth)
-                    || (targetPos.x < pos.x - cam.orthographicSize * xThreshold && pos.x > leftXLimit + cameraHalfWidth)) {
-                        //Debug.Log("Moving cam");
-                        pos.x = Mathf.SmoothDamp(pos.x, targetPos.x, ref xVelocity, currSmoothTime);
-                }
-            } else {
-                if ((targetPos.x > pos.x + cam.orthographicSize * xThreshold)
-                    || (targetPos.x < pos.x - cam.orthographicSize * xThreshold)) {
-                        //Debug.Log("Moving cam");
-                        pos.x = Mathf.SmoothDamp(pos.x, targetPos.x, ref xVelocity, currSmoothTime);
-                }
+            float xPos = playerDir == 1 ? targetPos.x + xOffset : targetPos.x - xOffset;
+            targetPos = new Vector3(xPos, targetPos.y, targetPos.z);
+          
+            if ((targetPos.x > pos.x + cam.orthographicSize * xThreshold && pos.x < rightXLimit - cameraHalfWidth)
+                || (targetPos.x < pos.x - cam.orthographicSize * xThreshold && pos.x > leftXLimit + cameraHalfWidth)) {
+                    pos.x = Mathf.SmoothDamp(pos.x, targetPos.x, ref xVelocity, currSmoothTime);
             }
             this.transform.position = pos;
         }

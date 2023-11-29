@@ -9,10 +9,9 @@ public class TitleScreenUI : MonoBehaviour
 {
     [SerializeField] GameObject tutorialPrompt;
     
-    // Shows the prompt asking if tutorial pop ups should be enabled.
-    public void ShowTutorialPrompt(bool state) {
-        tutorialPrompt.SetActive(state);
+    // Toggles the prompt asking if tutorial pop ups should be enabled.
+    public void ToggleTutorialPrompt() {
+        bool isActive = tutorialPrompt.activeInHierarchy;
+        tutorialPrompt.SetActive(!isActive);
     }
-
-
 }

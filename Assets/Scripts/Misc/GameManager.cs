@@ -7,16 +7,13 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager singleton;
+    public bool TutorialEnabled;
     private static Dictionary<string, string> lvl2Music;
 
     [SerializeField][Tooltip("List of campfires in the scene")]
     private GameObject campFires;
     [SerializeField][Tooltip("The screen fade transition")]
     private Image fadeImg;
-
-
-    
-
 
     #region Screen Variables
     [Header("Screen Fade Properties")]
@@ -100,6 +97,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void LoadLevel(string lvlName) {
+        Debug.Log("Loading level");
         StartCoroutine(LoadLevelCoroutine(lvlName));
     }
 
@@ -142,10 +140,10 @@ public class GameManager : MonoBehaviour
     IEnumerator LoadLevelCoroutine(string lvlName) {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        PlayerController.singleton.SetPlayerInput(false);
+        // PlayerController.singleton.SetPlayerInput(false);
         MusicManager.singleton.FadeOutAudio();
         yield return StartCoroutine("FadeOut");
-        PlayerController.singleton.Reset(true);
+        // PlayerController.singleton.Reset(true);
         SceneManager.LoadScene(lvlName);
         MusicManager.singleton.Stop();
         MusicManager.singleton.FadeInAudio(lvl2Music[lvlName]);
