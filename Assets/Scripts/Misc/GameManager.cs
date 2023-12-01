@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -35,6 +36,13 @@ public class GameManager : MonoBehaviour
     private Dictionary<string, bool> campFireDict;
     private bool isFading;
     private bool tutorialEnabled;
+
+    private bool isBlackingOutScreen;
+    private bool hasDetectionScreen;
+    private Image fadeOutScreenImg;
+    private Image detectedScreenImg;
+    private TMP_Text detectedTxt;
+
 
 
     // private GameObject enemies;
@@ -177,7 +185,57 @@ public class GameManager : MonoBehaviour
     //     PlayerController.singleton.SetPlayerInput(true);
     // }
 
-    IEnumerator FadeOut() {
+    // Fades in the detection screen.
+    IEnumerator DetectionScreen() {
+        hasDetectionScreen = true;
+        Time.timeScale = 0.25f;
+        // Fade in the detection screen
+        yield return new WaitForSeconds(detectionScreenDelay);
+        for (float alpha = 0f; alpha <= 1f; alpha += Time.deltaTime * detectionScreenSpeed) {
+            detectedScreenImg.color = new Color(0.2f, 0f, 0f, alpha);
+            detectedTxt.alpha = alpha;
+            yield return new WaitForEndOfFrame();
+        }
+        detectedScreenImg.color = new Color(0.2f, 0f, 0f, 1f);
+        detectedTxt.alpha = 1f;
+
+        // While screen is covered, reset the player to last spawn point.
+        PlayerController.singleton.Respawn();
+        GameManager.singleton.UpdateCampFireList();
+        SceneManager.LoadScene("Tutorial");
+
+
+        // Fade out the detection screen
+        yield return new WaitForSeconds(detectionScreenDelay * 2.5f);
+        for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * detectionScreenSpeed) {
+            detectedScreenImg.color = new Color(0.2f, 0f, 0f, alpha);
+            detectedTxt.alpha = alpha;
+            yield return new WaitForEndOfFrame();
+        }
+        detectedScreenImg.color = new Color(0f, 0f, 0f, 0f);
+        detectedTxt.alpha = 0f;
+        PlayerController.singleton.SetPlayerInput(true);
+        Time.timeScale = 1f;
+        hasDetectionScreen = false;
+    }
+
+    // Returns whether the screen currently has detection screen.
+    public bool HasDetectionScreen() {
+        return hasDetectionScreen;
+    }
+
+    // Returns whether the tutorial is enabled.
+    public bool TutorialIsEnabled() {
+        return tutorialEnabled;
+    }
+
+     // Returns whether the screen is currently fading.
+    public bool IsFading() {
+        return isFading;
+    }
+
+
+    public IEnumerator FadeOut() {
         if(!isFading) {
             isFading = true;
             float speed = deathFadeAwaySpeed;
@@ -190,7 +248,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    IEnumerator FadeIn() {
+    public IEnumerator FadeIn() {
         if(!isFading) {
             isFading = true;
             float speed = deathFadeAwaySpeed;

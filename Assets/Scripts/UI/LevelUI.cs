@@ -24,10 +24,14 @@ public class LevelUI : MonoBehaviour
 
     #region UI Components
     [Header("UI Components")]
+    [SerializeField][Tooltip("The player's upper left")]
+    private GameObject playerStatus;
     [SerializeField][Tooltip("Tutorial Popup GameObject")]
     private GameObject tutorialPopUp;
     [SerializeField][Tooltip("Dialogue GameObject")]
     private GameObject dialogue;
+    [SerializeField]
+    private GameObject UISounds;
     #endregion
 
     #region UI Variables
@@ -56,8 +60,20 @@ public class LevelUI : MonoBehaviour
     private void Awake() {
         if (singleton != null && singleton != this) { 
             Destroy(this.gameObject); 
-        } else { 
+        } 
+        else { 
             singleton = this;
+            DontDestroyOnLoad(this.gameObject);
+            currHealthSprite = playerStatus.transform.GetChild(2).GetComponent<RawImage>();
+            currShurikenBackgroundSprite = playerStatus.transform.GetChild(3).GetComponent<RawImage>();
+            currShurikenSprite = playerStatus.transform.GetChild(4).GetComponent<RawImage>();
+            currTutorial = tutorialPopUp.GetComponent<RawImage>();
+
+            goldSprite = playerStatus.transform.GetChild(5).GetComponent<RawImage>();
+            goldTxt = goldSprite.transform.GetChild(0).GetComponent<TMP_Text>();
+
+            sounds = UISounds.GetComponent<SoundManager>();
+            shownTutorials = new List<string>();
         }
     }
     

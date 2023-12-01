@@ -33,7 +33,7 @@ public class Health : MonoBehaviour
         gravity = playerRB.gravityScale;
         sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
         if (!playerScript.GetTitleScreenModeStatus()) {
-            UIManager.singleton.UpdateHealth(currHealth);
+            LevelUI.singleton.UpdateHealth(currHealth);
         }
     }
 
@@ -55,17 +55,17 @@ public class Health : MonoBehaviour
         Physics2D.IgnoreLayerCollision(0, 9, true);
         playerRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
         playerScript.SetHasDied(true);
-        yield return UIManager.singleton.StartCoroutine("FadeOut");
+        yield return GameManager.singleton.StartCoroutine("FadeOut");
         playerScript.Reset(false);
-        yield return UIManager.singleton.StartCoroutine("FadeIn");
+        yield return GameManager.singleton.StartCoroutine("FadeIn");
         playerScript.SetPlayerInput(true);
     }
 
     // Respawns the player when falling out of bounds.
     IEnumerator OutOfBoundsRespawn() {
-        yield return UIManager.singleton.StartCoroutine("FadeOut");
+        yield return GameManager.singleton.StartCoroutine("FadeOut");
         playerScript.Respawn();
-        yield return UIManager.singleton.StartCoroutine("FadeIn");
+        yield return GameManager.singleton.StartCoroutine("FadeIn");
         playerScript.SetPlayerInput(true);
     }
 
@@ -120,7 +120,7 @@ public class Health : MonoBehaviour
     public void TakeDmg(int x, Vector3 enemyPos) {
         if (!isBuffering && !hasDied) {
             currHealth -= x;
-            UIManager.singleton.UpdateHealth(currHealth);
+            LevelUI.singleton.UpdateHealth(currHealth);
 
             // Kill the player
             if (currHealth <= 0) {
@@ -143,7 +143,7 @@ public class Health : MonoBehaviour
     // Decreases the player's health when interacting with environment
     public void TakeEnvironDmg(int x) {
         currHealth -= x;
-        UIManager.singleton.UpdateHealth(currHealth);
+        LevelUI.singleton.UpdateHealth(currHealth);
 
         PlayerController.singleton.SetPlayerInput(false);
 
@@ -154,7 +154,7 @@ public class Health : MonoBehaviour
         }
 
         // Respawn the player
-        if (!UIManager.singleton.HasDetectionScreen()) {
+        if (!GameManager.singleton.HasDetectionScreen()) {
             sounds.Play("Grunt");
             StartCoroutine("OutOfBoundsRespawn");
         }
@@ -163,13 +163,13 @@ public class Health : MonoBehaviour
     // Sets the players health to the specified number
     public void SetPlayerHealth(int num) {
         currHealth = num;
-        UIManager.singleton.UpdateHealth(currHealth);
+        LevelUI.singleton.UpdateHealth(currHealth);
     }
 
     // Increases the players health by the specified number
     public void IncreasePlayerHealth(int num) {
         currHealth += num;
-        UIManager.singleton.UpdateHealth(currHealth);
+        LevelUI.singleton.UpdateHealth(currHealth);
     }
 
     public void ResetHealth(bool justStarted) {
@@ -185,7 +185,7 @@ public class Health : MonoBehaviour
         } else {
            currHealth = 1; 
         }
-        UIManager.singleton.UpdateHealth(currHealth);
+        LevelUI.singleton.UpdateHealth(currHealth);
     }
 
     public bool CanPickUpHealth() {
