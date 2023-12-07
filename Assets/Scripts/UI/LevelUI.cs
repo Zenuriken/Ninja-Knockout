@@ -176,18 +176,21 @@ public class LevelUI : MonoBehaviour
         return !shownTutorials.Contains(name);
     }
 
+    // Hides the Player status UI.
+    public void HidePlayerStatus(bool state) {
+        playerStatus.SetActive(!state);
+    }
+
 
     // Plays the dialogue at the end of the tutorial.
-    // public IEnumerator StartTutorialEndCinematic() {
-    //     dialogue.SetActive(true);
-    //     enemiesKilled = totalEnemies - enemies.transform.childCount;
-    //     suppliesLooted = totalSupplies - breakables.transform.childCount;
-    //     Dialogue dialogueScript = dialogue.GetComponent<Dialogue>();
-    //     dialogueScript.InitializeVariables(enemiesKilled, suppliesLooted, enemies.transform.childCount);
-    //     dialogueScript.InitializeDialogue();
-    //     yield return dialogueScript.StartDialogue();
-    //     dialogue.SetActive(false);
-    // }
+    public IEnumerator StartTutorialEndCinematic() {
+        dialogue.SetActive(true);
+        Dialogue dialogueScript = dialogue.GetComponent<Dialogue>();
+        dialogueScript.InitializeVariables(GameManager.singleton.EnemiesKilled, GameManager.singleton.SuppliesLooted, GameManager.singleton.TotalEnemies - GameManager.singleton.EnemiesKilled);
+        dialogueScript.InitializeDialogue();
+        yield return dialogueScript.StartDialogue();
+        dialogue.SetActive(false);
+    }
     #endregion
 
     #region Coroutine Functions

@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager singleton;
     public bool TutorialEnabled;
+    public bool DetectionAllowed;
     private static Dictionary<string, string> lvl2Music;
 
     [SerializeField][Tooltip("List of campfires in the scene")]
@@ -30,6 +31,8 @@ public class GameManager : MonoBehaviour
     private float detectionScreenSpeed;
     [SerializeField][Tooltip("The delay before the detection screen appears")]
     private float detectionScreenDelay;
+    [SerializeField]
+    private GameObject blackBars;
     [Space(5)]
     #endregion
 
@@ -43,15 +46,16 @@ public class GameManager : MonoBehaviour
     private Image detectedScreenImg;
     private TMP_Text detectedTxt;
 
+    // State variables
+    private int gold;
+    private int totalEnemies;
+    private int enemiesKilled;
+    private int totalSupplies;
+    private int suppliesLooted;
 
+    private GameObject enemies;
+    private GameObject breakables;
 
-    // private GameObject enemies;
-    // private GameObject breakables;
-    // private int totalEnemies;
-    // private int enemiesKilled;
-    // private int totalSupplies;
-    // private int suppliesLooted;
-    
     private void Awake() {
         if (singleton != null && singleton != this) { 
             Destroy(this.gameObject); 
@@ -83,6 +87,11 @@ public class GameManager : MonoBehaviour
             } else {
                 UpdateCampFireList();
             }
+            enemies = GameObject.Find("Enemies");
+            breakables = GameObject.Find("Breakables");
+
+            totalEnemies = enemies.transform.childCount;
+            totalSupplies = breakables.transform.childCount;
         }  
     }
 
@@ -132,12 +141,24 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // // Fades in detection screen if detection is not allowed and player has not died.
-    // public void PlayerDetected() {
-    //     if (!detectionAllowed && health > 0) {
-    //         StartCoroutine("DetectionScreen");
-    //     }
-    // }
+    public void IncreaseGoldBy(int num) {
+        gold += num;
+        LevelUI.singleton.UpdateGold(gold);
+    }
+
+
+    // Fades in detection screen if detection is not allowed and player has not died.
+    public void PlayerDetected() {
+        if (!DetectionAllowed && PlayerController.singleton.GetPlayerHealth() > 0) {
+            StartCoroutine("DetectionScreen");
+        }
+    }
+
+    // Activates the black movie bars UI for cutscenes.
+    public void DropBars(bool state) {
+        blackBars.SetActive(state);
+    }
+
 
     // // Activates the black movie bars UI for cutscenes.
     // public void DropBars(bool state) {
@@ -233,6 +254,11 @@ public class GameManager : MonoBehaviour
     public bool IsFading() {
         return isFading;
     }
+
+    public int TotalEnemies {get{return totalEnemies;}}
+    public int EnemiesKilled {get{return enemiesKilled;}}
+    public int TotalSupplies {get{return totalSupplies;}}
+    public int SuppliesLooted {get{return suppliesLooted;}}
 
 
     public IEnumerator FadeOut() {

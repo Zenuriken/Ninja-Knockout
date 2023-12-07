@@ -42,7 +42,7 @@ public class EnemyDetectState : EnemyState
         ctx.QuestionMarks.Clear();
         ctx.ExclamationMark.Play();
         ctx.Sounds.Play("Alerted");
-        UIManager.singleton.PlayerDetected();
+        GameManager.singleton.PlayerDetected();
         yield return new WaitForSeconds(ctx.AlertedDelay);
         ctx.AlertedObj.SetActive(true);
         ctx.IsAlerted = true;

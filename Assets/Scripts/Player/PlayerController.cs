@@ -515,7 +515,7 @@ public class PlayerController : MonoBehaviour {
     private void GetPlayerInput() {
         closePressed = Input.GetKeyDown(escapeKey) || Input.GetKeyDown(enterKey);
         continuePressed = Input.anyKeyDown;
-        if (closePressed) UIManager.singleton.ExitPopUp();
+        if (closePressed) LevelUI.singleton.ExitPopUp();
         if (playerInputEnabled) {
             xInput = Input.GetAxisRaw("Horizontal");
             jumpPressed = Input.GetKeyDown(jumpKey);
@@ -718,7 +718,7 @@ public class PlayerController : MonoBehaviour {
             isThrowing = true;
             lastAttack = Time.time;
             numShurikens -= 1;
-            UIManager.singleton.UpdateShurikenNum(numShurikens);
+            LevelUI.singleton.UpdateShurikenNum(numShurikens);
             Invoke("SetIsThrowingFalse", 0.5f);
         }
     }
@@ -880,16 +880,15 @@ public class PlayerController : MonoBehaviour {
 
     public void IncreaseShurikenNumBy(int num) {
         numShurikens += num;
-        UIManager.singleton.UpdateShurikenNum(numShurikens);
-    }
-
-    public void IncreaseGoldBy(int num) {
-        gold += num;
-        UIManager.singleton.UpdateGold(gold);
+        LevelUI.singleton.UpdateShurikenNum(numShurikens);
     }
 
     public bool CanPickUpShuriken() {
         return numShurikens < maxShurikens;
+    }
+
+    public int GetPlayerHealth() {
+        return healthScript.GetHealth();
     }
 
     public void SetPlayerInput(bool state) {
@@ -913,7 +912,7 @@ public class PlayerController : MonoBehaviour {
         playerRB.position = (justStarted) ? Vector2.zero : lastCampFirePos;
         numShurikens = startingShurikens;
         healthScript.ResetHealth(justStarted);
-        UIManager.singleton.UpdateShurikenNum(numShurikens);
+        LevelUI.singleton.UpdateShurikenNum(numShurikens);
 
         skillShotSprite.enabled = false;
         wallSkillShotSprite.enabled = false;

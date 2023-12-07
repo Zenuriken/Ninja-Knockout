@@ -17,9 +17,9 @@ public class CutSceneTrigger : MonoBehaviour
         if (other.gameObject.tag == "Player" && !hasTriggered) {
             hasTriggered = true;
             PlayerController.singleton.SetPlayerInput(false);
-            UIManager.singleton.HidePlayerStatus(true);
-            UIManager.singleton.DropBars(true);
-            UIManager.singleton.SetDetectionAllowed(true);
+            LevelUI.singleton.HidePlayerStatus(true);
+            GameManager.singleton.DropBars(true);
+            // GameManager.singleton.SetDetectionAllowed(true);
             enemy.SetActive(true);
         }
         StartCoroutine("UnpausePlayer");
