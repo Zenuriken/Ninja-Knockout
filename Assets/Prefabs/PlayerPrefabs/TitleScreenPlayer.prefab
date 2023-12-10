@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 289856817287654880}
   - component: {fileID: 289856817287654882}
   - component: {fileID: 289856817287654883}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Ground Dust Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4827,7 +4827,7 @@ GameObject:
   - component: {fileID: 289856817962004981}
   - component: {fileID: 5325288526135250200}
   - component: {fileID: 5325288526135250201}
-  m_Layer: 7
+  m_Layer: 12
   m_Name: TitleScreenPlayer
   m_TagString: Player
   m_Icon: {fileID: 0}
