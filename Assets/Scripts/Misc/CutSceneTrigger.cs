@@ -16,7 +16,7 @@ public class CutSceneTrigger : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.tag == "Player" && !hasTriggered) {
             hasTriggered = true;
-            PlayerController.singleton.SetPlayerInput(false);
+            InputManager.singleton.PlayerInputEnabled = false;
             LevelUI.singleton.HidePlayerStatus(true);
             GameManager.singleton.DropBars(true);
             GameManager.singleton.SetDetectionAllowed(true);
@@ -27,7 +27,7 @@ public class CutSceneTrigger : MonoBehaviour
 
     IEnumerator UnpausePlayer() {
         yield return new WaitForSeconds(pauseTime);
-        PlayerController.singleton.SetPlayerInput(true);
+        InputManager.singleton.PlayerInputEnabled = true;
         GameManager.singleton.DropBars(false);
         LevelUI.singleton.HidePlayerStatus(false);
     }

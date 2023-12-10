@@ -146,7 +146,7 @@ public class LevelUI : MonoBehaviour
         }
         GameManager.singleton.AddTutorial(name);
         Time.timeScale = 0f;
-        PlayerController.singleton.SetPlayerInput(false);
+        InputManager.singleton.PlayerInputEnabled = false;
         tutorialPopUp.SetActive(true);
         sounds.Play("TutorialPopUp");
 
@@ -169,7 +169,7 @@ public class LevelUI : MonoBehaviour
         tutorialImg.texture = null;
         isShowingTutorialPopUp = false;
         Time.timeScale = 1f;
-        PlayerController.singleton.SetPlayerInput(true);
+        InputManager.singleton.PlayerInputEnabled = true;
     }
 
     // Hides the Player status UI.

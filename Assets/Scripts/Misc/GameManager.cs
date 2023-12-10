@@ -188,7 +188,6 @@ public class GameManager : MonoBehaviour
     IEnumerator LoadLevelCoroutine(string lvlName) {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        // PlayerController.singleton.SetPlayerInput(false);
         MusicManager.singleton.FadeOutAudio();
         yield return StartCoroutine("FadeOut");
         // PlayerController.singleton.Reset(true);
@@ -196,34 +195,10 @@ public class GameManager : MonoBehaviour
         MusicManager.singleton.Stop();
         MusicManager.singleton.FadeInAudio(lvlToMusic[lvlName]);
         yield return StartCoroutine("FadeIn");
-        PlayerController.singleton.SetPlayerInput(true);
+        InputManager.singleton.PlayerInputEnabled = true;
     }
 
     //////////////////////////
-
-
-    // IEnumerator LoadInTitleScreen() {
-    //     SceneManager.LoadScene("TitleScreen");
-    //     PlayerController.singleton.transform.position = Vector2.zero;
-    //     MusicManager.singleton.FadeInAudio("Adventure");
-    //     yield return UIManager.singleton.FadeIn();
-    //     Cursor.lockState = CursorLockMode.None;
-    //     Cursor.visible = true;
-    // }
-
-
-    // IEnumerator LoadInTutorial() {
-    //     Cursor.lockState = CursorLockMode.Locked;
-    //     Cursor.visible = false;
-    //     MusicManager.singleton.FadeOutAudio("Adventure");
-    //     yield return UIManager.singleton.StartCoroutine("FadeOut");
-    //     SceneManager.LoadScene("Tutorial");
-    //     MusicManager.singleton.Stop("Adventure");
-    //     MusicManager.singleton.FadeInAudio("Traveler");
-    //     PlayerController.singleton.Reset(true);
-    //     yield return UIManager.singleton.StartCoroutine("FadeIn");
-    //     PlayerController.singleton.SetPlayerInput(true);
-    // }
 
     // Fades in the detection screen.
     IEnumerator DetectionScreen() {
@@ -257,7 +232,7 @@ public class GameManager : MonoBehaviour
         }
         detectedScreenImg.color = new Color(0f, 0f, 0f, 0f);
         detectedTxt.alpha = 0f;
-        PlayerController.singleton.SetPlayerInput(true);
+        InputManager.singleton.PlayerInputEnabled = true;
         Time.timeScale = 1f;
         hasDetectionScreen = false;
     }

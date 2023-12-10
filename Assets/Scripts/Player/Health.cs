@@ -32,9 +32,7 @@ public class Health : MonoBehaviour
         playerRB = this.GetComponent<Rigidbody2D>();
         gravity = playerRB.gravityScale;
         sounds = this.transform.GetChild(6).GetComponent<SoundManager>();
-        if (!playerScript.GetTitleScreenModeStatus()) {
-            LevelUI.singleton.UpdateHealth(currHealth);
-        }
+        LevelUI.singleton.UpdateHealth(currHealth);
     }
 
     private void OnCollisionStay2D(Collision2D other) {
@@ -58,7 +56,7 @@ public class Health : MonoBehaviour
         yield return GameManager.singleton.StartCoroutine("FadeOut");
         playerScript.Reset(false);
         yield return GameManager.singleton.StartCoroutine("FadeIn");
-        playerScript.SetPlayerInput(true);
+        InputManager.singleton.PlayerInputEnabled = true;
     }
 
     // Respawns the player when falling out of bounds.
@@ -66,7 +64,7 @@ public class Health : MonoBehaviour
         yield return GameManager.singleton.StartCoroutine("FadeOut");
         playerScript.Respawn();
         yield return GameManager.singleton.StartCoroutine("FadeIn");
-        playerScript.SetPlayerInput(true);
+        InputManager.singleton.PlayerInputEnabled = true;
     }
 
     #region Coroutines
@@ -145,7 +143,7 @@ public class Health : MonoBehaviour
         currHealth -= x;
         LevelUI.singleton.UpdateHealth(currHealth);
 
-        PlayerController.singleton.SetPlayerInput(false);
+        InputManager.singleton.PlayerInputEnabled = false;
 
         // Kill the player
         if (currHealth <= 0) {

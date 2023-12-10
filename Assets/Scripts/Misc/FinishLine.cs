@@ -19,8 +19,6 @@ public class FinishLine : MonoBehaviour
             hasActivated = true;
             PlayerController.singleton.gameObject.SetActive(false);
             GameObject titlePlayer = Instantiate(titleScreenPlayer, PlayerController.singleton.transform.position, Quaternion.identity);
-            // PlayerController.singleton.SetPlayerInput(false);
-            //SceneManager.LoadScene("TitleScreen");
             LevelUI.singleton.HidePlayerStatus(true);
             cam.SetFollowEnabled(false);
             StartCoroutine("EndingCinematic");

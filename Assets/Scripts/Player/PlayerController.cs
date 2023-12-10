@@ -137,11 +137,7 @@ public class PlayerController : MonoBehaviour {
 
     #region Inspector Variables
     [Header("Toggles")]
-    [SerializeField]
-    private bool playerInputEnabled;
-    [SerializeField]
-    private bool titleScreenModeEnabled;
-    [SerializeField]
+    [SerializeField][Tooltip("Whether or not the player can dash.")]
     private bool dashEnabled;
     #endregion
 
@@ -302,10 +298,6 @@ public class PlayerController : MonoBehaviour {
         platformLayerMask = LayerMask.GetMask("Platform");
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
         enemyPlatformLeverLayerMask = LayerMask.GetMask("Enemy", "Platform", "OneWayPlatform", "Lever");
-        // if (!titleScreenModeEnabled) {
-        //     LevelUI.singleton.UpdateShurikenNum(numShurikens);
-        //     LevelUI.singleton.InitializeShurikenBackground(maxShurikens);
-        // }
     }
     #endregion
 
@@ -536,7 +528,7 @@ public class PlayerController : MonoBehaviour {
             jumpCounter = 1;
         }
         // If the player has landed on the grounded.
-        if (lastGroundStatus == false && isGrounded == true && FallDistanceMet(this.transform.position) && raycastHit2D.collider.tag == "Platform" && !titleScreenModeEnabled) {
+        if (lastGroundStatus == false && isGrounded == true && FallDistanceMet(this.transform.position) && raycastHit2D.collider.tag == "Platform") {
             CreateDust(0);
             sounds.Play("Landing");
         } else if (isGrounded && raycastHit2D.collider.tag == "Platform" && Mathf.Abs(playerRB.velocity.x) > 0.05f && !isSneaking) {
@@ -872,22 +864,13 @@ public class PlayerController : MonoBehaviour {
         return healthScript.GetHealth();
     }
 
-    public void SetPlayerInput(bool state) {
-        playerInputEnabled = state;
-    }
-
-    public void SetTitleScreenMode(bool state) {
-        titleScreenModeEnabled = state;
-    }
-
     public void SetCampFirePos(Vector2 pos) {
         lastCampFirePos = pos;
     }
 
     // Reset the player to the last campfire position.
     public void Reset(bool justStarted) {
-        playerInputEnabled = false;
-        titleScreenModeEnabled = false;
+        InputManager.singleton.PlayerInputEnabled = false;        
         alertedNum = 0;
         playerRB.velocity = Vector2.zero;
         playerRB.position = (justStarted) ? Vector2.zero : lastCampFirePos;
@@ -907,8 +890,7 @@ public class PlayerController : MonoBehaviour {
 
     // Respawns the player to the last saved game state.
     public void Respawn() {
-        playerInputEnabled = false;
-        titleScreenModeEnabled = false;
+        InputManager.singleton.PlayerInputEnabled = false;     
         alertedNum = 0;
         playerRB.velocity = Vector2.zero;
         playerRB.position = spawnLocation;
@@ -953,11 +935,6 @@ public class PlayerController : MonoBehaviour {
         // angle = 0 -> 360
         float angleRad = angle * (Mathf.PI / 180f);
         return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
-    }
-
-    // Returns whether the player is set to title screen mode.
-    public bool GetTitleScreenModeStatus() {
-        return this.titleScreenModeEnabled;
     }
     #endregion
 
