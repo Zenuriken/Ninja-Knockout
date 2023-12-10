@@ -170,8 +170,6 @@ public class PlayerController : MonoBehaviour {
     private bool sneakHolding;
     private bool upHolding;
     private bool downHolding;
-    private bool closePressed;
-    private bool continuePressed;
 
     // State Variables
     private bool isJumping;
@@ -513,34 +511,17 @@ public class PlayerController : MonoBehaviour {
     #region State Functions
     // Gets the Player Input
     private void GetPlayerInput() {
-        closePressed = Input.GetKeyDown(escapeKey) || Input.GetKeyDown(enterKey);
-        continuePressed = Input.anyKeyDown;
-        if (closePressed) LevelUI.singleton.ExitPopUp();
-        if (playerInputEnabled) {
-            xInput = Input.GetAxisRaw("Horizontal");
-            jumpPressed = Input.GetKeyDown(jumpKey);
-            jumpHolding = Input.GetKey(jumpKey);
-            jumpReleased = Input.GetKeyUp(jumpKey);
-            dashPressed = Input.GetKeyDown(dashKey);
-            sneakHolding = Input.GetKey(sneakKey);
-            meleePressed = Input.GetKeyDown(meleeKey);
-            fireReleased = Input.GetKeyUp(fireKey);
-            fireHolding = Input.GetKey(fireKey);
-            upHolding = Input.GetKey(upKey);
-            downHolding = Input.GetKey(downKey);
-        } else {
-            xInput = 0f;
-            jumpPressed = false;
-            jumpHolding = false;
-            jumpReleased = false;
-            dashPressed = false;
-            sneakHolding = false;
-            meleePressed = false;
-            fireReleased = false;
-            fireHolding = false;
-            upHolding = false;
-            downHolding = false;
-        }
+        xInput = InputManager.singleton.XInput;
+        jumpPressed = InputManager.singleton.JumpPressed;
+        jumpHolding = InputManager.singleton.JumpHolding;
+        jumpReleased = InputManager.singleton.JumpReleased;
+        dashPressed = InputManager.singleton.DashPressed;
+        sneakHolding = InputManager.singleton.SneakHolding;
+        meleePressed = InputManager.singleton.MeleePressed;
+        fireReleased = InputManager.singleton.FireReleased;
+        fireHolding = InputManager.singleton.FireHolding;
+        upHolding = InputManager.singleton.UpHolding;
+        downHolding = InputManager.singleton.DownHolding;
     }
 
     // Determines if the player is standing on ground.
@@ -958,11 +939,6 @@ public class PlayerController : MonoBehaviour {
     // Sets the healing particles to state.
     public void SetHealthParticles(bool state) {
         highLight.SetActive(state);
-    }
-
-    // Returns whether the player has pressed continue.
-    public bool HasPressedContinue() {
-        return continuePressed;
     }
 
     // Removes an enemy from the melee list upon death.

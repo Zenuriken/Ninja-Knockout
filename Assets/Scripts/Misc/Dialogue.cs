@@ -99,7 +99,7 @@ public class Dialogue : MonoBehaviour
     }
 
     public bool ShouldSkip() {
-        bool shouldSkip = PlayerController.singleton.HasPressedContinue() && !isAnimatingDialogue;
+        bool shouldSkip = InputManager.singleton.ContinuePressed && !isAnimatingDialogue;
         if (shouldSkip) {
             sounds.Play("Click");
         }
