@@ -39,13 +39,16 @@ public class LevelUI : MonoBehaviour
     private float goldUIFadeSpeed;
     [SerializeField][Tooltip("The delay before something starts fading.")]
     private float fadeAwayDelay;
+    [SerializeField][Tooltip("How fast the tutorial popup fades in")]
+    private float tutorialFadeSpeed;
     #endregion
    
     private SoundManager sounds;
     private RawImage currHealthSprite;
     private RawImage currShurikenBackgroundSprite;
     private RawImage currShurikenSprite;
-    private RawImage currTutorial;
+    private RawImage tutorialImg;
+    private Image enterPromptImg;
     private RawImage goldSprite;
     private TMP_Text goldTxt;
 
@@ -56,6 +59,7 @@ public class LevelUI : MonoBehaviour
     private int lastTutorialPopUp;
     private List<string> shownTutorials; 
     bool isShowingTutorialPopUp;
+    bool isFadingInTutorialPopUp;
 
     private void Awake() {
         if (singleton != null && singleton != this) { 
@@ -67,7 +71,8 @@ public class LevelUI : MonoBehaviour
             currHealthSprite = playerStatus.transform.GetChild(2).GetComponent<RawImage>();
             currShurikenBackgroundSprite = playerStatus.transform.GetChild(3).GetComponent<RawImage>();
             currShurikenSprite = playerStatus.transform.GetChild(4).GetComponent<RawImage>();
-            currTutorial = tutorialPopUp.GetComponent<RawImage>();
+            tutorialImg = tutorialPopUp.transform.GetChild(0).GetComponent<RawImage>();
+            enterPromptImg = tutorialPopUp.transform.GetChild(1).GetComponent<Image>();
 
             goldSprite = playerStatus.transform.GetChild(5).GetComponent<RawImage>();
             goldTxt = goldSprite.transform.GetChild(0).GetComponent<TMP_Text>();
@@ -121,57 +126,58 @@ public class LevelUI : MonoBehaviour
     public void ShowTutorialPopUp(string name) {
         isShowingTutorialPopUp = true;
         if (name == "Move") {
-            currTutorial.texture = tutorialPopUps[0];
+            tutorialImg.texture = tutorialPopUps[0];
         } else if (name == "Jump") {
-            currTutorial.texture = tutorialPopUps[1];
+            tutorialImg.texture = tutorialPopUps[1];
         } else if (name == "DoubleJump") {
-            currTutorial.texture = tutorialPopUps[2];
+            tutorialImg.texture = tutorialPopUps[2];
         } else if (name == "Melee") {
-            currTutorial.texture = tutorialPopUps[3];
+            tutorialImg.texture = tutorialPopUps[3];
         } else if (name == "WallClimb") {
-            currTutorial.texture = tutorialPopUps[4];
+            tutorialImg.texture = tutorialPopUps[4];
         } else if (name == "StealthKill") {
-            currTutorial.texture = tutorialPopUps[5];
+            tutorialImg.texture = tutorialPopUps[5];
         } else if (name == "Fire") {
-            currTutorial.texture = tutorialPopUps[6];
+            tutorialImg.texture = tutorialPopUps[6];
         } else if (name == "Aim") {
-            currTutorial.texture = tutorialPopUps[7];
+            tutorialImg.texture = tutorialPopUps[7];
         } else if (name == "Sneak") {
-            currTutorial.texture = tutorialPopUps[8];
+            tutorialImg.texture = tutorialPopUps[8];
         } else if (name == "Hide") {
-            currTutorial.texture = tutorialPopUps[9];
+            tutorialImg.texture = tutorialPopUps[9];
         } else if (name == "CampFire") {
-            currTutorial.texture = tutorialPopUps[10];
+            tutorialImg.texture = tutorialPopUps[10];
         }
-        currTutorial.color = new Color(1f, 1f, 1f, 1f);
-        // tutorialBackground.SetActive(true);
-        // enterPrompt.SetActive(true);
-        Time.timeScale = 0f;
         shownTutorials.Add(name);
+        Time.timeScale = 0f;
         PlayerController.singleton.SetPlayerInput(false);
+        tutorialPopUp.SetActive(true);
         sounds.Play("TutorialPopUp");
+
+        StartCoroutine("FadeInTutorial");
     }
 
     // Exits whatever Pop Up or prompt is being displayed.
     public void ExitPopUp() {
-        if (isShowingTutorialPopUp) {
+        if (isShowingTutorialPopUp && !isFadingInTutorialPopUp) {
             RemoveTutorialPopUp();
         }
     }
 
     // Removes the tutorial pop up if it's currently being displayed.
     public void RemoveTutorialPopUp() {
-        currTutorial.texture = null;
-        currTutorial.color = new Color(0f, 0f, 0f, 0f);
-        // tutorialBackground.SetActive(false);
-        // enterPrompt.SetActive(false);
+        StopAllCoroutines();
+        tutorialImg.color = new Color(1f, 1f, 1f, 0f);
+        enterPromptImg.color = new Color(1f, 1f, 1f, 0f);
+        tutorialPopUp.SetActive(false);
+        tutorialImg.texture = null;
         isShowingTutorialPopUp = false;
         Time.timeScale = 1f;
         PlayerController.singleton.SetPlayerInput(true);
     }
 
 
-    // Returns whether the currTutorialNumber is less than or greater than the tutorial popup that wants to show
+    // Returns whether the tutorialImgNumber is less than or greater than the tutorial popup that wants to show
     public bool ShouldShow(string name) {
         return !shownTutorials.Contains(name);
     }
@@ -208,6 +214,37 @@ public class LevelUI : MonoBehaviour
             goldSprite.color = new Color(1f, 1f, 1f, alpha);
             goldTxt.alpha = alpha;
             yield return new WaitForEndOfFrame();
+        }
+    }
+
+    // Fades in the tutorial.
+    IEnumerator FadeInTutorial() {
+        isFadingInTutorialPopUp = true;
+        float speed = tutorialFadeSpeed;
+        for (float alpha = 0f; alpha < 1f; alpha += Time.unscaledDeltaTime * speed) {
+            tutorialImg.color = new Color(1f, 1f, 1f, alpha);
+            yield return new WaitForEndOfFrame();
+        }
+        tutorialImg.color = new Color(1f, 1f, 1f, 1f);
+        isFadingInTutorialPopUp = false;
+
+        yield return new WaitForSecondsRealtime(1f);
+
+        // Create a blinking effect for the press enter prompt.
+        speed *= 1.5f;
+
+        while (true) {
+            for (float alpha = 0f; alpha < 1f; alpha += Time.unscaledDeltaTime * speed) {
+                enterPromptImg.color = new Color(1f, 1f, 1f, alpha);
+                yield return new WaitForEndOfFrame();
+            }
+            enterPromptImg.color = new Color(1f, 1f, 1f, 1f);
+            
+            for (float alpha = 1f; alpha > 0f; alpha -= Time.unscaledDeltaTime * speed) {
+                enterPromptImg.color = new Color(1f, 1f, 1f, alpha);
+                yield return new WaitForEndOfFrame();
+            }
+            enterPromptImg.color = new Color(1f, 1f, 1f, 0f);
         }
     }
     #endregion

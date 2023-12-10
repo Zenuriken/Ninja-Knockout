@@ -8,9 +8,12 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager singleton;
-    public bool TutorialEnabled;
-    public bool DetectionAllowed;
     private static Dictionary<string, string> lvl2Music;
+
+    [SerializeField][Tooltip("Whether tutorial popups are enabled")]
+    private bool tutorialEnabled;
+    [SerializeField][Tooltip("Whether a detection will reset the player to the last checkpoint.")]
+    public bool detectionAllowed;
 
     [SerializeField][Tooltip("List of campfires in the scene")]
     private GameObject campFires;
@@ -38,8 +41,6 @@ public class GameManager : MonoBehaviour
 
     private Dictionary<string, bool> campFireDict;
     private bool isFading;
-    private bool tutorialEnabled;
-
     private bool isBlackingOutScreen;
     private bool hasDetectionScreen;
     private Image fadeOutScreenImg;
@@ -149,7 +150,7 @@ public class GameManager : MonoBehaviour
 
     // Fades in detection screen if detection is not allowed and player has not died.
     public void PlayerDetected() {
-        if (!DetectionAllowed && PlayerController.singleton.GetPlayerHealth() > 0) {
+        if (!detectionAllowed && PlayerController.singleton.GetPlayerHealth() > 0) {
             StartCoroutine("DetectionScreen");
         }
     }

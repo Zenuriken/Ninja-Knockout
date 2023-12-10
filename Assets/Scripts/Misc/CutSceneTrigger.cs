@@ -28,7 +28,7 @@ public class CutSceneTrigger : MonoBehaviour
     IEnumerator UnpausePlayer() {
         yield return new WaitForSeconds(pauseTime);
         PlayerController.singleton.SetPlayerInput(true);
-        UIManager.singleton.DropBars(false);
-        UIManager.singleton.HidePlayerStatus(false);
+        GameManager.singleton.DropBars(false);
+        LevelUI.singleton.HidePlayerStatus(false);
     }
 }
