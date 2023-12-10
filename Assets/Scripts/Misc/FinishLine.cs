@@ -8,6 +8,8 @@ public class FinishLine : MonoBehaviour
     private bool hasActivated;
     private CameraController cam;
 
+    public GameObject titleScreenPlayer;
+
     private void Start() {
         cam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraController>();
     }
@@ -15,8 +17,9 @@ public class FinishLine : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.tag == "Player" && !hasActivated) {
             hasActivated = true;
-            PlayerController.singleton.SetTitleScreenMode(true);
-            PlayerController.singleton.SetPlayerInput(false);
+            PlayerController.singleton.gameObject.SetActive(false);
+            GameObject titlePlayer = Instantiate(titleScreenPlayer, PlayerController.singleton.transform.position, Quaternion.identity);
+            // PlayerController.singleton.SetPlayerInput(false);
             //SceneManager.LoadScene("TitleScreen");
             LevelUI.singleton.HidePlayerStatus(true);
             cam.SetFollowEnabled(false);

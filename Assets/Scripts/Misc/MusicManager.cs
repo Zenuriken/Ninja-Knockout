@@ -23,30 +23,32 @@ public class MusicManager : MonoBehaviour
         }
     }
 
-    // // called first
-    // void OnEnable()
-    // {
-    //     SceneManager.sceneLoaded += OnSceneLoaded;
-    // }
+    // called first
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
 
-    // // called second
-    // void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    // {
-    //     if (scene.name == "TitleScreen") {
+    // called second
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (currAudio != null) return;
 
-    //     }
-    // }
+        if (scene.name == "Level0") {
+            PlayAudio("Traveler");
+        } 
+    }
 
-    // // called third
-    // void Start()
-    // {
-    // }
+    // called third
+    void Start()
+    {
+    }
 
-    // // called when the game is terminated
-    // void OnDisable()
-    // {
-    //     SceneManager.sceneLoaded -= OnSceneLoaded;
-    // }
+    // called when the game is terminated
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
 
     public void PlayAudio(string name) {
         AudioSource audioSource = audioSources[name];
@@ -67,6 +69,7 @@ public class MusicManager : MonoBehaviour
     }
 
     public void FadeOutAudio() {
+        Debug.Log("Curraudio: " + currAudio.name);
         StartCoroutine(StartFade(currAudio, 3f, 0f));
     }
 

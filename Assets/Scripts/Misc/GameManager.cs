@@ -277,12 +277,6 @@ public class GameManager : MonoBehaviour
         return isFading;
     }
 
-    public int TotalEnemies {get{return totalEnemies;}}
-    public int EnemiesKilled {get{return enemiesKilled;}}
-    public int TotalSupplies {get{return totalSupplies;}}
-    public int SuppliesLooted {get{return suppliesLooted;}}
-
-
     public IEnumerator FadeOut() {
         if(!isFading) {
             isFading = true;
@@ -309,4 +303,10 @@ public class GameManager : MonoBehaviour
             isFading = false;
         }
     }
+
+    public int EnemiesKilled {get{return enemiesKilled;}}
+    public int TotalEnemies {get{return totalEnemies;}}
+    public int SuppliesLooted {get{return suppliesLooted;}}
+    public int TotalSupplies {get{return totalSupplies;}}
+    public int Gold {get{return gold;}}
 }
