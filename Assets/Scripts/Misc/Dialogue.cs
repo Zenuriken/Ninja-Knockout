@@ -18,19 +18,21 @@ public class Dialogue : MonoBehaviour
     private SoundManager sounds;
 
     private List<string> dialogueList;
-
+    private string currTxt;
     private int enemiesKilled;
     private int suppliesLooted;
     private int survivors;
-
     private int currIndex;
-
     private bool isAnimatingDialogue;
+
+    private bool conditionToStopCoroutine;
 
     private AudioSource sound;
     private Image backgroundSprite;
     private GameObject indicator;
     private GameObject dialogueBox;
+
+    private IEnumerator coroutineMethod;
 
     private void Awake() {
         sound = this.GetComponent<AudioSource>();
@@ -38,7 +40,14 @@ public class Dialogue : MonoBehaviour
         backgroundSprite = dialogueBox.GetComponent<Image>();
         indicator = this.transform.GetChild(1).gameObject;
         dialogueList = new List<string>();
-        
+    }
+
+    private void Update() {
+
+        if(ShouldSkip() && coroutineMethod != null){
+            StopCoroutine(coroutineMethod);
+            coroutineMethod = null;
+        }
     }
 
     public void InitializeDialogue() {
@@ -61,7 +70,7 @@ public class Dialogue : MonoBehaviour
     IEnumerator ShowText() {
         isAnimatingDialogue = true;
         indicator.SetActive(false);
-        string currTxt = dialogueList[currIndex];
+        currTxt = dialogueList[currIndex];
         string color = currTxt.Substring(0, 3);
         if (color == "_W_") {
             dialogue.color = Color.white;
@@ -71,40 +80,50 @@ public class Dialogue : MonoBehaviour
         currTxt = currTxt.Substring(3, currTxt.Length - 3);
         sounds.Play("Dialogue");
         for (int t = 1; t <= currTxt.Length; t++) {
-            // if (PlayerController.singleton.HasPressedContinue() && isAnimatingDialogue) {
-            //     break;
-            // }
             dialogue.text = currTxt.Substring(0, t);
-
             yield return new WaitForSeconds(timePerChar);
         }
-        dialogue.text = currTxt;
-        isAnimatingDialogue = false;
-        sounds.Stop("Dialogue");
-        indicator.SetActive(true);
-        yield return new WaitUntil(ShouldSkip);
-        //isAnimatingDialogue = false;
     }
 
     public IEnumerator StartDialogue() {
         dialogueBox.SetActive(true);
 
         for (int i = 0; i < dialogueList.Count; i++) {
-            yield return StartCoroutine("ShowText");
+            coroutineMethod = ShowText();
+            StartCoroutine(coroutineMethod);
+
+            while (coroutineMethod != null){
+                yield return null;
+            }
+
+            dialogue.text = currTxt;
+            isAnimatingDialogue = false;
+            sounds.Stop("Dialogue");
+            indicator.SetActive(true);
             currIndex += 1;
+
+            yield return new WaitForSecondsRealtime(0.1f);
+
+            yield return new WaitUntil(ShouldContinue);
         }
         indicator.SetActive(false);
         yield return StartCoroutine("FadeOutText");
 
     }
 
-    public bool ShouldSkip() {
-        bool shouldSkip = InputManager.singleton.ContinuePressed && !isAnimatingDialogue;
-        if (shouldSkip) {
+    private bool ShouldContinue() {
+        bool shouldContinue = InputManager.singleton.ContinuePressed && !isAnimatingDialogue;
+        if (shouldContinue) {
             sounds.Play("Click");
         }
+        return shouldContinue;
+    }
+
+    private bool ShouldSkip() {
+        bool shouldSkip = InputManager.singleton.ContinuePressed && isAnimatingDialogue;
         return shouldSkip;
     }
+    
 
     public void InitializeVariables(int enemiesKilled, int suppliesLooted, int survivors) {
         this.enemiesKilled = enemiesKilled;

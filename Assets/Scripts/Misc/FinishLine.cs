@@ -28,15 +28,11 @@ public class FinishLine : MonoBehaviour
     IEnumerator EndingCinematic() {
         GameManager.singleton.DropBars(true);
         MusicManager.singleton.FadeOutAudio();
-        yield return new WaitForSeconds(3f);
-        GameManager.singleton.DropBars(true);
-        //yield return cam.StartCoroutine("SwitchTime");
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
         yield return GameManager.singleton.FadeOut();
         yield return new WaitForSeconds(1f);
         GameManager.singleton.DropBars(false);
         yield return LevelUI.singleton.StartTutorialEndCinematic();
         yield return new WaitForSeconds(1f);
-        //SceneController.singleton.LoadTitlescreen();
     }
 }

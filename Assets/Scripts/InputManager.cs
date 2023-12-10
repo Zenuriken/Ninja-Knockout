@@ -53,7 +53,7 @@ public class InputManager : MonoBehaviour
         continuePressed = Input.anyKeyDown;
         bool closePressed = Input.GetKeyDown(escapeKey) || Input.GetKeyDown(enterKey);
         if (closePressed) LevelUI.singleton.ExitPopUp();
-        
+
         if (playerInputEnabled) {
             xInput = Input.GetAxisRaw("Horizontal");
             jumpPressed = Input.GetKeyDown(jumpKey);
