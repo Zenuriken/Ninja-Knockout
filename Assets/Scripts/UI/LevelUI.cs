@@ -56,8 +56,6 @@ public class LevelUI : MonoBehaviour
     private int health;
     private int shurikensRemaining;
     private int gold;
-    private int lastTutorialPopUp;
-    private List<string> shownTutorials; 
     bool isShowingTutorialPopUp;
     bool isFadingInTutorialPopUp;
 
@@ -67,7 +65,6 @@ public class LevelUI : MonoBehaviour
         } 
         else { 
             singleton = this;
-            DontDestroyOnLoad(this.gameObject);
             currHealthSprite = playerStatus.transform.GetChild(2).GetComponent<RawImage>();
             currShurikenBackgroundSprite = playerStatus.transform.GetChild(3).GetComponent<RawImage>();
             currShurikenSprite = playerStatus.transform.GetChild(4).GetComponent<RawImage>();
@@ -78,7 +75,6 @@ public class LevelUI : MonoBehaviour
             goldTxt = goldSprite.transform.GetChild(0).GetComponent<TMP_Text>();
 
             sounds = UISounds.GetComponent<SoundManager>();
-            shownTutorials = new List<string>();
         }
     }
     
@@ -148,7 +144,7 @@ public class LevelUI : MonoBehaviour
         } else if (name == "CampFire") {
             tutorialImg.texture = tutorialPopUps[10];
         }
-        shownTutorials.Add(name);
+        GameManager.singleton.AddTutorial(name);
         Time.timeScale = 0f;
         PlayerController.singleton.SetPlayerInput(false);
         tutorialPopUp.SetActive(true);
@@ -174,12 +170,6 @@ public class LevelUI : MonoBehaviour
         isShowingTutorialPopUp = false;
         Time.timeScale = 1f;
         PlayerController.singleton.SetPlayerInput(true);
-    }
-
-
-    // Returns whether the tutorialImgNumber is less than or greater than the tutorial popup that wants to show
-    public bool ShouldShow(string name) {
-        return !shownTutorials.Contains(name);
     }
 
     // Hides the Player status UI.

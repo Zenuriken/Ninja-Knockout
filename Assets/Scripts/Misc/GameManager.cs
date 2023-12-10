@@ -8,17 +8,29 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager singleton;
-    private static Dictionary<string, string> lvl2Music;
+    private static Dictionary<string, string> lvlToMusic;
 
+    #region Game Variables
+    [Header("Game Variables")]
     [SerializeField][Tooltip("Whether tutorial popups are enabled")]
     private bool tutorialEnabled;
     [SerializeField][Tooltip("Whether a detection will reset the player to the last checkpoint.")]
     public bool detectionAllowed;
+    [Space(5)]
+    #endregion
 
-    [SerializeField][Tooltip("List of campfires in the scene")]
-    private GameObject campFires;
+    #region Components
+    [Header("Components")]
+    [SerializeField][Tooltip("The black bars for cutscenes")]
+    private GameObject blackBars;
     [SerializeField][Tooltip("The screen fade transition")]
     private Image fadeImg;
+    [SerializeField][Tooltip("The detection screen")]
+    private Image detectedScreenImg;
+    [SerializeField][Tooltip("The text displaying detection")]
+    private TMP_Text detectedTxt;
+    [Space(5)]
+    #endregion
 
     #region Screen Variables
     [Header("Screen Fade Properties")]
@@ -34,18 +46,17 @@ public class GameManager : MonoBehaviour
     private float detectionScreenSpeed;
     [SerializeField][Tooltip("The delay before the detection screen appears")]
     private float detectionScreenDelay;
-    [SerializeField]
-    private GameObject blackBars;
     [Space(5)]
     #endregion
 
+    private GameObject campFires;
+    private GameObject enemies;
+    private GameObject breakables;
+    private List<string> shownTutorials; 
     private Dictionary<string, bool> campFireDict;
     private bool isFading;
     private bool isBlackingOutScreen;
     private bool hasDetectionScreen;
-    private Image fadeOutScreenImg;
-    private Image detectedScreenImg;
-    private TMP_Text detectedTxt;
 
     // State variables
     private int gold;
@@ -53,9 +64,6 @@ public class GameManager : MonoBehaviour
     private int enemiesKilled;
     private int totalSupplies;
     private int suppliesLooted;
-
-    private GameObject enemies;
-    private GameObject breakables;
 
     private void Awake() {
         if (singleton != null && singleton != this) { 
@@ -65,6 +73,7 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(this.gameObject);
             InitializeMapping();
             campFireDict = new Dictionary<string, bool>();
+            shownTutorials = new List<string>();
         }
     }
 
@@ -108,10 +117,11 @@ public class GameManager : MonoBehaviour
     }
 
     void InitializeMapping() {
-        lvl2Music = new Dictionary<string, string>();
-        lvl2Music["TitleScreen"] = "Adventure";
-        lvl2Music["Level0"] = "ForestWalk";
-        lvl2Music["Level1"] = "WayFarer";
+        lvlToMusic = new Dictionary<string, string>();
+        lvlToMusic["TitleScreen"] = "Adventure";
+        lvlToMusic["Level0"] = "Traveler";
+        lvlToMusic["Level1"] = "ForestWalk";
+        lvlToMusic["Level1"] = "WayFarer";
     }
 
     public void LoadLevel(string lvlName) {
@@ -155,17 +165,25 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Sets the detectionAllowed variable to true.
+    public void SetDetectionAllowed(bool state) {
+        detectionAllowed = state;
+    }
+
     // Activates the black movie bars UI for cutscenes.
     public void DropBars(bool state) {
         blackBars.SetActive(state);
     }
 
+    // Adds this tutorial to the list of tutorials that have been shown.
+    public void AddTutorial(string name) {
+        shownTutorials.Add(name);
+    }
 
-    // // Activates the black movie bars UI for cutscenes.
-    // public void DropBars(bool state) {
-    //     blackBars.SetActive(state);
-    // }
-
+    // Returns whether the tutorialImgNumber is less than or greater than the tutorial popup that wants to show
+    public bool ShouldShow(string name) {
+        return !shownTutorials.Contains(name);
+    }
 
     IEnumerator LoadLevelCoroutine(string lvlName) {
         Cursor.lockState = CursorLockMode.Locked;
@@ -176,7 +194,7 @@ public class GameManager : MonoBehaviour
         // PlayerController.singleton.Reset(true);
         SceneManager.LoadScene(lvlName);
         MusicManager.singleton.Stop();
-        MusicManager.singleton.FadeInAudio(lvl2Music[lvlName]);
+        MusicManager.singleton.FadeInAudio(lvlToMusic[lvlName]);
         yield return StartCoroutine("FadeIn");
         PlayerController.singleton.SetPlayerInput(true);
     }
@@ -224,7 +242,10 @@ public class GameManager : MonoBehaviour
         // While screen is covered, reset the player to last spawn point.
         PlayerController.singleton.Respawn();
         GameManager.singleton.UpdateCampFireList();
-        SceneManager.LoadScene("Tutorial");
+
+        // TODO: Instead of loading the screen I should reset the player and have some sort of mapping to keep track of 
+        // what enemies have been killed already.
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
 
         // Fade out the detection screen

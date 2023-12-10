@@ -116,9 +116,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5f4e4f3b02ba1f41a54bee456de2197, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TutorialEnabled: 0
-  campFires: {fileID: 0}
+  tutorialEnabled: 1
+  detectionAllowed: 0
+  blackBars: {fileID: 6554397026027201070}
   fadeImg: {fileID: 6352085516262830157}
+  detectedScreenImg: {fileID: 6554397025932466106}
+  detectedTxt: {fileID: 6554397024785573465}
   fadeAwaySpeed: 1
   deathFadeAwaySpeed: 0.5
   goldUIFadeSpeed: 0.4

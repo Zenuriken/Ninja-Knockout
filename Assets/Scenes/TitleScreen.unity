@@ -5019,6 +5019,18 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &201306403 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6554397025932466106, guid: 3eccc1d10fc84254c8d68fd6f648821d,
+    type: 3}
+  m_PrefabInstance: {fileID: 794285210616073636}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &227390440
 GameObject:
   m_ObjectHideFlags: 0
@@ -5273,6 +5285,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &492258201 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6554397026027201070, guid: 3eccc1d10fc84254c8d68fd6f648821d,
+    type: 3}
+  m_PrefabInstance: {fileID: 794285210616073636}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &574587402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6476,6 +6494,18 @@ MonoBehaviour:
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
+--- !u!114 &1579665865 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6554397024785573465, guid: 3eccc1d10fc84254c8d68fd6f648821d,
+    type: 3}
+  m_PrefabInstance: {fileID: 794285210616073636}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!213 &1819665606
 Sprite:
   m_ObjectHideFlags: 0
@@ -8532,6 +8562,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7827437930327504984, guid: 3eccc1d10fc84254c8d68fd6f648821d,
+        type: 3}
+      propertyPath: blackBars
+      value: 
+      objectReference: {fileID: 492258201}
+    - target: {fileID: 7827437930327504984, guid: 3eccc1d10fc84254c8d68fd6f648821d,
+        type: 3}
+      propertyPath: detectedTxt
+      value: 
+      objectReference: {fileID: 1579665865}
+    - target: {fileID: 7827437930327504984, guid: 3eccc1d10fc84254c8d68fd6f648821d,
+        type: 3}
+      propertyPath: detectedScreenImg
+      value: 
+      objectReference: {fileID: 201306403}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3eccc1d10fc84254c8d68fd6f648821d, type: 3}
 --- !u!114 &794285210616073637 stripped

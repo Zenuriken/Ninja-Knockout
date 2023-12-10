@@ -38,6 +38,7 @@ public class EnemyPatrolState : EnemyState
         if (ctx.CurrentState != this) return;
         ctx.SetAdjustedPos();
         ctx.FOV.SetOrigin(ctx.transform.position);
+        if (ctx.PatrolEnabled && patrolPath == null) patrolPath = ctx.AstarScript.CalculatePatrolPath(ctx.MaxNodeDist);
         if (ctx.PatrolEnabled) ctx.FollowPath(ctx.PatrolSpeed);
         if (ctx.PatrolEnabled && CanIdle()) ctx.StartCoroutine(Idle());
         if (ctx.FOVOscillateEnabled) OscillateFOV();
@@ -79,11 +80,11 @@ public class EnemyPatrolState : EnemyState
         if (ctx.StartingDir == 1) {
             ctx.transform.localScale = new Vector3(Mathf.Abs(ctx.transform.localScale.x), ctx.transform.localScale.y, ctx.transform.localScale.z);
             ctx.FOV.StartingAngle = 15f;
-            if (ctx.PatrolEnabled) ctx.TargetPos = patrolPath[1];
+            if (ctx.PatrolEnabled && patrolPath != null) ctx.TargetPos = patrolPath[1];
         } else if (ctx.StartingDir == -1) {
             ctx.transform.localScale = new Vector3(-1f * Mathf.Abs(ctx.transform.localScale.x), ctx.transform.localScale.y, ctx.transform.localScale.z);
             ctx.FOV.StartingAngle = 200f;
-            if (ctx.PatrolEnabled) ctx.TargetPos = patrolPath[0];
+            if (ctx.PatrolEnabled && patrolPath != null) ctx.TargetPos = patrolPath[0];
         }
         initialAngle = ctx.FOV.StartingAngle;
     }
