@@ -81,6 +81,10 @@ public class LevelUI : MonoBehaviour
             sounds = UISounds.GetComponent<SoundManager>();
         }
     }
+
+    private void Start() {
+        UpdateGold(PlayerPrefs.GetInt("coins"));
+    }
     
     #region Public Function
     // Increases the player's score by amount.

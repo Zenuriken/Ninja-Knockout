@@ -27,6 +27,8 @@ public class LevelStats : MonoBehaviour
         DisplayStat(numDetectionsStat, GameManager.singleton.NumDetections, GameManager.singleton.NumDetectionsAllowed, true);
         timeStat.text = GameManager.singleton.InGameTime.ToString();
         starsImg.texture = starsImgArray[numSatisfiedStats];
+
+        GameManager.singleton.SaveStats(numSatisfiedStats);
     }
 
 

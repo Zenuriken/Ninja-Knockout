@@ -8,7 +8,6 @@ using System;
 
 public class TitleScreenUI : MonoBehaviour
 {    
-    [SerializeField] GameObject tutorialPrompt;
     [SerializeField] GameObject titleScreenCanvas;
     [SerializeField] GameObject levelSelectCanvas;
     [SerializeField] GameObject optionsCanvas;
@@ -36,8 +35,7 @@ public class TitleScreenUI : MonoBehaviour
             levelSelectCanvas.SetActive(true);
         }
     }
-
-
+    
     #region Title Canvas
 
     #endregion
@@ -47,10 +45,6 @@ public class TitleScreenUI : MonoBehaviour
     #endregion
 
     #region Levels Canvas
-    // Toggles the prompt asking if tutorial pop ups should be enabled.
-    public void ToggleTutorialPrompt() {
-        bool isActive = tutorialPrompt.activeInHierarchy;
-        tutorialPrompt.SetActive(!isActive);
-    }
+  
     #endregion
 }

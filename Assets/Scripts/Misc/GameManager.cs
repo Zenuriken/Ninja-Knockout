@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -66,6 +67,8 @@ public class GameManager : MonoBehaviour
     private float inGameTime;
     private bool timerActive;
 
+    private string currLvl;
+
     private void Awake() {
         if (singleton != null && singleton != this) { 
             Destroy(this.gameObject); 
@@ -126,21 +129,18 @@ public class GameManager : MonoBehaviour
 
     private void DefineStates() {
         if (!PlayerPrefs.HasKey("coins")) PlayerPrefs.SetInt("coins", 0);
-
+        if (!PlayerPrefs.HasKey("currLvl")) PlayerPrefs.SetInt("currLvl", 0);
         if (!PlayerPrefs.HasKey("maxVol")) PlayerPrefs.SetInt("maxVol", 100);
         if (!PlayerPrefs.HasKey("showTimer")) PlayerPrefs.SetInt("showTimer", 0);
 
-        if (!PlayerPrefs.HasKey("lvl0_completed")) PlayerPrefs.SetInt("lvl0_completed", 0);
         if (!PlayerPrefs.HasKey("lvl0_stars")) PlayerPrefs.SetInt("lvl0_stars", 0);
-        if (!PlayerPrefs.HasKey("lvl0_time")) PlayerPrefs.SetInt("lvl0_time", 0);
+        if (!PlayerPrefs.HasKey("lvl0_time")) PlayerPrefs.SetFloat("lvl0_time", 0f);
 
-        if (!PlayerPrefs.HasKey("lvl0_completed")) PlayerPrefs.SetInt("lvl1_completed", 0);
-        if (!PlayerPrefs.HasKey("lvl0_stars")) PlayerPrefs.SetInt("lvl1_stars", 0);
-        if (!PlayerPrefs.HasKey("lvl0_time")) PlayerPrefs.SetInt("lvl1_time", 0);
+        if (!PlayerPrefs.HasKey("lvl1_stars")) PlayerPrefs.SetInt("lvl1_stars", 0);
+        if (!PlayerPrefs.HasKey("lvl1_time")) PlayerPrefs.SetFloat("lvl1_time", 0f);
 
-        if (!PlayerPrefs.HasKey("lvl2_completed")) PlayerPrefs.SetInt("lvl2_completed", 0);
         if (!PlayerPrefs.HasKey("lvl2_stars")) PlayerPrefs.SetInt("lvl2_stars", 0);
-        if (!PlayerPrefs.HasKey("lvl2_time")) PlayerPrefs.SetInt("lvl2_time", 0);
+        if (!PlayerPrefs.HasKey("lvl2_time")) PlayerPrefs.SetFloat("lvl2_time", 0f);
     }
 
     public void DeleteAllStates() {
@@ -152,12 +152,11 @@ public class GameManager : MonoBehaviour
         lvlToMusic = new Dictionary<string, string>();
         lvlToMusic["TitleScreen"] = "Adventure";
         lvlToMusic["Level0"] = "Traveler";
-        lvlToMusic["Level1"] = "ForestWalk";
-        lvlToMusic["Level1"] = "WayFarer";
+        lvlToMusic["Level1"] = "Traveler";
+        lvlToMusic["Level2"] = "Traveler";
     }
 
     public void LoadLevel(string lvlName) {
-        Debug.Log("Loading level");
         StartCoroutine(LoadLevelCoroutine(lvlName));
     }
 
@@ -229,6 +228,21 @@ public class GameManager : MonoBehaviour
         suppliesLooted = totalSupplies - breakables.transform.childCount;
     }
 
+    // Stores the relevants stats
+    public void SaveStats(int numSatisfiedStats) {
+        int lvlNum = int.Parse(currLvl.Substring(currLvl.Length - 1));
+
+        if (PlayerPrefs.GetInt("currLvl") == lvlNum) {
+            PlayerPrefs.SetInt("currLvl", lvlNum + 1);
+        }
+        if (numSatisfiedStats > PlayerPrefs.GetInt($"lvl{lvlNum}_stars")) {
+            PlayerPrefs.SetInt($"lvl{lvlNum}_stars", numSatisfiedStats);
+        }
+        if (inGameTime < PlayerPrefs.GetFloat($"lvl{lvlNum}_time")) {
+            PlayerPrefs.SetFloat($"lvl{lvlNum}_time", inGameTime);
+        }
+    }
+
     IEnumerator LoadLevelCoroutine(string lvlName) {
         GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
         canvas.SetActive(false);
@@ -242,6 +256,8 @@ public class GameManager : MonoBehaviour
         MusicManager.singleton.FadeInAudio(lvlToMusic[lvlName]);
         yield return StartCoroutine("FadeIn");
         InputManager.singleton.PlayerInputEnabled = true;
+
+        currLvl = lvlName;
     }
 
     //////////////////////////
