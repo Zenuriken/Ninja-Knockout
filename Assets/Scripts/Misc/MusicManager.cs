@@ -69,7 +69,6 @@ public class MusicManager : MonoBehaviour
     }
 
     public void FadeOutAudio() {
-        Debug.Log("Curraudio: " + currAudio.name);
         StartCoroutine(StartFade(currAudio, 3f, 0f));
     }
 

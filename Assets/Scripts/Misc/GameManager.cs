@@ -34,12 +34,9 @@ public class GameManager : MonoBehaviour
 
     #region Screen Variables
     [Header("Screen Fade Properties")]
-    [SerializeField][Tooltip("How fast the screen fades away when damaged.")]
-    private float fadeAwaySpeed;
     [SerializeField][Tooltip("How fast the screen fades when dying.")]
     private float deathFadeAwaySpeed;
-    [SerializeField][Tooltip("How fast the gold UI will fade")]
-    private float goldUIFadeSpeed;
+
     [SerializeField][Tooltip("The delay before fading the screen.")]
     private float fadeAwayDelay;
     [SerializeField][Tooltip("How fast the detection screen appears")]
@@ -55,7 +52,6 @@ public class GameManager : MonoBehaviour
     private List<string> shownTutorials; 
     private Dictionary<string, bool> campFireDict;
     private bool isFading;
-    private bool isBlackingOutScreen;
     private bool hasDetectionScreen;
 
     // State variables
@@ -64,6 +60,12 @@ public class GameManager : MonoBehaviour
     private int enemiesKilled;
     private int totalSupplies;
     private int suppliesLooted;
+    private int numDetectionsAllowed;
+    private int numDetections;
+
+    private float inGameTime;
+    private bool timerActive;
+
 
     private void Awake() {
         if (singleton != null && singleton != this) { 
@@ -102,6 +104,8 @@ public class GameManager : MonoBehaviour
 
             totalEnemies = enemies.transform.childCount;
             totalSupplies = breakables.transform.childCount;
+
+            numDetectionsAllowed = 3;
         }  
     }
 
@@ -114,6 +118,10 @@ public class GameManager : MonoBehaviour
     void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void FixedUpdate() {
+        if (timerActive) inGameTime += Time.deltaTime;
     }
 
     void InitializeMapping() {
@@ -163,6 +171,7 @@ public class GameManager : MonoBehaviour
         if (!detectionAllowed && PlayerController.singleton.GetPlayerHealth() > 0) {
             StartCoroutine("DetectionScreen");
         }
+        numDetections += 1;
     }
 
     // Sets the detectionAllowed variable to true.
@@ -185,7 +194,20 @@ public class GameManager : MonoBehaviour
         return !shownTutorials.Contains(name);
     }
 
+    // Stops the in game timer.
+    public void StopTimer() {
+        timerActive = false;
+    }
+
+    // Calculates the stats to display at the end of the level.
+    public void CalculateStats() {
+        enemiesKilled = totalEnemies - enemies.transform.childCount;
+        suppliesLooted = totalSupplies - breakables.transform.childCount;
+    }
+
     IEnumerator LoadLevelCoroutine(string lvlName) {
+        GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
+        canvas.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         MusicManager.singleton.FadeOutAudio();
@@ -216,7 +238,7 @@ public class GameManager : MonoBehaviour
 
         // While screen is covered, reset the player to last spawn point.
         PlayerController.singleton.Respawn();
-        GameManager.singleton.UpdateCampFireList();
+        UpdateCampFireList();
 
         // TODO: Instead of loading the screen I should reset the player and have some sort of mapping to keep track of 
         // what enemies have been killed already.
@@ -279,9 +301,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public int EnemiesKilled {get{return enemiesKilled;}}
     public int TotalEnemies {get{return totalEnemies;}}
-    public int SuppliesLooted {get{return suppliesLooted;}}
+    public int EnemiesKilled {get{return enemiesKilled;}}
+
     public int TotalSupplies {get{return totalSupplies;}}
+    public int SuppliesLooted {get{return suppliesLooted;}}
+
+    public int NumDetectionsAllowed {get{return numDetectionsAllowed;}}
+    public int NumDetections {get{return numDetections;}}
+
     public int Gold {get{return gold;}}
+    public float InGameTime {get{return inGameTime;}}
 }

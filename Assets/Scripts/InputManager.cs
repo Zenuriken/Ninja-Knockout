@@ -51,7 +51,7 @@ public class InputManager : MonoBehaviour
     void Update()
     {
         continuePressed = Input.anyKeyDown;
-        bool closePressed = Input.GetKeyDown(escapeKey) || Input.GetKeyDown(enterKey);
+        bool closePressed = Input.GetKeyDown(enterKey);
         if (closePressed) LevelUI.singleton.ExitPopUp();
 
         if (playerInputEnabled) {
@@ -96,4 +96,5 @@ public class InputManager : MonoBehaviour
     public bool UpHolding {get {return upHolding;}}
     public bool DownHolding {get {return downHolding;}}
     public bool ContinuePressed {get {return continuePressed;}}
+    public bool ClosedPressed {get{return closePressed;}}
 }

@@ -30,6 +30,8 @@ public class LevelUI : MonoBehaviour
     private GameObject tutorialPopUp;
     [SerializeField][Tooltip("Dialogue GameObject")]
     private GameObject dialogue;
+    [SerializeField][Tooltip("Level Stats GameObject")]
+    private GameObject levelStats;
     [SerializeField]
     private GameObject UISounds;
     #endregion
@@ -49,6 +51,7 @@ public class LevelUI : MonoBehaviour
     private RawImage currShurikenSprite;
     private RawImage tutorialImg;
     private Image enterPromptImg;
+    private GameObject enterPrompt;
     private RawImage goldSprite;
     private TMP_Text goldTxt;
 
@@ -70,6 +73,7 @@ public class LevelUI : MonoBehaviour
             currShurikenSprite = playerStatus.transform.GetChild(4).GetComponent<RawImage>();
             tutorialImg = tutorialPopUp.transform.GetChild(0).GetComponent<RawImage>();
             enterPromptImg = tutorialPopUp.transform.GetChild(1).GetComponent<Image>();
+            enterPrompt = tutorialPopUp.transform.GetChild(1).gameObject;
 
             goldSprite = playerStatus.transform.GetChild(5).GetComponent<RawImage>();
             goldTxt = goldSprite.transform.GetChild(0).GetComponent<TMP_Text>();
@@ -164,7 +168,7 @@ public class LevelUI : MonoBehaviour
     public void RemoveTutorialPopUp() {
         StopAllCoroutines();
         tutorialImg.color = new Color(1f, 1f, 1f, 0f);
-        enterPromptImg.color = new Color(1f, 1f, 1f, 0f);
+        // enterPromptImg.color = new Color(1f, 1f, 1f, 0f);
         tutorialPopUp.SetActive(false);
         tutorialImg.texture = null;
         isShowingTutorialPopUp = false;
@@ -182,10 +186,11 @@ public class LevelUI : MonoBehaviour
     public IEnumerator StartTutorialEndCinematic() {
         dialogue.SetActive(true);
         Dialogue dialogueScript = dialogue.GetComponent<Dialogue>();
-        dialogueScript.InitializeVariables(GameManager.singleton.EnemiesKilled, GameManager.singleton.SuppliesLooted, GameManager.singleton.TotalEnemies - GameManager.singleton.EnemiesKilled);
-        dialogueScript.InitializeDialogue();
         yield return dialogueScript.StartDialogue();
         dialogue.SetActive(false);
+        levelStats.SetActive(true);
+        LevelStats levelStatsScript = levelStats.GetComponent<LevelStats>();
+        levelStatsScript.DisplayLevelStats();
     }
     #endregion
 
@@ -220,22 +225,24 @@ public class LevelUI : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(1f);
 
-        // Create a blinking effect for the press enter prompt.
-        speed *= 1.5f;
+        enterPrompt.SetActive(true);
 
-        while (true) {
-            for (float alpha = 0f; alpha < 1f; alpha += Time.unscaledDeltaTime * speed) {
-                enterPromptImg.color = new Color(1f, 1f, 1f, alpha);
-                yield return new WaitForEndOfFrame();
-            }
-            enterPromptImg.color = new Color(1f, 1f, 1f, 1f);
+        // Create a blinking effect for the press enter prompt.
+        // speed *= 1.5f;
+
+        // while (true) {
+        //     for (float alpha = 0f; alpha < 1f; alpha += Time.unscaledDeltaTime * speed) {
+        //         enterPromptImg.color = new Color(1f, 1f, 1f, alpha);
+        //         yield return new WaitForEndOfFrame();
+        //     }
+        //     enterPromptImg.color = new Color(1f, 1f, 1f, 1f);
             
-            for (float alpha = 1f; alpha > 0f; alpha -= Time.unscaledDeltaTime * speed) {
-                enterPromptImg.color = new Color(1f, 1f, 1f, alpha);
-                yield return new WaitForEndOfFrame();
-            }
-            enterPromptImg.color = new Color(1f, 1f, 1f, 0f);
-        }
+        //     for (float alpha = 1f; alpha > 0f; alpha -= Time.unscaledDeltaTime * speed) {
+        //         enterPromptImg.color = new Color(1f, 1f, 1f, alpha);
+        //         yield return new WaitForEndOfFrame();
+        //     }
+        //     enterPromptImg.color = new Color(1f, 1f, 1f, 0f);
+        // }
     }
     #endregion
 }

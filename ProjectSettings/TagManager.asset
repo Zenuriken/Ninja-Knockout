@@ -13,6 +13,7 @@ TagManager:
   - Destructible
   - OneWayPlatform
   - TrapDoor
+  - Canvas
   layers:
   - Default
   - TransparentFX

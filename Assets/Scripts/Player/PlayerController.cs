@@ -120,21 +120,6 @@ public class PlayerController : MonoBehaviour {
     [Space(5)]
     #endregion
 
-    #region Melee Trail Variables
-    [Header("Trail")]
-    [SerializeField]
-    private GameObject meleeBallPrefab;
-    [SerializeField]
-    private float meleeBallSpeed;
-    [SerializeField]
-    private float meleeNumIters;
-    [SerializeField]
-    private float meleeTime;
-    [SerializeField]
-    private float meleeTrailTime;
-    [Space(5)]
-    #endregion
-
     #region Inspector Variables
     [Header("Toggles")]
     [SerializeField][Tooltip("Whether or not the player can dash.")]
@@ -142,17 +127,6 @@ public class PlayerController : MonoBehaviour {
     #endregion
 
     #region Private Variables
-    // Private Input Variables
-    private KeyCode jumpKey = KeyCode.Z;
-    private KeyCode dashKey = KeyCode.C;
-    private KeyCode fireKey = KeyCode.Space;
-    private KeyCode meleeKey = KeyCode.X;
-    private KeyCode sneakKey = KeyCode.LeftShift;
-    private KeyCode upKey = KeyCode.UpArrow;
-    private KeyCode downKey = KeyCode.DownArrow;
-    private KeyCode escapeKey = KeyCode.Escape;
-    private KeyCode enterKey = KeyCode.Return;
-
     // Player Input Variables
     private bool rightPressed;
     private bool leftPressed;
@@ -219,7 +193,6 @@ public class PlayerController : MonoBehaviour {
     // Melee private variables
     private Melee meleeScript;
     private bool meleeActive;
-    private float meleeSpeed;
     private static int meleeCounter;
 
     // Private WallClimbing Variables
@@ -241,9 +214,7 @@ public class PlayerController : MonoBehaviour {
     private float gravity;
     private float speed;
     private int lastDir;
-    private int side;
     private int alertedNum;
-    private int gold;
 
     // Private Animator Private Variables
     private Animator playerAnim;
@@ -539,22 +510,18 @@ public class PlayerController : MonoBehaviour {
 
     // Returns if the player is jumping against a wall.
     private void IsAgainstWall() {
-        int currSide = 0;
         RaycastHit2D raycastHit2D;
         // Check right
         if (lastDir == 1) {
             raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 0.6f), 0f, Vector2.right, 0.1f, platformLayerMask);
-            currSide = 1;
             // Check left
         } else {
             raycastHit2D = Physics2D.BoxCast(boxCollider2D.bounds.center, new Vector2(boxCollider2D.bounds.size.x, 0.6f), 0f, Vector2.left, 0.1f, platformLayerMask);
-            currSide = -1;
         }
         bool againstWall = raycastHit2D.collider != null;
         if (againstWall) {
             dashCounter = 1;
             jumpCounter = 1;
-            side = currSide;
         }
         isAgainstWall = againstWall;
         return;

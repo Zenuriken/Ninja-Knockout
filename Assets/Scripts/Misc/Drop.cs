@@ -61,7 +61,7 @@ public class Drop : MonoBehaviour
             } 
         } else if (isHealth) {
             for (float t = 0f; t <= 0.7f; t += Time.deltaTime * fadeInSpeed) {
-                light2D.color = new Color(1f, 0.792f, 0.059f, t);
+                light2D.color = new Color(0.129f, 0.694f, 0.294f, t);
                 yield return new WaitForEndOfFrame();
             }
         }

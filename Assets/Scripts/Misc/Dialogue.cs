@@ -7,35 +7,23 @@ using UnityEngine.UI;
 
 public class Dialogue : MonoBehaviour
 {
-    [SerializeField]
-    [Tooltip("Dialogue text")]
+    [SerializeField][Tooltip("Dialogue text")]
     private TMP_Text dialogue;
-    [SerializeField]
-    [Tooltip("The time per char")]
+    [SerializeField][Tooltip("The time per char")]
     private float timePerChar;
-    [SerializeField]
-    [Tooltip("UI sounds")]
+    [SerializeField][Tooltip("UI sounds")]
     private SoundManager sounds;
 
     private List<string> dialogueList;
     private string currTxt;
-    private int enemiesKilled;
-    private int suppliesLooted;
-    private int survivors;
     private int currIndex;
     private bool isAnimatingDialogue;
-
-    private bool conditionToStopCoroutine;
-
-    private AudioSource sound;
     private Image backgroundSprite;
     private GameObject indicator;
     private GameObject dialogueBox;
-
     private IEnumerator coroutineMethod;
 
     private void Awake() {
-        sound = this.GetComponent<AudioSource>();
         dialogueBox = this.transform.GetChild(0).gameObject;
         backgroundSprite = dialogueBox.GetComponent<Image>();
         indicator = this.transform.GetChild(1).gameObject;
@@ -43,24 +31,16 @@ public class Dialogue : MonoBehaviour
     }
 
     private void Update() {
-
-        if(ShouldSkip() && coroutineMethod != null){
+        if (ShouldSkip() && coroutineMethod != null) {
             StopCoroutine(coroutineMethod);
             coroutineMethod = null;
         }
     }
 
     public void InitializeDialogue() {
-        dialogueList.Add("_W_Sir! There was an attack last night at one of our camps." + " " + enemiesKilled.ToString() + " of our comrades were killed and "
-                         + suppliesLooted.ToString() + " of our supplies were looted.");
-        dialogueList.Add("_R_Were there any survivors?");
-        if (survivors > 0) {
-            dialogueList.Add("_W_Only " + survivors.ToString() + " sir.");
-        } else {
-            dialogueList.Add("_W_No sir.");
-        }
-        dialogueList.Add("_R_Have you captured any of the perpetrators?");
-        dialogueList.Add("_W_No sir.");
+        dialogueList.Add("_W_Sir! There was an attack last night at one of our camps. A few of our members were killed, and some of our supplies have been looted.");
+        dialogueList.Add("_R_What? How is this possible?");
+        dialogueList.Add("_W_We are unsure sir. The perpetuators must have snuck in and took out the guards silently. They left no evidence behind.");
         dialogueList.Add("_R_Damn thieves!");
         dialogueList.Add("_R_Interrogate the villagers in the area for any eye-witness reports and have a burial for the bodies. Report back to me if anything comes up.");
         dialogueList.Add("_W_Yes sir. Right away.");
@@ -83,9 +63,11 @@ public class Dialogue : MonoBehaviour
             dialogue.text = currTxt.Substring(0, t);
             yield return new WaitForSeconds(timePerChar);
         }
+        coroutineMethod = null;
     }
 
     public IEnumerator StartDialogue() {
+        InitializeDialogue();
         dialogueBox.SetActive(true);
 
         for (int i = 0; i < dialogueList.Count; i++) {
@@ -122,13 +104,6 @@ public class Dialogue : MonoBehaviour
     private bool ShouldSkip() {
         bool shouldSkip = InputManager.singleton.ContinuePressed && isAnimatingDialogue;
         return shouldSkip;
-    }
-    
-
-    public void InitializeVariables(int enemiesKilled, int suppliesLooted, int survivors) {
-        this.enemiesKilled = enemiesKilled;
-        this.suppliesLooted = suppliesLooted;
-        this.survivors = survivors;
     }
 
     IEnumerator FadeOutText() {

@@ -18,7 +18,7 @@ public class FinishLine : MonoBehaviour
         if (other.gameObject.tag == "Player" && !hasActivated) {
             hasActivated = true;
             PlayerController.singleton.gameObject.SetActive(false);
-            GameObject titlePlayer = Instantiate(titleScreenPlayer, PlayerController.singleton.transform.position, Quaternion.identity);
+            Instantiate(titleScreenPlayer, PlayerController.singleton.transform.position, Quaternion.identity);
             LevelUI.singleton.HidePlayerStatus(true);
             cam.SetFollowEnabled(false);
             StartCoroutine("EndingCinematic");
@@ -27,6 +27,8 @@ public class FinishLine : MonoBehaviour
 
     IEnumerator EndingCinematic() {
         GameManager.singleton.DropBars(true);
+        GameManager.singleton.StopTimer();
+        GameManager.singleton.CalculateStats();
         MusicManager.singleton.FadeOutAudio();
         yield return new WaitForSeconds(2f);
         yield return GameManager.singleton.FadeOut();

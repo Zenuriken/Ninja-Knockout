@@ -4,22 +4,22 @@ using UnityEngine;
 
 public abstract class Projectile
 {
-    private Rigidbody2D rb;
-    private CircleCollider2D col;
-    private TrailRenderer trailRen;
-    private SpriteRenderer shurikenSprite;
-    private ParticleSystem sparks;
-    private Animator anim;
-    private SoundManager sounds;
-    private Vector2 throwDir;
-    private float fadeAwayDelay = 1.5f;
-    private float fadeAwaySpeed = 0.5f;
-    private float shurikenSpeed = 20;
-    private float noContactDestroyTime = 5f;
-    private float currflightTime;
-    private bool isActive;
-    private bool hasContact;
-    private string owner;
+    // private Rigidbody2D rb;
+    // private CircleCollider2D col;
+    // private TrailRenderer trailRen;
+    // private SpriteRenderer shurikenSprite;
+    // private ParticleSystem sparks;
+    // private Animator anim;
+    // private SoundManager sounds;
+    // private Vector2 throwDir;
+    // private float fadeAwayDelay = 1.5f;
+    // private float fadeAwaySpeed = 0.5f;
+    // private float shurikenSpeed = 20;
+    // private float noContactDestroyTime = 5f;
+    // private float currflightTime;
+    // private bool isActive;
+    // private bool hasContact;
+    // private string owner;
 
 
     // private void Update() {

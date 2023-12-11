@@ -21,12 +21,9 @@ public class TitleScreenPlayer : MonoBehaviour {
     private LayerMask allPlatformsLayerMask;
     private Rigidbody2D playerRB;
     private Collider2D boxCollider2D;
-    private float gravity;
     private float speed;
-    private int lastDir;
     // Private Animator Private Variables
     private Animator playerAnim;
-    private SpriteRenderer playerSprite;
 
     #region Initializing Functions
     // Awake is called before Start
@@ -35,14 +32,11 @@ public class TitleScreenPlayer : MonoBehaviour {
         playerRB = GetComponent<Rigidbody2D>();
         boxCollider2D = GetComponent<Collider2D>();
         playerAnim = GetComponent<Animator>();
-        playerSprite = GetComponent<SpriteRenderer>();            
     }
 
     // Start is called before the first frame update
     void Start() {
         speed = moveSpeed;
-        lastDir = 1;
-        gravity = playerRB.gravityScale;
         allPlatformsLayerMask = LayerMask.GetMask("Platform", "OneWayPlatform");
     }
     #endregion
