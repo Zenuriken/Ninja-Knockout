@@ -14,8 +14,12 @@ public class TitleScreenUI : MonoBehaviour
 
     string currCanvas;
 
-    private void Awake() {
-        SetCanvas("title");
+    private void Start() {
+        if (PlayerPrefs.GetInt("currLvl") > 0) {
+            SetCanvas("levelSelect");
+        } else {
+            SetCanvas("title");
+        }        
     }
     
     // Called by Play and Main Menu buttons.

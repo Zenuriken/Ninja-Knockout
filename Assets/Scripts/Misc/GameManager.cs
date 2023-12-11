@@ -145,7 +145,7 @@ public class GameManager : MonoBehaviour
 
     public void DeleteAllStates() {
         PlayerPrefs.DeleteAll();
-        SceneManager.LoadScene("TitleScreen");
+        StartCoroutine(LoadLevelCoroutine("TitleScreen"));
     }
 
     void InitializeMapping() {
@@ -255,8 +255,13 @@ public class GameManager : MonoBehaviour
         MusicManager.singleton.Stop();
         MusicManager.singleton.FadeInAudio(lvlToMusic[lvlName]);
         yield return StartCoroutine("FadeIn");
-        InputManager.singleton.PlayerInputEnabled = true;
 
+        if (lvlName == "TitleScreen") {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        } else {
+            InputManager.singleton.PlayerInputEnabled = true;
+        }
         currLvl = lvlName;
     }
 

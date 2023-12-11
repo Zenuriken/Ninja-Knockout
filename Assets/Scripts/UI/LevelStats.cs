@@ -20,6 +20,14 @@ public class LevelStats : MonoBehaviour
     List<Texture> starsImgArray;
 
     int numSatisfiedStats;
+    bool waitingForInput;
+
+    private void Update() {
+        if (waitingForInput && InputManager.singleton.ClosedPressed) {
+            waitingForInput = false;
+            GameManager.singleton.LoadLevel("TitleScreen");
+        }
+    }
 
     public void DisplayLevelStats() {
         DisplayStat(suppliesLootedStat, GameManager.singleton.SuppliesLooted, GameManager.singleton.TotalSupplies, false);
@@ -27,8 +35,8 @@ public class LevelStats : MonoBehaviour
         DisplayStat(numDetectionsStat, GameManager.singleton.NumDetections, GameManager.singleton.NumDetectionsAllowed, true);
         timeStat.text = GameManager.singleton.InGameTime.ToString();
         starsImg.texture = starsImgArray[numSatisfiedStats];
-
         GameManager.singleton.SaveStats(numSatisfiedStats);
+        waitingForInput = true;
     }
 
 
