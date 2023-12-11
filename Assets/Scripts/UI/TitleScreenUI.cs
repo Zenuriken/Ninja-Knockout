@@ -41,11 +41,13 @@ public class TitleScreenUI : MonoBehaviour
     }
     
     #region Title Canvas
+    public void QuitGame() {
+        GameManager.singleton.QuitGame();
+    }
 
     #endregion
 
     #region Options Canvas
-
     #endregion
 
     #region Levels Canvas

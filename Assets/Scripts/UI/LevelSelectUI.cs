@@ -35,4 +35,12 @@ public class LevelSelectUI : MonoBehaviour
         bool isActive = tutorialPrompt.activeInHierarchy;
         tutorialPrompt.SetActive(!isActive);
     }
+
+    public void SetTutorialStatus(bool state) {
+        GameManager.singleton.SetTutorialStatus(state);
+    }
+
+    public void LoadLevel(string lvlName) {
+        GameManager.singleton.LoadLevel(lvlName);
+    }
 }

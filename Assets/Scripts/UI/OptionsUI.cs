@@ -11,4 +11,8 @@ public class OptionsUI : MonoBehaviour
         bool isActive = resetPrompt.activeInHierarchy;
         resetPrompt.SetActive(!isActive);
     }
+
+    public void ResetProgress() {
+        GameManager.singleton.DeleteAllStates();
+    }
 }
