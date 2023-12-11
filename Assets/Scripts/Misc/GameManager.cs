@@ -66,7 +66,6 @@ public class GameManager : MonoBehaviour
     private float inGameTime;
     private bool timerActive;
 
-
     private void Awake() {
         if (singleton != null && singleton != this) { 
             Destroy(this.gameObject); 
@@ -92,6 +91,7 @@ public class GameManager : MonoBehaviour
 
         if (sceneName == "TitleScreen") {
             MusicManager.singleton.PlayAudio("Adventure");
+            DefineStates();
         } else {
             campFires = GameObject.Find("CampFires");
             if (campFireDict.Count > 0) {
@@ -122,6 +122,30 @@ public class GameManager : MonoBehaviour
 
     private void FixedUpdate() {
         if (timerActive) inGameTime += Time.deltaTime;
+    }
+
+    private void DefineStates() {
+        if (!PlayerPrefs.HasKey("coins")) PlayerPrefs.SetInt("coins", 0);
+
+        if (!PlayerPrefs.HasKey("maxVol")) PlayerPrefs.SetInt("maxVol", 100);
+        if (!PlayerPrefs.HasKey("showTimer")) PlayerPrefs.SetInt("showTimer", 0);
+
+        if (!PlayerPrefs.HasKey("lvl0_completed")) PlayerPrefs.SetInt("lvl0_completed", 0);
+        if (!PlayerPrefs.HasKey("lvl0_stars")) PlayerPrefs.SetInt("lvl0_stars", 0);
+        if (!PlayerPrefs.HasKey("lvl0_time")) PlayerPrefs.SetInt("lvl0_time", 0);
+
+        if (!PlayerPrefs.HasKey("lvl0_completed")) PlayerPrefs.SetInt("lvl1_completed", 0);
+        if (!PlayerPrefs.HasKey("lvl0_stars")) PlayerPrefs.SetInt("lvl1_stars", 0);
+        if (!PlayerPrefs.HasKey("lvl0_time")) PlayerPrefs.SetInt("lvl1_time", 0);
+
+        if (!PlayerPrefs.HasKey("lvl2_completed")) PlayerPrefs.SetInt("lvl2_completed", 0);
+        if (!PlayerPrefs.HasKey("lvl2_stars")) PlayerPrefs.SetInt("lvl2_stars", 0);
+        if (!PlayerPrefs.HasKey("lvl2_time")) PlayerPrefs.SetInt("lvl2_time", 0);
+    }
+
+    public void DeleteAllStates() {
+        PlayerPrefs.DeleteAll();
+        SceneManager.LoadScene("TitleScreen");
     }
 
     void InitializeMapping() {

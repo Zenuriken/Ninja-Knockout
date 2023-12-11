@@ -6,6 +6,10 @@ using UnityEngine.SceneManagement;
 public class MusicManager : MonoBehaviour
 {
     public static MusicManager singleton;
+
+    [SerializeField][Tooltip("Controls the master volume")]
+    private int maxVolume;
+
     private Dictionary<string, AudioSource> audioSources;
 
     private AudioSource currAudio;
