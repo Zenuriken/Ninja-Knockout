@@ -5,13 +5,16 @@ using UnityEngine;
 public class SoundManager : MonoBehaviour
 {
     private Dictionary<string, AudioSource> audioSources;
+    private Dictionary<string, float> audioVolumes;
 
     private void Awake() {
         audioSources = new Dictionary<string, AudioSource>();
+        audioVolumes = new Dictionary<string, float>();
         foreach (Transform child in this.transform) {
             audioSources[child.name] = child.GetComponent<AudioSource>();
+            audioVolumes[child.name] = child.GetComponent<AudioSource>().volume;
         }
- 
+        AdjustSoundVolume();
     }
 
     public void Play(string name) {
@@ -22,6 +25,12 @@ public class SoundManager : MonoBehaviour
     public void Stop(string name) {
         AudioSource source = audioSources[name];
         source.Stop();
+    }
+
+    public void AdjustSoundVolume() {
+        foreach (AudioSource audio in audioSources.Values) {
+            audio.volume = audioVolumes[audio.name] * PlayerPrefs.GetFloat("volume");
+        }
     }
     // private void Awake() {
     //     if (singleton != null && singleton != this) { 

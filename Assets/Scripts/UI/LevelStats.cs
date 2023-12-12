@@ -33,7 +33,7 @@ public class LevelStats : MonoBehaviour
         DisplayStat(suppliesLootedStat, GameManager.singleton.SuppliesLooted, GameManager.singleton.TotalSupplies, false);
         DisplayStat(enemiesKilledStat, GameManager.singleton.EnemiesKilled, GameManager.singleton.TotalEnemies, false);
         DisplayStat(numDetectionsStat, GameManager.singleton.NumDetections, GameManager.singleton.NumDetectionsAllowed, true);
-        timeStat.text = GameManager.singleton.InGameTime.ToString();
+        timeStat.text = GameManager.singleton.CalculateTime(GameManager.singleton.InGameTime);
         starsImg.texture = starsImgArray[numSatisfiedStats];
         GameManager.singleton.SaveStats(numSatisfiedStats);
         waitingForInput = true;

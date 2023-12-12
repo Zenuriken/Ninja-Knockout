@@ -234,7 +234,6 @@ public class PlayerController : MonoBehaviour {
             Destroy(this.gameObject);
         } else {
             singleton = this;
-            DontDestroyOnLoad(this.gameObject);
             // Getting Player Components
             playerRB = GetComponent<Rigidbody2D>();
             boxCollider2D = GetComponent<Collider2D>();

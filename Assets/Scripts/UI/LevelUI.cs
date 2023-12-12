@@ -54,6 +54,7 @@ public class LevelUI : MonoBehaviour
     private GameObject enterPrompt;
     private RawImage goldSprite;
     private TMP_Text goldTxt;
+    private TMP_Text timerTxt;
 
     private float pickUpTime;
     private int health;
@@ -78,6 +79,8 @@ public class LevelUI : MonoBehaviour
             goldSprite = playerStatus.transform.GetChild(5).GetComponent<RawImage>();
             goldTxt = goldSprite.transform.GetChild(0).GetComponent<TMP_Text>();
 
+            timerTxt = playerStatus.transform.GetChild(6).GetComponent<TMP_Text>();
+
             sounds = UISounds.GetComponent<SoundManager>();
         }
     }
@@ -87,6 +90,10 @@ public class LevelUI : MonoBehaviour
     }
     
     #region Public Function
+    // Updates the in game timer UI.
+    public void UpdateTimer(string time) {
+        timerTxt.text = time;
+    }
     // Increases the player's score by amount.
     public void UpdateGold(int amount) {
         pickUpTime = Time.time;

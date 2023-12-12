@@ -11,7 +11,7 @@ public class MusicManager : MonoBehaviour
     private int maxVolume;
 
     private Dictionary<string, AudioSource> audioSources;
-
+    private Dictionary<string, float> audioVolumes;
     private AudioSource currAudio;
 
     private void Awake() {
@@ -20,8 +20,10 @@ public class MusicManager : MonoBehaviour
         } else { 
             singleton = this;
             audioSources = new Dictionary<string, AudioSource>();
+            audioVolumes = new Dictionary<string, float>();
             foreach (Transform child in this.transform) {
                 audioSources[child.name] = child.GetComponent<AudioSource>();
+                audioVolumes[child.name] = child.GetComponent<AudioSource>().volume;
             }
             DontDestroyOnLoad(this.gameObject);
         }
@@ -38,14 +40,21 @@ public class MusicManager : MonoBehaviour
     {
         if (currAudio != null) return;
 
-        if (scene.name == "Level0") {
+        if (scene.name != "TitleScreen") {
             PlayAudio("Traveler");
-        } 
+        }
     }
 
     // called third
     void Start()
     {
+
+    }
+
+    public void AdjustMusicVolume() {
+        foreach (AudioSource audio in audioSources.Values) {
+            audio.volume = audioVolumes[audio.name] * PlayerPrefs.GetFloat("volume");
+        }
     }
 
     // called when the game is terminated
@@ -69,7 +78,7 @@ public class MusicManager : MonoBehaviour
         audioSource.volume = 0f;
         audioSource.Play();
         currAudio = audioSource;
-        StartCoroutine(StartFade(audioSources[name], 3f, 0.25f));
+        StartCoroutine(StartFade(audioSources[name], 3f, audioVolumes[name] * PlayerPrefs.GetFloat("volume")));
     }
 
     public void FadeOutAudio() {

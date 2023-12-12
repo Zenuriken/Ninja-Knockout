@@ -66,8 +66,9 @@ public class GameManager : MonoBehaviour
 
     private float inGameTime;
     private bool timerActive;
+    private bool showTimer;
 
-    private string currLvl;
+    private int lvlNum;
 
     private void Awake() {
         if (singleton != null && singleton != this) { 
@@ -124,13 +125,43 @@ public class GameManager : MonoBehaviour
     }
 
     private void FixedUpdate() {
-        if (timerActive) inGameTime += Time.deltaTime;
+        if (!timerActive) return;
+        inGameTime += Time.deltaTime;
+        if (!showTimer) return;
+        string time = CalculateTime(inGameTime);
+        LevelUI.singleton.UpdateTimer(time);
+    }
+
+    public string CalculateTime(float timeInSeconds) {
+        int hours = Mathf.FloorToInt(timeInSeconds / 3600);
+        int minutes = Mathf.FloorToInt(timeInSeconds % 3600 / 60);
+        int seconds = Mathf.FloorToInt(timeInSeconds % 60);
+
+        // Format the time as hours:minutes:seconds
+        string formattedTime = string.Format("{0:D2}:{1:D2}:{2:D2}", hours, minutes, seconds);
+
+        return formattedTime;
+    }
+
+    public void ShowTimer(bool state) {
+        showTimer = state;
+        PlayerPrefs.SetInt("showTimer", state ? 1 : 0);
+        Debug.Log("Show timer: " + showTimer);
+    }
+    
+    public void SetVolume(float vol) {
+        MusicManager.singleton.AdjustMusicVolume();
+        SoundManager[] allSounds = FindObjectsOfType<SoundManager>();
+        foreach (SoundManager manager in allSounds) {
+            manager.AdjustSoundVolume();
+        }
+        PlayerPrefs.SetFloat("volume", vol);
     }
 
     private void DefineStates() {
         if (!PlayerPrefs.HasKey("coins")) PlayerPrefs.SetInt("coins", 0);
         if (!PlayerPrefs.HasKey("currLvl")) PlayerPrefs.SetInt("currLvl", 0);
-        if (!PlayerPrefs.HasKey("maxVol")) PlayerPrefs.SetInt("maxVol", 100);
+        if (!PlayerPrefs.HasKey("volume")) PlayerPrefs.SetFloat("volume", 1f);
         if (!PlayerPrefs.HasKey("showTimer")) PlayerPrefs.SetInt("showTimer", 0);
 
         if (!PlayerPrefs.HasKey("lvl0_stars")) PlayerPrefs.SetInt("lvl0_stars", 0);
@@ -217,6 +248,12 @@ public class GameManager : MonoBehaviour
         return !shownTutorials.Contains(name);
     }
 
+    // Starts the in game timer.
+    public void StartTimer() {
+        timerActive = true;
+        inGameTime = 0f;
+    }
+
     // Stops the in game timer.
     public void StopTimer() {
         timerActive = false;
@@ -230,8 +267,6 @@ public class GameManager : MonoBehaviour
 
     // Stores the relevants stats
     public void SaveStats(int numSatisfiedStats) {
-        int lvlNum = int.Parse(currLvl.Substring(currLvl.Length - 1));
-
         if (PlayerPrefs.GetInt("currLvl") == lvlNum) {
             PlayerPrefs.SetInt("currLvl", lvlNum + 1);
         }
@@ -246,6 +281,7 @@ public class GameManager : MonoBehaviour
     IEnumerator LoadLevelCoroutine(string lvlName) {
         GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
         canvas.SetActive(false);
+    
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         MusicManager.singleton.FadeOutAudio();
@@ -261,8 +297,9 @@ public class GameManager : MonoBehaviour
             Cursor.visible = true;
         } else {
             InputManager.singleton.PlayerInputEnabled = true;
+            lvlNum = int.Parse(lvlName.Substring(lvlName.Length - 1));
+            StartTimer();
         }
-        currLvl = lvlName;
     }
 
     //////////////////////////
@@ -345,7 +382,7 @@ public class GameManager : MonoBehaviour
             isFading = false;
         }
     }
-
+    
     public int TotalEnemies {get{return totalEnemies;}}
     public int EnemiesKilled {get{return enemiesKilled;}}
 
