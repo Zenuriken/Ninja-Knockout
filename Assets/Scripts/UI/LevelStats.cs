@@ -14,6 +14,8 @@ public class LevelStats : MonoBehaviour
     TMP_Text numDetectionsStat;
     [SerializeField][Tooltip("The text to display the amount of in game time that has passed.")]
     TMP_Text timeStat;
+    [SerializeField][Tooltip("A label that will display if this is the best recorded time for this level.")]
+    GameObject newBestTxt;
     [SerializeField][Tooltip("The number of stars to display.")]
     RawImage starsImg;
     [SerializeField][Tooltip("An array holding different number of star images.")]
@@ -34,6 +36,7 @@ public class LevelStats : MonoBehaviour
         DisplayStat(enemiesKilledStat, GameManager.singleton.EnemiesKilled, GameManager.singleton.TotalEnemies, false);
         DisplayStat(numDetectionsStat, GameManager.singleton.NumDetections, GameManager.singleton.NumDetectionsAllowed, true);
         timeStat.text = GameManager.singleton.CalculateTime(GameManager.singleton.InGameTime);
+        newBestTxt.SetActive(GameManager.singleton.InGameTime < PlayerPrefs.GetFloat($"lvl{GameManager.singleton.LvlNum}_time"));
         starsImg.texture = starsImgArray[numSatisfiedStats];
         GameManager.singleton.SaveStats(numSatisfiedStats);
         waitingForInput = true;

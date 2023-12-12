@@ -176,6 +176,7 @@ public class GameManager : MonoBehaviour
 
     public void DeleteAllStates() {
         PlayerPrefs.DeleteAll();
+        DefineStates();
         StartCoroutine(LoadLevelCoroutine("TitleScreen"));
     }
 
@@ -394,4 +395,6 @@ public class GameManager : MonoBehaviour
 
     public int Gold {get{return gold;}}
     public float InGameTime {get{return inGameTime;}}
+
+    public int LvlNum {get{return lvlNum;}}
 }
