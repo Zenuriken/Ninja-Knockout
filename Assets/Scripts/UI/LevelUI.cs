@@ -86,7 +86,7 @@ public class LevelUI : MonoBehaviour
     }
 
     private void Start() {
-        UpdateGold(PlayerPrefs.GetInt("coins"));
+        UpdateGold(PlayerPrefs.GetInt("gold"));
         ShowTimer(PlayerPrefs.GetInt("showTimer") == 1);
     }
     
@@ -205,8 +205,8 @@ public class LevelUI : MonoBehaviour
     }
 
 
-    // Plays the dialogue at the end of the tutorial.
-    public IEnumerator StartTutorialEndCinematic() {
+    // Plays the dialogue at the end of the level.
+    public IEnumerator StartLevelEndCinematic() {
         dialogue.SetActive(true);
         Dialogue dialogueScript = dialogue.GetComponent<Dialogue>();
         yield return dialogueScript.StartDialogue();

@@ -42,7 +42,6 @@ public class LevelStats : MonoBehaviour
         waitingForInput = true;
     }
 
-
     private void DisplayStat(TMP_Text stat, int num, int total, bool lessIsBetter) {
         stat.text = num.ToString() + " / " + total.ToString();
         

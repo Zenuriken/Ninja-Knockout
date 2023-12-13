@@ -37,14 +37,27 @@ public class Dialogue : MonoBehaviour
         }
     }
 
-    public void InitializeDialogue() {
-        dialogueList.Add("_W_Sir! There was an attack last night at one of our camps. A few of our members were killed, and some of our supplies have been looted.");
-        dialogueList.Add("_R_What? How is this possible?");
-        dialogueList.Add("_W_We are unsure sir. The perpetuators must have snuck in and took out the guards silently. They left no evidence behind.");
-        dialogueList.Add("_R_Damn thieves!");
-        dialogueList.Add("_R_Interrogate the villagers in the area for any eye-witness reports and have a burial for the bodies. Report back to me if anything comes up.");
-        dialogueList.Add("_W_Yes sir. Right away.");
-        dialogueList.Add("_R_Whoever did this will pay for what they've done...");
+    public void InitializeDialogue(string lvl) {
+        if (lvl == "Level0") {
+            dialogueList.Add("_W_Sir! There was an attack last night at one of our camps. A few of our members were killed, and some of our supplies have been looted.");
+            dialogueList.Add("_R_What? How is this possible?");
+            dialogueList.Add("_W_We are unsure sir. The perpetuators must have snuck in and took out the guards silently. They left no evidence behind.");
+            dialogueList.Add("_R_Damn thieves!");
+            dialogueList.Add("_R_Interrogate the villagers in the area for any eye-witness reports and have a burial for the bodies. Report back to me if anything comes up.");
+            dialogueList.Add("_W_Yes sir. Right away.");
+            dialogueList.Add("_R_Whoever did this will pay for what they've done...");
+        } else {
+            dialogueList.Add("_W_Sir! There was another attack! This time they targeted one of our major supply caches.");
+            dialogueList.Add("_R_Again? These thieves will get what's coming to them.");
+            dialogueList.Add("_W_U-uh about that sir...");
+            dialogueList.Add("_R_What is it? Spit it out!");
+            dialogueList.Add("_W_Well sir... you see... based on the footprints we found surrounding the fallen guards...");
+            dialogueList.Add("_R_Yes?");
+            dialogueList.Add("_W_We believe this attack was committed by a single individual.");
+            dialogueList.Add("_R_...");
+            dialogueList.Add("_R_Get me Commander Blue. I need to have a word with him...");
+        }
+        
     }
 
     IEnumerator ShowText() {
@@ -67,7 +80,7 @@ public class Dialogue : MonoBehaviour
     }
 
     public IEnumerator StartDialogue() {
-        InitializeDialogue();
+        InitializeDialogue(GameManager.singleton.SceneName);
         dialogueBox.SetActive(true);
 
         for (int i = 0; i < dialogueList.Count; i++) {

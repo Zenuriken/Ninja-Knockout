@@ -34,7 +34,7 @@ public class FinishLine : MonoBehaviour
         yield return GameManager.singleton.FadeOut();
         yield return new WaitForSeconds(1f);
         GameManager.singleton.DropBars(false);
-        yield return LevelUI.singleton.StartTutorialEndCinematic();
+        yield return LevelUI.singleton.StartLevelEndCinematic();
         yield return new WaitForSeconds(1f);
     }
 }

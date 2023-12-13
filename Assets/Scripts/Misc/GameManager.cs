@@ -173,7 +173,7 @@ public class GameManager : MonoBehaviour
     }
 
     private void DefineStates() {
-        if (!PlayerPrefs.HasKey("coins")) PlayerPrefs.SetInt("coins", 0);
+        if (!PlayerPrefs.HasKey("gold")) PlayerPrefs.SetInt("gold", 0);
         if (!PlayerPrefs.HasKey("currLvl")) PlayerPrefs.SetInt("currLvl", 0);
         if (!PlayerPrefs.HasKey("volume")) PlayerPrefs.SetFloat("volume", 1f);
         if (!PlayerPrefs.HasKey("showTimer")) PlayerPrefs.SetInt("showTimer", 0);
@@ -291,6 +291,7 @@ public class GameManager : MonoBehaviour
         if (inGameTime < PlayerPrefs.GetFloat($"lvl{lvlNum}_time")) {
             PlayerPrefs.SetFloat($"lvl{lvlNum}_time", inGameTime);
         }
+        PlayerPrefs.SetInt("gold", gold);
     }
 
     // Opens the options menu.
@@ -322,9 +323,7 @@ public class GameManager : MonoBehaviour
     }
 
     IEnumerator LoadLevelCoroutine(string lvl) {
-
         // campFireDict.Clear();
-
         GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
         canvas.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
@@ -335,6 +334,7 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(lvl);
         MusicManager.singleton.Stop();
         MusicManager.singleton.FadeInAudio(lvlToMusic[lvl]);
+
         yield return StartCoroutine("FadeIn");
 
         if (lvl == "TitleScreen") {
@@ -343,8 +343,10 @@ public class GameManager : MonoBehaviour
         } else {
             InputManager.singleton.PlayerInputEnabled = true;
             lvlNum = int.Parse(lvl.Substring(lvl.Length - 1));
+            shownTutorials.Clear();
             StartTimer();
         }
+
     }
 
     //////////////////////////
@@ -444,4 +446,5 @@ public class GameManager : MonoBehaviour
     public int LvlNum {get{return lvlNum;}}
 
     public bool PlayerFellOutOfWorld {get{return playerFellOutOfWorld;} set{playerFellOutOfWorld = value;}}
+    public string SceneName {get{return sceneName;}}
 }

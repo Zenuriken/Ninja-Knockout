@@ -28,6 +28,10 @@ PrefabInstance:
       value: -0.65
       objectReference: {fileID: 0}
     - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
+      propertyPath: dmg
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1448796908, guid: 6ee4a750a42495947aa3c3b60ca2b4e4, type: 3}
       propertyPath: spawnDelay
       value: 0.5
       objectReference: {fileID: 0}

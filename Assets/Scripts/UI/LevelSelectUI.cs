@@ -17,7 +17,7 @@ public class LevelSelectUI : MonoBehaviour
     }
 
     private void Start() {
-        coins.text = PlayerPrefs.GetInt("coins").ToString();
+        coins.text =  PlayerPrefs.GetInt("gold").ToString();
         int currLvl = PlayerPrefs.GetInt("currLvl");
         for (int i = 0; i < levels.Count; i++) {
             if (i > currLvl) break;

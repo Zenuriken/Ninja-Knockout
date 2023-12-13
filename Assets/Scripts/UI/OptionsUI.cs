@@ -9,6 +9,7 @@ public class OptionsUI : MonoBehaviour
     [SerializeField] Button showTimerYesBttn;
     [SerializeField] Button showTimerNoBttn;
     [SerializeField] Slider volSlider;
+    [SerializeField] GameObject mainMenuPrompt;
 
     private void Start() {
         ShowTimer(PlayerPrefs.GetInt("showTimer") == 1);
@@ -39,6 +40,11 @@ public class OptionsUI : MonoBehaviour
 
     public void SetVolume() {
         GameManager.singleton.SetVolume(volSlider.value);
+    }
+
+    public void ToggleMainMenuPrompt() {
+        bool isActive = mainMenuPrompt.activeInHierarchy;
+        mainMenuPrompt.SetActive(!isActive);
     }
 
     public void GoToMainMenu() {
