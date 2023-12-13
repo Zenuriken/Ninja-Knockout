@@ -15,8 +15,8 @@ public class GameManager : MonoBehaviour
     [Header("Game Variables")]
     [SerializeField][Tooltip("Whether tutorial popups are enabled")]
     private bool tutorialEnabled;
-    [SerializeField][Tooltip("Whether a detection will reset the player to the last checkpoint.")]
-    public bool detectionAllowed;
+    // [SerializeField][Tooltip("Whether a detection will reset the player to the last checkpoint.")]
+    // public bool detectionAllowed;
     [Space(5)]
     #endregion
 
@@ -47,11 +47,11 @@ public class GameManager : MonoBehaviour
     [Space(5)]
     #endregion
 
-    private GameObject campFires;
+    // private GameObject campFires;
     private GameObject enemies;
     private GameObject breakables;
     private List<string> shownTutorials; 
-    private Dictionary<string, bool> campFireDict;
+    // private Dictionary<string, bool> campFireDict;
     private bool isFading;
     private bool hasDetectionScreen;
 
@@ -69,6 +69,14 @@ public class GameManager : MonoBehaviour
     private bool showTimer;
 
     private int lvlNum;
+    private string sceneName;
+
+    private float lastRecordedTimeScale;
+    private bool optionsOn;
+
+    private Vector3 spawnPos;
+
+    private bool playerFellOutOfWorld;
 
     private void Awake() {
         if (singleton != null && singleton != this) { 
@@ -77,7 +85,7 @@ public class GameManager : MonoBehaviour
             singleton = this;
             DontDestroyOnLoad(this.gameObject);
             InitializeMapping();
-            campFireDict = new Dictionary<string, bool>();
+            // campFireDict = new Dictionary<string, bool>();
             shownTutorials = new List<string>();
         }
     }
@@ -91,18 +99,18 @@ public class GameManager : MonoBehaviour
     // called second
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        string sceneName = scene.name;
+        sceneName = scene.name;
 
         if (sceneName == "TitleScreen") {
             MusicManager.singleton.PlayAudio("Adventure");
             DefineStates();
         } else {
-            campFires = GameObject.Find("CampFires");
-            if (campFireDict.Count > 0) {
-                SetCampFires();
-            } else {
-                UpdateCampFireList();
-            }
+            // campFires = GameObject.Find("CampFires");
+            // if (campFireDict.Count > 0) {
+            //     SetCampFires();
+            // } else {
+            //     UpdateCampFireList();
+            // }
             enemies = GameObject.Find("Enemies");
             breakables = GameObject.Find("Breakables");
 
@@ -110,7 +118,13 @@ public class GameManager : MonoBehaviour
             totalSupplies = breakables.transform.childCount;
 
             numDetectionsAllowed = 3;
-        }  
+        } 
+
+        // if (sceneName == "Level0") {
+        //     SetDetectionAllowed(false);
+        // } else if (sceneName == "Level2") {
+        //     SetDetectionAllowed(true);
+        // }
     }
 
     // called third
@@ -127,7 +141,6 @@ public class GameManager : MonoBehaviour
     private void FixedUpdate() {
         if (!timerActive) return;
         inGameTime += Time.deltaTime;
-        if (!showTimer) return;
         string time = CalculateTime(inGameTime);
         LevelUI.singleton.UpdateTimer(time);
     }
@@ -144,9 +157,10 @@ public class GameManager : MonoBehaviour
     }
 
     public void ShowTimer(bool state) {
-        showTimer = state;
         PlayerPrefs.SetInt("showTimer", state ? 1 : 0);
-        Debug.Log("Show timer: " + showTimer);
+        if (sceneName != "TitleScreen") {
+            LevelUI.singleton.ShowTimer(state);
+        }
     }
     
     public void SetVolume(float vol) {
@@ -165,13 +179,13 @@ public class GameManager : MonoBehaviour
         if (!PlayerPrefs.HasKey("showTimer")) PlayerPrefs.SetInt("showTimer", 0);
 
         if (!PlayerPrefs.HasKey("lvl0_stars")) PlayerPrefs.SetInt("lvl0_stars", 0);
-        if (!PlayerPrefs.HasKey("lvl0_time")) PlayerPrefs.SetFloat("lvl0_time", 0f);
+        if (!PlayerPrefs.HasKey("lvl0_time")) PlayerPrefs.SetFloat("lvl0_time", float.MaxValue);
 
         if (!PlayerPrefs.HasKey("lvl1_stars")) PlayerPrefs.SetInt("lvl1_stars", 0);
-        if (!PlayerPrefs.HasKey("lvl1_time")) PlayerPrefs.SetFloat("lvl1_time", 0f);
+        if (!PlayerPrefs.HasKey("lvl1_time")) PlayerPrefs.SetFloat("lvl1_time", float.MaxValue);
 
-        if (!PlayerPrefs.HasKey("lvl2_stars")) PlayerPrefs.SetInt("lvl2_stars", 0);
-        if (!PlayerPrefs.HasKey("lvl2_time")) PlayerPrefs.SetFloat("lvl2_time", 0f);
+        // if (!PlayerPrefs.HasKey("lvl2_stars")) PlayerPrefs.SetInt("lvl2_stars", 0);
+        // if (!PlayerPrefs.HasKey("lvl2_time")) PlayerPrefs.SetFloat("lvl2_time", 0f);
     }
 
     public void DeleteAllStates() {
@@ -185,7 +199,7 @@ public class GameManager : MonoBehaviour
         lvlToMusic["TitleScreen"] = "Adventure";
         lvlToMusic["Level0"] = "Traveler";
         lvlToMusic["Level1"] = "Traveler";
-        lvlToMusic["Level2"] = "Traveler";
+        // lvlToMusic["Level2"] = "Traveler";
     }
 
     public void LoadLevel(string lvlName) {
@@ -200,20 +214,20 @@ public class GameManager : MonoBehaviour
         tutorialEnabled = status;
     }
 
-    // Updates the camp fire dictionary with the activation status of all the campfires.
-    public void UpdateCampFireList() {
-        foreach (Transform child in campFires.transform) {
-            campFireDict[child.name] = child.GetComponent<CampFire>().HasActivated();
-        }
-    }
+    // // Updates the camp fire dictionary with the activation status of all the campfires.
+    // public void UpdateCampFireList() {
+    //     foreach (Transform child in campFires.transform) {
+    //         campFireDict[child.name] = child.GetComponent<CampFire>().HasActivated();
+    //     }
+    // }
 
-    // Sets the activation status of all the campfires in the scene.
-    public void SetCampFires() {
-        foreach (Transform child in campFires.transform) {
-            CampFire campFire = child.GetComponent<CampFire>();
-            campFire.SetHasActivated(campFireDict[child.name]);
-        }
-    }
+    // // Sets the activation status of all the campfires in the scene.
+    // public void SetCampFires() {
+    //     foreach (Transform child in campFires.transform) {
+    //         CampFire campFire = child.GetComponent<CampFire>();
+    //         campFire.SetHasActivated(campFireDict[child.name]);
+    //     }
+    // }
 
     public void IncreaseGoldBy(int num) {
         gold += num;
@@ -223,16 +237,16 @@ public class GameManager : MonoBehaviour
 
     // Fades in detection screen if detection is not allowed and player has not died.
     public void PlayerDetected() {
-        if (!detectionAllowed && PlayerController.singleton.GetPlayerHealth() > 0) {
-            StartCoroutine("DetectionScreen");
-        }
+        // if (!detectionAllowed && PlayerController.singleton.GetPlayerHealth() > 0) {
+        //     StartCoroutine("DetectionScreen");
+        // }
         numDetections += 1;
     }
 
-    // Sets the detectionAllowed variable to true.
-    public void SetDetectionAllowed(bool state) {
-        detectionAllowed = state;
-    }
+    // // Sets the detectionAllowed variable to true.
+    // public void SetDetectionAllowed(bool state) {
+    //     detectionAllowed = state;
+    // }
 
     // Activates the black movie bars UI for cutscenes.
     public void DropBars(bool state) {
@@ -279,26 +293,56 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    IEnumerator LoadLevelCoroutine(string lvlName) {
+    // Opens the options menu.
+    public void ToggleOptions() {
+        optionsOn = !optionsOn;
+        LevelUI.singleton.SetOptionsMenu(optionsOn);
+
+        if (optionsOn) {
+            lastRecordedTimeScale = Time.timeScale;
+            Time.timeScale = 0f;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            MusicManager.singleton.Pause();
+        } else {
+            Time.timeScale = lastRecordedTimeScale;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            MusicManager.singleton.UnPause();
+        }
+    }
+
+    public void SetSpawnLocation(Vector3 pos) {
+        spawnPos = pos;
+    }
+
+    public void RespawnPlayer() {
+        PlayerController.singleton.Respawn(spawnPos);
+        playerFellOutOfWorld = false;
+    }
+
+    IEnumerator LoadLevelCoroutine(string lvl) {
+
+        // campFireDict.Clear();
+
         GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
         canvas.SetActive(false);
-    
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         MusicManager.singleton.FadeOutAudio();
         yield return StartCoroutine("FadeOut");
         // PlayerController.singleton.Reset(true);
-        SceneManager.LoadScene(lvlName);
+        SceneManager.LoadScene(lvl);
         MusicManager.singleton.Stop();
-        MusicManager.singleton.FadeInAudio(lvlToMusic[lvlName]);
+        MusicManager.singleton.FadeInAudio(lvlToMusic[lvl]);
         yield return StartCoroutine("FadeIn");
 
-        if (lvlName == "TitleScreen") {
+        if (lvl == "TitleScreen") {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         } else {
             InputManager.singleton.PlayerInputEnabled = true;
-            lvlNum = int.Parse(lvlName.Substring(lvlName.Length - 1));
+            lvlNum = int.Parse(lvl.Substring(lvl.Length - 1));
             StartTimer();
         }
     }
@@ -306,46 +350,47 @@ public class GameManager : MonoBehaviour
     //////////////////////////
 
     // Fades in the detection screen.
-    IEnumerator DetectionScreen() {
-        hasDetectionScreen = true;
-        Time.timeScale = 0.25f;
-        // Fade in the detection screen
-        yield return new WaitForSeconds(detectionScreenDelay);
-        for (float alpha = 0f; alpha <= 1f; alpha += Time.deltaTime * detectionScreenSpeed) {
-            detectedScreenImg.color = new Color(0.2f, 0f, 0f, alpha);
-            detectedTxt.alpha = alpha;
-            yield return new WaitForEndOfFrame();
-        }
-        detectedScreenImg.color = new Color(0.2f, 0f, 0f, 1f);
-        detectedTxt.alpha = 1f;
+    // IEnumerator DetectionScreen() {
+    //     hasDetectionScreen = true;
+    //     Time.timeScale = 0.25f;
+    //     lastRecordedTimeScale = Time.timeScale;
 
-        // While screen is covered, reset the player to last spawn point.
-        PlayerController.singleton.Respawn();
-        UpdateCampFireList();
+    //     // Fade in the detection screen
+    //     yield return new WaitForSeconds(detectionScreenDelay);
+    //     for (float alpha = 0f; alpha <= 1f; alpha += Time.deltaTime * detectionScreenSpeed) {
+    //         detectedScreenImg.color = new Color(0.2f, 0f, 0f, alpha);
+    //         detectedTxt.alpha = alpha;
+    //         yield return new WaitForEndOfFrame();
+    //     }
+    //     detectedScreenImg.color = new Color(0.2f, 0f, 0f, 1f);
+    //     detectedTxt.alpha = 1f;
 
-        // TODO: Instead of loading the screen I should reset the player and have some sort of mapping to keep track of 
-        // what enemies have been killed already.
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    //     // While screen is covered, reset the player to last spawn point.
+    //     UpdateCampFireList();
 
+    //     // TODO: Instead of loading the screen I should reset the player and have some sort of mapping to keep track of 
+    //     // what enemies have been killed already.
+    //     SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
-        // Fade out the detection screen
-        yield return new WaitForSeconds(detectionScreenDelay * 2.5f);
-        for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * detectionScreenSpeed) {
-            detectedScreenImg.color = new Color(0.2f, 0f, 0f, alpha);
-            detectedTxt.alpha = alpha;
-            yield return new WaitForEndOfFrame();
-        }
-        detectedScreenImg.color = new Color(0f, 0f, 0f, 0f);
-        detectedTxt.alpha = 0f;
-        InputManager.singleton.PlayerInputEnabled = true;
-        Time.timeScale = 1f;
-        hasDetectionScreen = false;
-    }
+    //     // Fade out the detection screen
+    //     yield return new WaitForSeconds(detectionScreenDelay * 2.5f);
+    //     for (float alpha = 1f; alpha > 0f; alpha -= Time.deltaTime * detectionScreenSpeed) {
+    //         detectedScreenImg.color = new Color(0.2f, 0f, 0f, alpha);
+    //         detectedTxt.alpha = alpha;
+    //         yield return new WaitForEndOfFrame();
+    //     }
+    //     detectedScreenImg.color = new Color(0f, 0f, 0f, 0f);
+    //     detectedTxt.alpha = 0f;
+    //     InputManager.singleton.PlayerInputEnabled = true;
+    //     Time.timeScale = 1f;
+    //     lastRecordedTimeScale = Time.timeScale;
+    //     hasDetectionScreen = false;
+    // }
 
-    // Returns whether the screen currently has detection screen.
-    public bool HasDetectionScreen() {
-        return hasDetectionScreen;
-    }
+    // // Returns whether the screen currently has detection screen.
+    // public bool HasDetectionScreen() {
+    //     return hasDetectionScreen;
+    // }
 
     // Returns whether the tutorial is enabled.
     public bool TutorialIsEnabled() {
@@ -397,4 +442,6 @@ public class GameManager : MonoBehaviour
     public float InGameTime {get{return inGameTime;}}
 
     public int LvlNum {get{return lvlNum;}}
+
+    public bool PlayerFellOutOfWorld {get{return playerFellOutOfWorld;} set{playerFellOutOfWorld = value;}}
 }

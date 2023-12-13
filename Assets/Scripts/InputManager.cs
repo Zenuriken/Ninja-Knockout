@@ -35,7 +35,7 @@ public class InputManager : MonoBehaviour
     private bool downHolding;
     private bool closePressed;
     private bool continuePressed;
-
+    private bool escapePressed;
     private float xInput;
     
     private void Awake() {
@@ -52,7 +52,9 @@ public class InputManager : MonoBehaviour
     {
         continuePressed = Input.anyKeyDown;
         closePressed = Input.GetKeyDown(enterKey);
+        escapePressed = Input.GetKeyDown(escapeKey);
         if (closePressed) LevelUI.singleton.ExitPopUp();
+        if (escapePressed) GameManager.singleton.ToggleOptions();
 
         if (playerInputEnabled) {
             xInput = Input.GetAxisRaw("Horizontal");

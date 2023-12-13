@@ -19,7 +19,7 @@ public class CutSceneTrigger : MonoBehaviour
             InputManager.singleton.PlayerInputEnabled = false;
             LevelUI.singleton.HidePlayerStatus(true);
             GameManager.singleton.DropBars(true);
-            GameManager.singleton.SetDetectionAllowed(true);
+            // GameManager.singleton.SetDetectionAllowed(true);
             enemy.SetActive(true);
         }
         StartCoroutine("UnpausePlayer");

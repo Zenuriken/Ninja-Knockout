@@ -19544,7 +19544,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lightUpSpeed: 1
-  regenTime: 4
+  regenTime: 2
   hasActivated: 0
 --- !u!1 &3517757256705640018
 GameObject:

@@ -32,6 +32,8 @@ public class LevelUI : MonoBehaviour
     private GameObject dialogue;
     [SerializeField][Tooltip("Level Stats GameObject")]
     private GameObject levelStats;
+    [SerializeField][Tooltip("Level Stats GameObject")]
+    private GameObject optionsPopUp;
     [SerializeField]
     private GameObject UISounds;
     #endregion
@@ -50,7 +52,6 @@ public class LevelUI : MonoBehaviour
     private RawImage currShurikenBackgroundSprite;
     private RawImage currShurikenSprite;
     private RawImage tutorialImg;
-    private Image enterPromptImg;
     private GameObject enterPrompt;
     private RawImage goldSprite;
     private TMP_Text goldTxt;
@@ -73,7 +74,6 @@ public class LevelUI : MonoBehaviour
             currShurikenBackgroundSprite = playerStatus.transform.GetChild(3).GetComponent<RawImage>();
             currShurikenSprite = playerStatus.transform.GetChild(4).GetComponent<RawImage>();
             tutorialImg = tutorialPopUp.transform.GetChild(0).GetComponent<RawImage>();
-            enterPromptImg = tutorialPopUp.transform.GetChild(1).GetComponent<Image>();
             enterPrompt = tutorialPopUp.transform.GetChild(1).gameObject;
 
             goldSprite = playerStatus.transform.GetChild(5).GetComponent<RawImage>();
@@ -87,13 +87,25 @@ public class LevelUI : MonoBehaviour
 
     private void Start() {
         UpdateGold(PlayerPrefs.GetInt("coins"));
+        ShowTimer(PlayerPrefs.GetInt("showTimer") == 1);
     }
     
     #region Public Function
+    // Toggles on the options menu.
+    public void SetOptionsMenu(bool state) {
+        optionsPopUp.SetActive(state);
+    }
+
     // Updates the in game timer UI.
     public void UpdateTimer(string time) {
         timerTxt.text = time;
     }
+
+    // Chooses whether the timer text is enabled.
+    public void ShowTimer(bool state) {
+        timerTxt.enabled = state;
+    }
+
     // Increases the player's score by amount.
     public void UpdateGold(int amount) {
         pickUpTime = Time.time;
@@ -179,7 +191,7 @@ public class LevelUI : MonoBehaviour
     public void RemoveTutorialPopUp() {
         StopAllCoroutines();
         tutorialImg.color = new Color(1f, 1f, 1f, 0f);
-        // enterPromptImg.color = new Color(1f, 1f, 1f, 0f);
+        enterPrompt.SetActive(false);
         tutorialPopUp.SetActive(false);
         tutorialImg.texture = null;
         isShowingTutorialPopUp = false;

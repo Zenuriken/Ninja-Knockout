@@ -830,36 +830,36 @@ public class PlayerController : MonoBehaviour {
         return healthScript.GetHealth();
     }
 
-    public void SetCampFirePos(Vector2 pos) {
-        lastCampFirePos = pos;
-    }
+    // public void SetCampFirePos(Vector2 pos) {
+    //     lastCampFirePos = pos;
+    // }
 
-    // Reset the player to the last campfire position.
-    public void Reset(bool justStarted) {
-        InputManager.singleton.PlayerInputEnabled = false;        
-        alertedNum = 0;
-        playerRB.velocity = Vector2.zero;
-        playerRB.position = (justStarted) ? Vector2.zero : lastCampFirePos;
-        numShurikens = startingShurikens;
-        healthScript.ResetHealth(justStarted);
-        LevelUI.singleton.UpdateShurikenNum(numShurikens);
+    // // Reset the player to the last campfire position.
+    // public void Reset(bool justStarted) {
+    //     InputManager.singleton.PlayerInputEnabled = false;        
+    //     alertedNum = 0;
+    //     playerRB.velocity = Vector2.zero;
+    //     playerRB.position = (justStarted) ? Vector2.zero : lastCampFirePos;
+    //     numShurikens = startingShurikens;
+    //     healthScript.ResetHealth(justStarted);
+    //     LevelUI.singleton.UpdateShurikenNum(numShurikens);
 
-        skillShotSprite.enabled = false;
-        wallSkillShotSprite.enabled = false;
-        numCovered = 0;
+    //     skillShotSprite.enabled = false;
+    //     wallSkillShotSprite.enabled = false;
+    //     numCovered = 0;
 
-        if (lastTarget != null) {
-            lastTarget.SetHighLight(false);
-            lastTarget = null;
-        }
-    }
+    //     if (lastTarget != null) {
+    //         lastTarget.SetHighLight(false);
+    //         lastTarget = null;
+    //     }
+    // }
 
-    // Respawns the player to the last saved game state.
-    public void Respawn() {
+    // // Respawns the player to the last saved game state.
+    public void Respawn(Vector3 spawnPos) {
         InputManager.singleton.PlayerInputEnabled = false;     
         alertedNum = 0;
         playerRB.velocity = Vector2.zero;
-        playerRB.position = spawnLocation;
+        playerRB.position = spawnPos;
 
         skillShotSprite.enabled = false;
         wallSkillShotSprite.enabled = false;
@@ -871,10 +871,10 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    // Saves the last game state of the player.
-    public void SetSpawnLocation(Vector2 location) {
-        spawnLocation = location;
-    }
+    // // Saves the last game state of the player.
+    // public void SetSpawnLocation(Vector2 location) {
+    //     spawnLocation = location;
+    // }
 
     // Increases Health by the specified amount.
     public void IncreaseHealthBy(int num) {

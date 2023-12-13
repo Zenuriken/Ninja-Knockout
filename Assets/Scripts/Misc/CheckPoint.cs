@@ -6,7 +6,7 @@ public class CheckPoint : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.tag == "Player") {
-            PlayerController.singleton.SetSpawnLocation(other.transform.position);
+            GameManager.singleton.SetSpawnLocation(other.transform.position);
         }
     }
 }

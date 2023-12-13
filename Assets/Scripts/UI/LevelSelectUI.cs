@@ -22,11 +22,16 @@ public class LevelSelectUI : MonoBehaviour
         for (int i = 0; i < levels.Count; i++) {
             if (i > currLvl) break;
             string currStars = $"lvl{i}_stars";
-            // string currTime = $"lvl{i}_time";
-            Button bttn = levels[i].transform.GetChild(0).GetComponent<Button>();
             Image starsImg = levels[i].transform.GetChild(1).GetComponent<Image>();
-            bttn.interactable = true;
             starsImg.sprite = stars[PlayerPrefs.GetInt(currStars)];
+
+            Button bttn = levels[i].transform.GetChild(0).GetComponent<Button>();
+            bttn.interactable = true;
+
+            string currTime = $"lvl{i}_time";
+            TMP_Text timeTxt = levels[i].transform.GetChild(2).GetComponent<TMP_Text>();
+            float time = PlayerPrefs.GetFloat(currTime);
+            timeTxt.text = (time < float.MaxValue) ? GameManager.singleton.CalculateTime(time) : "";
         }
     }
 

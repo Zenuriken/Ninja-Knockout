@@ -46,23 +46,24 @@ public class Health : MonoBehaviour
     }
 
     // Controls the player's death animation.
-    IEnumerator Death() {
+    private void Death() {
         hasDied = true;
         // 7 = Player Layer, 9 = Enemy Layer
         Physics2D.IgnoreLayerCollision(7, 9, true);
         Physics2D.IgnoreLayerCollision(0, 9, true);
         playerRB.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
         playerScript.SetHasDied(true);
-        yield return GameManager.singleton.StartCoroutine("FadeOut");
-        playerScript.Reset(false);
-        yield return GameManager.singleton.StartCoroutine("FadeIn");
-        InputManager.singleton.PlayerInputEnabled = true;
+        GameManager.singleton.LoadLevel("TitleScreen");
+        // yield return GameManager.singleton.StartCoroutine("FadeOut");
+        // playerScript.Reset(false);
+        // yield return GameManager.singleton.StartCoroutine("FadeIn");
+        // InputManager.singleton.PlayerInputEnabled = true;
     }
 
     // Respawns the player when falling out of bounds.
     IEnumerator OutOfBoundsRespawn() {
         yield return GameManager.singleton.StartCoroutine("FadeOut");
-        playerScript.Respawn();
+        GameManager.singleton.RespawnPlayer();
         yield return GameManager.singleton.StartCoroutine("FadeIn");
         InputManager.singleton.PlayerInputEnabled = true;
     }
@@ -122,7 +123,7 @@ public class Health : MonoBehaviour
 
             // Kill the player
             if (currHealth <= 0) {
-                StartCoroutine("Death");
+                Death();
                 return;
             }
 
@@ -138,7 +139,7 @@ public class Health : MonoBehaviour
         }
     }
 
-    // Decreases the player's health when interacting with environment
+    // Decreases the player's health when falling out of the map.
     public void TakeEnvironDmg(int x) {
         currHealth -= x;
         LevelUI.singleton.UpdateHealth(currHealth);
@@ -147,15 +148,18 @@ public class Health : MonoBehaviour
 
         // Kill the player
         if (currHealth <= 0) {
-            StartCoroutine("Death");
+            Death();
             return;
         }
 
         // Respawn the player
-        if (!GameManager.singleton.HasDetectionScreen()) {
-            sounds.Play("Grunt");
-            StartCoroutine("OutOfBoundsRespawn");
-        }
+        // if (!GameManager.singleton.HasDetectionScreen()) {
+        sounds.Play("Grunt");
+
+        GameManager.singleton.PlayerFellOutOfWorld = true;
+
+        StartCoroutine("OutOfBoundsRespawn");
+        
     }
 
     // Sets the players health to the specified number

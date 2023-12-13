@@ -48,8 +48,11 @@ public class CampFire : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.tag == "Player" && !isActive) {
             StartCoroutine("LightUp");
-            PlayerController.singleton.SetCampFirePos(new Vector2(pos.x - 2f, pos.y + 1f));
-            PlayerController.singleton.SetSpawnLocation(new Vector2(pos.x - 2f, pos.y + 1f));
+
+            GameManager.singleton.SetSpawnLocation(new Vector2(pos.x - 2f, pos.y + 1f));
+
+            // PlayerController.singleton.SetCampFirePos(new Vector2(pos.x - 2f, pos.y + 1f));
+            // PlayerController.singleton.SetSpawnLocation(new Vector2(pos.x - 2f, pos.y + 1f));
         }
     }
 

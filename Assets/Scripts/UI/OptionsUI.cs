@@ -14,12 +14,14 @@ public class OptionsUI : MonoBehaviour
         ShowTimer(PlayerPrefs.GetInt("showTimer") == 1);
         volSlider.value = PlayerPrefs.GetFloat("volume");
     }
-    // Toggles the prompt asking if tutorial pop ups should be enabled.
+
+    // Toggles the prompt asking to erase all data.
     public void ToggleResetPrompt() {
         bool isActive = resetPrompt.activeInHierarchy;
         resetPrompt.SetActive(!isActive);
     }
 
+    // Deletes all sates.
     public void ResetProgress() {
         GameManager.singleton.DeleteAllStates();
     }
@@ -37,5 +39,10 @@ public class OptionsUI : MonoBehaviour
 
     public void SetVolume() {
         GameManager.singleton.SetVolume(volSlider.value);
+    }
+
+    public void GoToMainMenu() {
+        GameManager.singleton.ToggleOptions();
+        GameManager.singleton.LoadLevel("TitleScreen");
     }
 }

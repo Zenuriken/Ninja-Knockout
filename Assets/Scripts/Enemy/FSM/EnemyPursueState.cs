@@ -32,6 +32,8 @@ public class EnemyPursueState : EnemyState
     public override void CheckSwitchStates() {
         if (ctx.HasDied) {
             SwitchState(factory.Death());
+        } else if (GameManager.singleton.PlayerFellOutOfWorld) {
+            SwitchState(factory.Return());
         } else if (ctx.LostPlayer() && ctx.Unreachable && !ctx.IsStunned) {
             SwitchState(factory.Confused());
         } else if (!ctx.ArcherModeEnabled && !PlayerController.singleton.IsHiding() && CanMelee() && !ctx.IsStunned) {

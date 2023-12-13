@@ -69,6 +69,14 @@ public class MusicManager : MonoBehaviour
         currAudio.Stop();
     }
 
+    public void Pause() {
+        currAudio.Pause();
+    }
+
+    public void UnPause() {
+        currAudio.UnPause();
+    }
+
     public void FadeInAudio(string name) {
         AudioSource audioSource = audioSources[name];
         audioSource.volume = 0f;
